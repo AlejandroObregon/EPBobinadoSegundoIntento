@@ -1,14 +1,14 @@
 ﻿
 /* =========================================================
-   PRODUCTOS
+   MODELOS DE MOTOR
    ========================================================= */
 
--- Obtener todos los productos
-CREATE   PROCEDURE ObtenerProductos
+-- Obtener todos los modelos de motor
+CREATE   PROCEDURE ObtenerModelosMotor
 AS
 BEGIN
     SET NOCOUNT ON;
-    SELECT Id, Nombre, Categoria, Stock, StockMinimo, Precio, Activo
-    FROM Productos
+    SELECT Id, Nombre, Especificaciones
+    FROM ModelosMotor
     ORDER BY Nombre;
 END

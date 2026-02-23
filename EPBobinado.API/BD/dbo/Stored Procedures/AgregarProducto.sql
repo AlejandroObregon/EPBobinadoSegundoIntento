@@ -1,39 +1,17 @@
-﻿-- =============================================
--- Author:		<Author,,Name>
--- Create date: <Create Date,,>
--- Description:	<Description,,>
--- =============================================
-CREATE PROCEDURE AgregarProducto
-	-- Add the parameters for the stored procedure here
-	@Nombre AS NVARCHAR(100)
-    ,@Categoria AS NVARCHAR(50)
-    ,@Stock AS INT
-    ,@StockMinimo AS INT
-    ,@Precio AS DECIMAL(10, 2)
-    ,@Activo AS BIT
+﻿
+-- Agregar un nuevo producto
+CREATE   PROCEDURE AgregarProducto
+    @Nombre NVARCHAR(100),
+    @Categoria NVARCHAR(50),
+    @Stock INT,
+    @StockMinimo INT,
+    @Precio DECIMAL(10,2),
+    @Activo BIT
 AS
 BEGIN
-	-- SET NOCOUNT ON added to prevent extra result sets from
-	-- interfering with SELECT statements.
-	SET NOCOUNT ON;
-
-    -- Insert statements for procedure here
-    BEGIN TRANSACTION
-	    INSERT INTO [dbo].[Productos]
-               ([Nombre]
-               ,[Categoria]
-               ,[Stock]
-               ,[StockMinimo]
-               ,[Precio]
-               ,[Activo])
-         VALUES
-               (@Nombre
-                ,@Categoria
-                ,@Stock
-                ,@StockMinimo
-                ,@Precio
-                ,@Activo)
-
-        SELECT SCOPE_IDENTITY() AS Id
-    COMMIT TRANSACTION
+    SET NOCOUNT ON;
+    INSERT INTO Productos (Nombre, Categoria, Stock, StockMinimo, Precio, Activo)
+    VALUES (@Nombre, @Categoria, @Stock, @StockMinimo, @Precio, @Activo);
+    
+    SELECT SCOPE_IDENTITY() AS Id;
 END

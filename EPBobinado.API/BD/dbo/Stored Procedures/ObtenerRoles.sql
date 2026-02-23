@@ -1,14 +1,14 @@
 ﻿
 /* =========================================================
-   PRODUCTOS
+   ROLES
    ========================================================= */
 
--- Obtener todos los productos
-CREATE   PROCEDURE ObtenerProductos
+-- Obtener todos los roles
+CREATE   PROCEDURE ObtenerRoles
 AS
 BEGIN
     SET NOCOUNT ON;
-    SELECT Id, Nombre, Categoria, Stock, StockMinimo, Precio, Activo
-    FROM Productos
+    SELECT Id, Nombre, Descripcion
+    FROM Roles
     ORDER BY Nombre;
 END

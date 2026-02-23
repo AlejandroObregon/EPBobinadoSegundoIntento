@@ -1,14 +1,14 @@
 ﻿
 /* =========================================================
-   PRODUCTOS
+   CLIENTES
    ========================================================= */
 
--- Obtener todos los productos
-CREATE   PROCEDURE ObtenerProductos
+-- Obtener todos los clientes
+CREATE   PROCEDURE ObtenerClientes
 AS
 BEGIN
     SET NOCOUNT ON;
-    SELECT Id, Nombre, Categoria, Stock, StockMinimo, Precio, Activo
-    FROM Productos
+    SELECT Id, Nombre, Telefono, Email, Direccion, Activo, CreadoEn
+    FROM Clientes
     ORDER BY Nombre;
 END
