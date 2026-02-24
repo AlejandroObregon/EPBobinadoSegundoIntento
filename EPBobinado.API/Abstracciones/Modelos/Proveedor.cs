@@ -20,6 +20,6 @@ namespace Abstracciones.Modelos
     {
         public int Id { get; set; }
         public DateTime FechaCreacion { get; set; }
-        public UsuarioResponse? UsuarioCreador { get; set; }
+        public string? UsuarioCreador { get; set; }
     }
 }
