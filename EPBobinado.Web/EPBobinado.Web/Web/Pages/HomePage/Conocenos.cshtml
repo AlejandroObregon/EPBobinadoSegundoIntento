@@ -1,0 +1,110 @@
+﻿@page
+@model Web.Pages.HomePage.ConocenosModel
+@{
+    Layout = "_LayoutUser";
+    ViewData["Title"] = "Conócenos";
+}
+
+<section class="container-xxl my-4 conocenos-wrap">
+    <div class="row g-4">
+        <div class="col-12 col-lg-9">
+            <h1 class="display-4 fw-semibold title-serif mb-4">
+                Lo que Nuestros<br />
+                Usuarios Dicen de<br />
+                FitnessCore
+            </h1>
+
+            <div class="row g-4">
+                <div class="col-12 col-md-4">
+                    <div class="pb-3 border-top quote">
+                        Nunca pensé que podría ser tan constante con el ejercicio. Las
+                        rutinas personalizadas son increíbles y me mantienen motivada.
+                        ¡He notado un cambio enorme en mi energía y mi cuerpo en solo dos meses!
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="pb-3 border-top quote">
+                        Lo que más me gusta es poder registrar todo mi progreso. Ver los
+                        gráficos de fuerza y cómo mejoro mis pesos. La app es súper fácil de
+                        usar y la guía de ejercicios es muy útil.
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="pb-3 border-top quote">
+                        Además del entrenamiento, el módulo de meditación me ha ayudado muchísimo
+                        con el estrés del trabajo. Es un complemento perfecto para mi bienestar
+                        general. ¡Gracias a FitnessCore por una solución tan completa!
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.Comentarios.Any())
+            {
+                <h2 class="h4 mt-5 mb-3 title-serif">Comentarios recientes</h2>
+                <div class="row g-3">
+                    @foreach (var c in Model.Comentarios.Reverse())  
+                    {
+                        <div class="col-12 col-md-6">
+                            <div class="user-comment p-3 rounded-3 border bg-white">
+                                <span class="bi bi-chat-left-quote-fill me-2"></span>@c
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Panel derecho: añadir comentario -->
+        <div class="col-12 col-lg-3">
+            <div class="comment-card rounded-4 p-4">
+                <h3 class="h4 fw-bold text-center mb-3">Añadir un<br />comentario</h3>
+
+                @if (TempData["OkMsg"] is string ok && !string.IsNullOrWhiteSpace(ok))
+                {
+                    <div class="alert alert-success py-2" role="alert">@ok</div>
+                }
+
+                <form method="post" class="d-grid gap-2">
+                    <textarea class="form-control rounded-3"
+                              name="NuevoComentario"
+                              rows="3"
+                              maxlength="250"
+                              placeholder="Escribe tu comentario..."
+                              required></textarea>
+
+                    <button type="submit" class="btn btn-dark rounded-3">
+                        Enviar
+                    </button>
+                </form>
+
+                <small class="text-muted d-block mt-2">
+                    Máx. 250 caracteres.
+                </small>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+
+
+    .title-serif {
+        font-family: Georgia, "Times New Roman", serif;
+        color: #2b2f3b;
+    }
+
+    .quote {
+        color: #313644;
+        line-height: 1.65;
+        border-color: #c7c7d6 !important;
+    }
+
+    .comment-card {
+        background: #e2eaf1; 
+        box-shadow: 0 6px 14px rgba(20, 20, 43, 0.08);
+    }
+
+    .user-comment {
+        color: #2e3341;
+    }
+</style>

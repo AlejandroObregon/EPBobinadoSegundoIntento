@@ -1,0 +1,58 @@
+﻿@page
+@model Web.Pages.HomePage.ProgresoModel
+@{
+    Layout = "_LayoutUser";
+}
+
+<section class="container-xxl my-4">
+    <div class="p-4 p-md-5 rounded-4">
+        <div class="row g-5 align-items-center">
+            <!-- Imagen -->
+            <div class="col-12 col-lg-6">
+                <div class="ratio ratio-4x3 rounded-5 overflow-hidden shadow-sm">
+                    <img src="https://images.unsplash.com/photo-1549476464-37392f717541?q=80&w=1600&auto=format&fit=crop"
+                         alt="Registra y controla tus avances"
+                         class="w-100 h-100 obj-cover">
+                </div>
+            </div>
+
+            <!-- Texto -->
+            <div class="col-12 col-lg-6">
+                <h1 class="display-5 fw-semibold lh-sm mb-3"
+                    style="font-family: Georgia, 'Times New Roman', serif; color:#253247;">
+                    Tu Progreso al Alcance de tu Mano: <br />
+                    Registra y Controla tus Avances
+                </h1>
+
+                <p class="text-secondary fs-5">
+                    En FitnessCore, sabemos que ver tus resultados es la mayor motivación.
+                    Por eso, hemos creado herramientas intuitivas para que lleves un registro
+                    detallado y un control exhaustivo de tu progreso.
+                </p>
+
+                <p class="text-secondary fs-6">
+                    Podrás anotar tu historial de entrenamientos, registrar tus avances
+                    corporales (peso, medidas, etc.) y visualizar tu rendimiento a través de
+                    gráficos claros.
+                </p>
+
+                <p class="text-secondary fs-6 mb-4">
+                    Observa cómo evolucionas, celebra cada logro y ajusta tus metas con
+                    datos reales. Tu camino hacia una mejor versión de ti mismo, paso a
+                    paso, y con todo el control.
+                </p>
+
+                <a href="/Index"
+                   class="btn btn-outline-dark px-4 py-2 rounded-3 fw-semibold">
+                    Regístrate aquí
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .obj-cover {
+        object-fit: cover;
+    }
+</style>

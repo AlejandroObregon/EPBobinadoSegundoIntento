@@ -1,0 +1,110 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Web</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Web.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light custom-header border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+
+                <!-- Logo -->
+                <a class="navbar-brand d-flex align-items-center" asp-page="/HomePage/HomePage">
+                    <img src="~/img/Photoroom.png" class="logo-navbar me-2" alt="FitnessCore" asp-append-version="true" />
+                </a>
+
+
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarUser" aria-controls="navbarUser"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarUser" aria-controls="navbarUser"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-sm-0">
+                        <li class="nav-item">
+                            <a class="nav-link custom-nav-button" asp-area="" asp-page="/Index">Inicio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link custom-nav-button" asp-page="/Entrenamiento/Index">Entrenamiento</a>
+                        </li>
+
+
+                        <li class="nav-item">
+                            <a class="nav-link custom-nav-button" asp-area="" asp-page="/ProgresoCorporal/Index">Estadísticas</a>
+                        </li>
+                        <a class="nav-link custom-nav-button" asp-page="/ConsumoAgua/Index">Consumo de Agua</a>
+
+                        <li class="nav-item dropdown">
+                        </li>
+                        </li>
+ 
+                        </li>
+                        <a class="nav-link custom-nav-button" asp-page="/Meditacion/Index">Catalogo de Meditaciones</a>
+
+                        <li class="nav-item dropdown">
+
+                        </li>
+                    </ul>
+
+
+                    <div class="d-flex align-items-center">
+                        <a asp-page="@(User.IsInRole("Admin") ? "/Inicio_de_Sesión/Admin/Index" : "/Inicio_de_Sesión/Usuario/Index")">
+                            <img src="https://cdn-icons-png.flaticon.com/512/1177/1177568.png"
+                                 alt="Perfil"
+                                 width="40"
+                                 height="40"
+                                 class="rounded-circle" />
+                        </a>
+
+
+                        <div class="d-flex align-items-center">
+                            <a asp-page="/Inicio_de_Sesión/CerrarSesion"
+                               class="btn btn-outline-danger ms-2">
+                                Cerrar sesión
+                            </a>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </nav>
+    </header>
+
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2025 - Web - <a asp-area="" asp-page="/Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

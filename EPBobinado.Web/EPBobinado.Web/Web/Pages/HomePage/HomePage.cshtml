@@ -1,0 +1,654 @@
+﻿@page
+@model Web.Pages.HomePageModel
+@{
+    Layout = "_LayoutUser";
+    ViewData["Title"] = "Mi Taller - Dashboard";
+    var userName = HttpContext.Session.GetString("UsuarioNombre") ?? "Juan Pérez";
+}
+
+<div class="dashboard-page">
+
+    <!-- ── WELCOME ── -->
+    <div class="welcome-section">
+        <div class="welcome-text">
+            <h1>¡Bienvenido, @userName! 👋</h1>
+            <p>Aquí está el resumen de tus motores y servicios</p>
+        </div>
+        <button class="btn-primary">
+            🏍️ Registrar Nuevo Motor
+        </button>
+    </div>
+
+    <!-- ── STATS ── -->
+    <div class="stats-grid">
+        <div class="stat-card card-blue">
+            <div class="stat-icon-wrapper">🏍️</div>
+            <div class="stat-details">
+                <h3 class="stat-number">3</h3>
+                <p class="stat-label">Motores Registrados</p>
+                <a href="/cliente-mis-motores" class="stat-link">Ver todos →</a>
+            </div>
+        </div>
+
+        <div class="stat-card card-orange">
+            <div class="stat-icon-wrapper">⏳</div>
+            <div class="stat-details">
+                <h3 class="stat-number">2</h3>
+                <p class="stat-label">Órdenes Activas</p>
+                <a href="/cliente-mis-ordenes" class="stat-link">Ver todas →</a>
+            </div>
+        </div>
+
+        <div class="stat-card card-green">
+            <div class="stat-icon-wrapper">✅</div>
+            <div class="stat-details">
+                <h3 class="stat-number">15</h3>
+                <p class="stat-label">Servicios Completados</p>
+                <a href="/cliente-historial" class="stat-link">Ver historial →</a>
+            </div>
+        </div>
+
+        <div class="stat-card card-purple">
+            <div class="stat-icon-wrapper">🕐</div>
+            <div class="stat-details">
+                <h3 class="stat-number">1</h3>
+                <p class="stat-label">Próximos Mantenimientos</p>
+                <a href="/cliente-mis-ordenes" class="stat-link">Ver detalles →</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── ÓRDENES ACTIVAS ── -->
+    <div class="dashboard-section">
+        <div class="section-header">
+            <h2>📋 Órdenes Activas</h2>
+            <a href="/cliente-mis-ordenes" class="view-all-link">Ver todas →</a>
+        </div>
+
+        <div class="orders-grid">
+
+            <!-- Orden 1 -->
+            <div class="order-card">
+                <div class="order-header">
+                    <div class="order-motor">
+                        <div class="motor-icon">🏍️</div>
+                        <div>
+                            <h3>Yamaha YZF-R1 2020</h3>
+                            <p>Mantenimiento General</p>
+                        </div>
+                    </div>
+                    <span class="status-badge status-progress">⏳ En progreso</span>
+                </div>
+                <div class="order-body">
+                    <div class="order-info-row">
+                        <span class="info-label">Técnico:</span>
+                        <span class="info-value">Carlos Méndez</span>
+                    </div>
+                    <div class="order-info-row">
+                        <span class="info-label">Fecha estimada:</span>
+                        <span class="info-value">15 Feb 2026</span>
+                    </div>
+                    <div class="progress-section">
+                        <div class="progress-header">
+                            <span>Progreso</span>
+                            <span class="progress-percentage">65%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 65%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="order-footer">
+                    <button class="btn-secondary btn-sm">Ver Detalles</button>
+                    <button class="btn-outline btn-sm">Contactar Técnico</button>
+                </div>
+            </div>
+
+            <!-- Orden 2 -->
+            <div class="order-card">
+                <div class="order-header">
+                    <div class="order-motor">
+                        <div class="motor-icon">🏍️</div>
+                        <div>
+                            <h3>Honda CBR 600RR 2019</h3>
+                            <p>Cambio de aceite</p>
+                        </div>
+                    </div>
+                    <span class="status-badge status-pending">⚠️ Pendiente</span>
+                </div>
+                <div class="order-body">
+                    <div class="order-info-row">
+                        <span class="info-label">Técnico:</span>
+                        <span class="info-value">Ana García</span>
+                    </div>
+                    <div class="order-info-row">
+                        <span class="info-label">Fecha estimada:</span>
+                        <span class="info-value">14 Feb 2026</span>
+                    </div>
+                    <div class="progress-section">
+                        <div class="progress-header">
+                            <span>Progreso</span>
+                            <span class="progress-percentage">30%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 30%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="order-footer">
+                    <button class="btn-secondary btn-sm">Ver Detalles</button>
+                    <button class="btn-outline btn-sm">Contactar Técnico</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ── ACTIVIDAD RECIENTE ── -->
+    <div class="dashboard-section">
+        <div class="section-header">
+            <h2>🕐 Actividad Reciente</h2>
+        </div>
+
+        <div class="activity-list">
+            <div class="activity-item">
+                <div class="activity-date">10 Feb</div>
+                <div class="activity-content">
+                    <p class="activity-action">Servicio completado</p>
+                    <p class="activity-motor">Kawasaki Ninja 650</p>
+                </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-date">05 Feb</div>
+                <div class="activity-content">
+                    <p class="activity-action">Nueva orden creada</p>
+                    <p class="activity-motor">Yamaha YZF-R1</p>
+                </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-date">28 Ene</div>
+                <div class="activity-content">
+                    <p class="activity-action">Motor registrado</p>
+                    <p class="activity-motor">Honda CBR 600RR</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    :root {
+        --primary-color: #667eea;
+        --primary-dark: #5568d3;
+        --secondary-color: #764ba2;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --danger-color: #ef4444;
+        --bg-primary: #f8fafc;
+        --bg-secondary: #ffffff;
+        --text-primary: #1e293b;
+        --text-secondary: #64748b;
+        --border-color: #e2e8f0;
+        --shadow-sm: 0 1px 2px 0 rgba(0,0,0,.05);
+        --shadow-md: 0 4px 6px -1px rgba(0,0,0,.1);
+        --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.1);
+        --shadow-xl: 0 20px 25px -5px rgba(0,0,0,.1);
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --transition: all 0.3s ease;
+    }
+
+    .dashboard-page {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        padding: 32px 24px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    /* WELCOME */
+    .welcome-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+        padding: 24px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: var(--radius-lg);
+        color: white;
+    }
+
+    .welcome-text h1 {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .welcome-text p {
+        opacity: .9;
+        font-size: 16px;
+    }
+
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: white;
+        color: var(--primary-color);
+        border: none;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: var(--transition);
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+    /* STATS */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 24px;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+        transition: var(--transition);
+        border: 2px solid transparent;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .stat-card.card-blue {
+            border-color: #dbeafe;
+        }
+
+            .stat-card.card-blue .stat-icon-wrapper {
+                background: linear-gradient(135deg, #3b82f6, #2563eb);
+            }
+
+        .stat-card.card-orange {
+            border-color: #fed7aa;
+        }
+
+            .stat-card.card-orange .stat-icon-wrapper {
+                background: linear-gradient(135deg, #f59e0b, #d97706);
+            }
+
+        .stat-card.card-green {
+            border-color: #d1fae5;
+        }
+
+            .stat-card.card-green .stat-icon-wrapper {
+                background: linear-gradient(135deg, #10b981, #059669);
+            }
+
+        .stat-card.card-purple {
+            border-color: #e9d5ff;
+        }
+
+            .stat-card.card-purple .stat-icon-wrapper {
+                background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            }
+
+    .stat-icon-wrapper {
+        width: 56px;
+        height: 56px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 24px;
+    }
+
+    .stat-number {
+        font-size: 36px;
+        font-weight: 700;
+        color: var(--text-primary);
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+
+    .stat-label {
+        color: var(--text-secondary);
+        font-size: 14px;
+        margin-bottom: 12px;
+    }
+
+    .stat-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        transition: var(--transition);
+    }
+
+        .stat-link:hover {
+            gap: 10px;
+            text-decoration: none;
+        }
+
+    /* SECTIONS */
+    .dashboard-section {
+        margin-bottom: 40px;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+        .section-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+    .view-all-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        transition: var(--transition);
+    }
+
+        .view-all-link:hover {
+            text-decoration: none;
+            opacity: .8;
+        }
+
+    /* ORDER CARDS */
+    .orders-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 24px;
+    }
+
+    .order-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+        transition: var(--transition);
+        border: 1px solid var(--border-color);
+    }
+
+        .order-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+
+    .order-header {
+        padding: 20px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .order-motor {
+        display: flex;
+        gap: 12px;
+        flex: 1;
+    }
+
+    .motor-icon {
+        width: 44px;
+        height: 44px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+
+    .order-motor h3 {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+    }
+
+    .order-motor p {
+        font-size: 14px;
+        color: var(--text-secondary);
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .status-progress {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-pending {
+        background: #fed7aa;
+        color: #c2410c;
+    }
+
+    .order-body {
+        padding: 20px;
+    }
+
+    .order-info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        font-size: 14px;
+    }
+
+    .info-label {
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .info-value {
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+
+    .progress-section {
+        margin-top: 20px;
+    }
+
+    .progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .progress-percentage {
+        color: var(--primary-color);
+    }
+
+    .progress-bar {
+        height: 8px;
+        background: var(--bg-primary);
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        border-radius: 20px;
+        transition: width 0.6s ease;
+    }
+
+    .order-footer {
+        padding: 16px 20px;
+        background: var(--bg-primary);
+        display: flex;
+        gap: 12px;
+    }
+
+    .btn-secondary {
+        flex: 1;
+        padding: 10px 16px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+    .btn-outline {
+        flex: 1;
+        padding: 10px 16px;
+        background: white;
+        color: var(--primary-color);
+        border: 2px solid var(--primary-color);
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+    .btn-sm {
+        font-size: 13px;
+        padding: 8px 14px;
+    }
+
+    /* ACTIVITY */
+    .activity-list {
+        background: white;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+    }
+
+    .activity-item {
+        display: flex;
+        gap: 20px;
+        padding: 20px;
+        border-bottom: 1px solid var(--border-color);
+        transition: var(--transition);
+    }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-item:hover {
+            background: var(--bg-primary);
+        }
+
+    .activity-date {
+        font-weight: 700;
+        color: var(--primary-color);
+        font-size: 14px;
+        min-width: 60px;
+    }
+
+    .activity-action {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+        font-size: 14px;
+    }
+
+    .activity-motor {
+        color: var(--text-secondary);
+        font-size: 14px;
+    }
+
+    /* RESPONSIVE */
+    @@media (max-width: 992px) {
+        .welcome-section {
+            flex-direction: column;
+            gap: 20px;
+            text-align: center;
+        }
+
+        .orders-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .dashboard-page {
+            padding: 20px 16px;
+        }
+
+        .welcome-text h1 {
+            font-size: 24px;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .order-footer {
+            flex-direction: column;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stat-number {
+            font-size: 28px;
+        }
+    }
+</style>
+

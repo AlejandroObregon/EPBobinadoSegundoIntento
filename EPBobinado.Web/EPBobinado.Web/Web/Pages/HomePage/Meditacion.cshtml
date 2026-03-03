@@ -1,0 +1,149 @@
+﻿@page
+@model Web.Pages.HomePage.MeditacionModel
+@{
+    Layout = "_LayoutUser";
+}
+
+<section class="container-xxl py-4 meditacion-hero">
+    <h1 class="display-5 fw-semibold lh-sm mb-4" style="font-family: Georgia, 'Times New Roman', serif;">
+        Encuentra tu Calma <br /> Interior con Meditación
+    </h1>
+
+    <div class="row g-4">
+        <!-- 1 -->
+        <div class="col-12 col-md-4">
+            <div class="card video-card h-100 border-0">
+                <div class="ratio ratio-16x9 video-thumb">
+                    <img src="https://img.youtube.com/vi/_lOpSbsm9y4/hqdefault.jpg"
+                         class="img-fluid" alt="Miniatura: Meditación para Reducir el Estrés" />
+                    <button class="play-btn" data-bs-toggle="modal" data-bs-target="#videoModal" data-video="_lOpSbsm9y4" aria-label="Reproducir: Reducir el estrés">▶</button>
+                </div>
+                <div class="card-body px-0">
+                    <h5 class="card-title">Meditación para Reducir el Estrés Diaria</h5>
+                    <button class="btn btn-outline-dark rounded-3 px-4 ver-video"
+                            data-bs-toggle="modal" data-bs-target="#videoModal" data-video="_lOpSbsm9y4">
+                        Ver video
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2 -->
+        <div class="col-12 col-md-4">
+            <div class="card video-card h-100 border-0">
+                <div class="ratio ratio-16x9 video-thumb">
+                    <img src="https://img.youtube.com/vi/FAk0K00j1ps/hqdefault.jpg"
+                         class="img-fluid" alt="Miniatura: Meditación Guiada para la Conexión Mente-Cuerpo" />
+                    <button class="play-btn" data-bs-toggle="modal" data-bs-target="#videoModal" data-video="FAk0K00j1ps" aria-label="Reproducir: Conexión mente-cuerpo">▶</button>
+                </div>
+                <div class="card-body px-0">
+                    <h5 class="card-title">Meditación Guiada para la Conexión Mente-Cuerpo</h5>
+                    <button class="btn btn-outline-dark rounded-3 px-4 ver-video"
+                            data-bs-toggle="modal" data-bs-target="#videoModal" data-video="FAk0K00j1ps">
+                        Ver video
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3 -->
+        <div class="col-12 col-md-4">
+            <div class="card video-card h-100 border-0">
+                <div class="ratio ratio-16x9 video-thumb">
+                    <img src="https://img.youtube.com/vi/IJTmQzcsz7o/hqdefault.jpg"
+                         class="img-fluid" alt="Miniatura: Meditación para un Descanso Reparador" />
+                    <button class="play-btn" data-bs-toggle="modal" data-bs-target="#videoModal" data-video="IJTmQzcsz7o" aria-label="Reproducir: Descanso reparador">▶</button>
+                </div>
+                <div class="card-body px-0">
+                    <h5 class="card-title">Meditación para un Descanso Reparador</h5>
+                    <button class="btn btn-outline-dark rounded-3 px-4 ver-video"
+                            data-bs-toggle="modal" data-bs-target="#videoModal" data-video="IJTmQzcsz7o">
+                        Ver video
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal de video -->
+<div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="videoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content bg-dark border-0">
+            <button type="button" class="btn-close btn-close-white ms-auto me-2 mt-2" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            <div class="ratio ratio-16x9">
+                <iframe id="videoFrame" src="" title="Meditación" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const modal = document.getElementById('videoModal');
+            const frame = document.getElementById('videoFrame');
+
+            modal.addEventListener('show.bs.modal', function (ev) {
+                const id = ev.relatedTarget.getAttribute('data-video');
+                frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+            });
+
+            modal.addEventListener('hidden.bs.modal', function () {
+                frame.src = ''; // detener reproducción
+            });
+        })();
+    </script>
+}
+
+<style>
+    .meditacion-hero {
+        max-width: 1200px;
+    }
+
+    .video-thumb {
+        position: relative;
+        overflow: hidden;
+        border-radius: 1.5rem;
+    }
+
+        .video-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(.92);
+            transition: transform .25s ease;
+        }
+
+    .video-card:hover .video-thumb img {
+        transform: scale(1.02);
+    }
+
+    .play-btn {
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        border: 0;
+        background: rgba(255,255,255,.92);
+        color: #000;
+        font-size: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 18px rgba(0,0,0,.25);
+    }
+
+        .play-btn:hover {
+            transform: scale(1.05);
+            background: #fff;
+        }
+
+    .card-title {
+        font-family: Georgia, 'Times New Roman', serif;
+        font-size: 1.35rem;
+        color: #2f3442;
+    }
+</style>

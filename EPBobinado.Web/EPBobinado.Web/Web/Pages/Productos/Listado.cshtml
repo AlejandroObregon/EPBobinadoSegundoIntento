@@ -1,0 +1,83 @@
+﻿@page
+@model Web.Pages.Producto.ListadoModel
+@{
+    ViewData["Title"] = "Listado de Productos";
+}
+
+<h2 class="mb-4">Listado de Productos</h2>
+
+@if (TempData["MensajeExito"] != null)
+{
+    <div class="alert alert-success">@TempData["MensajeExito"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<div class="mb-3">
+    <a asp-page="./Agregar" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Agregar Producto
+    </a>
+</div>
+
+@if (Model.Productos == null || !Model.Productos.Any())
+{
+    <div class="alert alert-info">No hay productos registrados.</div>
+}
+else
+{
+    <table class="table table-bordered table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Stock Mínimo</th>
+                <th>Activo</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in Model.Productos)
+            {
+                <tr>
+                    <td>@p.Nombre</td>
+                    <td>@p.Categoria</td>
+                    <td>@p.Precio.ToString("C")</td>
+                    <td>
+                        @if (p.Stock <= p.StockMinimo)
+                        {
+                            <span class="badge bg-danger">@p.Stock</span>
+                        }
+                        else
+                        {
+                            <span>@p.Stock</span>
+                        }
+                    </td>
+                    <td>@p.StockMinimo</td>
+                    <td>
+                        @if (p.Activo)
+                        {
+                            <span class="badge bg-success">Sí</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">No</span>
+                        }
+                    </td>
+                    <td>
+                        <a asp-page="./Editar" asp-route-id="@p.Id" class="btn btn-sm btn-primary">
+                            <i class="bi bi-pencil"></i> Editar
+                        </a>
+                        <a asp-page="./Eliminar" asp-route-id="@p.Id" class="btn btn-sm btn-danger ms-1">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

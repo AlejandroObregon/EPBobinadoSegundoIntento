@@ -1,0 +1,45 @@
+﻿@page "{id:int}"
+@model Web.Pages.Producto.EliminarModel
+@{
+    ViewData["Title"] = "Eliminar Producto";
+}
+
+<h2 class="mb-4">¿Desea eliminar este producto?</h2>
+
+@if (Model.Producto != null)
+{
+    <dl class="row">
+        <dt class="col-sm-3">Nombre</dt>
+        <dd class="col-sm-9">@Model.Producto.Nombre</dd>
+
+        <dt class="col-sm-3">Categoría</dt>
+        <dd class="col-sm-9">@Model.Producto.Categoria</dd>
+
+        <dt class="col-sm-3">Precio</dt>
+        <dd class="col-sm-9">@Model.Producto.Precio.ToString("C")</dd>
+
+        <dt class="col-sm-3">Stock</dt>
+        <dd class="col-sm-9">@Model.Producto.Stock</dd>
+
+        <dt class="col-sm-3">Stock Mínimo</dt>
+        <dd class="col-sm-9">@Model.Producto.StockMinimo</dd>
+
+        <dt class="col-sm-3">Activo</dt>
+        <dd class="col-sm-9">@(Model.Producto.Activo ? "Sí" : "No")</dd>
+    </dl>
+
+    <form method="post">
+        <input type="hidden" name="id" value="@Model.Producto.Id" />
+        <button type="submit" asp-page-handler="Eliminar" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Eliminar
+        </button>
+        <a asp-page="./Listado" class="btn btn-secondary ms-2">
+            <i class="bi bi-arrow-left"></i> Cancelar
+        </a>
+    </form>
+}
+else
+{
+    <div class="alert alert-warning">No se encontró el producto a eliminar.</div>
+    <a asp-page="./Listado" class="btn btn-secondary">Volver al Listado</a>
+}

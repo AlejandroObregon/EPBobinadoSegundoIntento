@@ -1,0 +1,21 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Inicio";
+}
+
+<div class="hero-section d-flex align-items-center justify-content-center">
+    <div class="hero-text text-start text-dark p-4">
+        <h1 class="display-4 fw-bold">Bienvenido a <span class="highlight">FitnessCore</span></h1>
+        <p class="lead mb-4">Tu plataforma integral para el bienestar, salud y rendimiento</p>
+
+        <div class="d-flex flex-column gap-3 w-75">
+            <a class="btn btn-primary btn-lg" asp-page="/Inicio_de_Sesión/IniciarSesion">Iniciar Sesión</a>
+            <a class="btn btn-outline-primary btn-lg" asp-page="/Inicio_de_Sesión/CrearCuenta">Crear Cuenta</a>
+        </div>
+    </div>
+
+    <div class="hero-image flex-grow-1 d-none d-md-block">
+        <img src="https://media.gq.com.mx/photos/6075be056a76594568bc125c/master/w_2560%2Cc_limit/PIERNA.jpg" alt="Ejercicio" class="img-fluid rounded" />
+    </div>
+</div>
