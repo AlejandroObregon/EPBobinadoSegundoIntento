@@ -1,14 +1,14 @@
-﻿
--- Agregar un nuevo motor
-CREATE   PROCEDURE AgregarMotor
-    @ClienteId INT,
-    @ModeloId INT,
-    @NumeroSerie NVARCHAR(100)
+﻿CREATE PROCEDURE AgregarMotor
+    @UsuarioId   INT,
+    @ModeloId    INT,
+    @NumeroSerie NVARCHAR(100) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
-    INSERT INTO Motores (ClienteId, ModeloId, NumeroSerie)
-    VALUES (@ClienteId, @ModeloId, @NumeroSerie);
-    
-    SELECT SCOPE_IDENTITY() AS Id;
+
+    INSERT INTO Motores (UsuarioId, ModeloId, NumeroSerie, CreadoEn)
+    VALUES (@UsuarioId, @ModeloId, @NumeroSerie, GETDATE());
+
+    SELECT SCOPE_IDENTITY();   -- retorna el Id generado
 END
+GO

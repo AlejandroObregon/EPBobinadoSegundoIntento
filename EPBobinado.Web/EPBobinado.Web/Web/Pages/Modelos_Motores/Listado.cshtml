@@ -1,0 +1,60 @@
+﻿@page
+@model Web.Pages.ModeloMotor.ListadoModel
+@{
+    ViewData["Title"] = "Listado de Modelos de Motor";
+}
+@{
+    Layout = "_LayoutUser";
+}
+
+<h2 class="mb-4">Listado de Modelos de Motor</h2>
+
+@if (TempData["MensajeExito"] != null)
+{
+    <div class="alert alert-success">@TempData["MensajeExito"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<div class="mb-3">
+    <a asp-page="Agregar" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Agregar Modelo
+    </a>
+</div>
+
+@if (Model.Modelos == null || !Model.Modelos.Any())
+{
+    <div class="alert alert-info">No hay modelos de motor registrados.</div>
+}
+else
+{
+    <table class="table table-bordered table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Nombre</th>
+                <th>Especificaciones</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var m in Model.Modelos)
+            {
+                <tr>
+                    <td>@m.Nombre</td>
+                    <td>@(string.IsNullOrWhiteSpace(m.Especificaciones) ? "—" : m.Especificaciones)</td>
+                    <td>
+                        <a asp-page="Editar" asp-route-id="@m.Id" class="btn btn-sm btn-primary">
+                            <i class="bi bi-pencil"></i> Editar
+                        </a>
+                        <a asp-page="Eliminar" asp-route-id="@m.Id" class="btn btn-sm btn-danger ms-1">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

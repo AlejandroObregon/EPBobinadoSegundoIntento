@@ -1,0 +1,40 @@
+﻿@page "{id:int}"
+@model Web.Pages.ModeloMotor.EditarModel
+@{
+    ViewData["Title"] = "Editar Modelo de Motor";
+}
+@{
+    Layout = "_LayoutUser";
+}
+
+<h2 class="mb-4">Editar Modelo de Motor</h2>
+
+<form method="post" asp-route-id="@ViewData["ModeloId"]">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="mb-3">
+        <label asp-for="Modelo.Nombre" class="form-label"></label>
+        <input asp-for="Modelo.Nombre" class="form-control" placeholder="Ej: Yamaha YZF-R1 2020" />
+        <span asp-validation-for="Modelo.Nombre" class="text-danger small"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Modelo.Especificaciones" class="form-label"></label>
+        <textarea asp-for="Modelo.Especificaciones" class="form-control" rows="4"
+                  placeholder="Ej: Motor 998cc, 4 cilindros, 200HP..."></textarea>
+        <span asp-validation-for="Modelo.Especificaciones" class="text-danger small"></span>
+    </div>
+
+    <div class="d-flex gap-2 mt-3">
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save"></i> Guardar Cambios
+        </button>
+        <a asp-page="Listado" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Cancelar
+        </a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

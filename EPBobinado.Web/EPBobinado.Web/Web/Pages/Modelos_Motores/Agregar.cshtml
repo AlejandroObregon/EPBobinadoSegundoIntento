@@ -1,0 +1,56 @@
+﻿@page
+@model Web.Pages.ModeloMotor.AgregarModel
+@{
+    ViewData["Title"] = "Agregar Modelo de Motor";
+}
+@{
+    Layout = "_LayoutUser";
+}
+<h2 class="mb-4">Agregar Modelo de Motor</h2>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+    </div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<form method="post">
+
+    <div class="mb-3">
+        <label asp-for="Modelo.Nombre" class="form-label"></label>
+        <input asp-for="Modelo.Nombre" class="form-control" placeholder="Ej: Yamaha YZF-R1 2020" />
+        <span asp-validation-for="Modelo.Nombre" class="text-danger small"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Modelo.Especificaciones" class="form-label"></label>
+        <textarea asp-for="Modelo.Especificaciones" class="form-control" rows="4"
+                  placeholder="Ej: Motor 998cc, 4 cilindros, 200HP..."></textarea>
+        <span asp-validation-for="Modelo.Especificaciones" class="text-danger small"></span>
+    </div>
+
+    <div class="d-flex gap-2 mt-3">
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save"></i> Guardar
+        </button>
+        <a asp-page="Listado" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Cancelar
+        </a>
+    </div>
+
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

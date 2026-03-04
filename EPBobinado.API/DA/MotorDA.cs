@@ -21,7 +21,7 @@ namespace DA
             string query = @"AgregarMotor";
             var resultadoConsulta = await _sqlConnection.ExecuteScalarAsync<int>(query, new
             {
-                ClienteId = request.ClienteId,
+                UsuarioId = request.UsuarioId,
                 ModeloId = request.ModeloId,
                 NumeroSerie = request.NumeroSerie
             });
@@ -36,7 +36,7 @@ namespace DA
             var resultadoConsulta = await _sqlConnection.ExecuteScalarAsync<int>(query, new
             {
                 Id = Id,
-                ClienteId = request.ClienteId,
+                UsuarioId = request.UsuarioId,
                 ModeloId = request.ModeloId,
                 NumeroSerie = request.NumeroSerie
             });
@@ -67,6 +67,14 @@ namespace DA
             var resultadoConsulta = await _sqlConnection.QueryAsync<MotorResponse>(query,
                 new { Id = Id });
             return resultadoConsulta.FirstOrDefault();
+        }
+
+        public async Task<IEnumerable<MotorResponse>> ObtenerPorUsuario(int usuarioId)
+        {
+            string query = @"ObtenerMotoresPorUsuario";
+            var resultadoConsulta = await _sqlConnection.QueryAsync<MotorResponse>(query,
+                new { UsuarioId = usuarioId });
+            return resultadoConsulta;
         }
 
         private async Task verificarMotorExiste(int Id)
