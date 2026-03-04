@@ -1,0 +1,69 @@
+﻿@page "{id:int}"
+@model Web.Pages.Usuarios.EliminarModel
+@{
+    ViewData["Title"] = "Eliminar Usuario";
+}
+@{
+    Layout = "_LayoutUser";
+}
+<h2 class="mb-4">¿Desea eliminar este usuario?</h2>
+
+@if (Model.Usuario != null)
+{
+    <dl class="row">
+        <dt class="col-sm-3">Nombre</dt>
+        <dd class="col-sm-9">@Model.Usuario.Nombre</dd>
+
+        <dt class="col-sm-3">Cédula</dt>
+        <dd class="col-sm-9">@Model.Usuario.Cedula</dd>
+
+        <dt class="col-sm-3">Email</dt>
+        <dd class="col-sm-9">@Model.Usuario.Email</dd>
+
+        <dt class="col-sm-3">Teléfono</dt>
+        <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Usuario.Telefono) ? "—" : Model.Usuario.Telefono)</dd>
+
+        <dt class="col-sm-3">Rol</dt>
+        <dd class="col-sm-9">
+            @switch (Model.Usuario.RolId)
+            {
+                case 1:
+                    <span class="badge bg-danger">Administrador</span>
+                    break;
+                case 2:
+
+                    <span class="badge bg-primary">Cliente</span>
+                    break;
+                case 3:
+
+                    <span class="badge bg-warning text-dark">Técnico</span>
+                    break;
+                default:
+
+                    <span class="badge bg-secondary">Rol @Model.Usuario.RolId</span>
+                    break;
+            }
+        </dd>
+
+        <dt class="col-sm-3">Activo</dt>
+        <dd class="col-sm-9">@(Model.Usuario.Activo ? "Sí" : "No")</dd>
+
+        <dt class="col-sm-3">Registrado el</dt>
+        <dd class="col-sm-9">@Model.Usuario.CreadoEn.ToString("dd/MM/yyyy")</dd>
+    </dl>
+
+    <form method="post">
+        <input type="hidden" name="id" value="@Model.Usuario.Id" />
+        <button type="submit" asp-page-handler="Eliminar" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Eliminar
+        </button>
+        <a asp-page="Listado" class="btn btn-secondary ms-2">
+            <i class="bi bi-arrow-left"></i> Cancelar
+        </a>
+    </form>
+}
+else
+{
+    <div class="alert alert-warning">No se encontró el usuario a eliminar.</div>
+    <a asp-page="Listado" class="btn btn-secondary">Volver al Listado</a>
+}

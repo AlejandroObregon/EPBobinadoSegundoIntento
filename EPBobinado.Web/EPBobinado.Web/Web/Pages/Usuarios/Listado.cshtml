@@ -1,0 +1,97 @@
+﻿@page
+@model Web.Pages.Usuarios.ListadoModel
+@{
+    ViewData["Title"] = "Listado de Usuarios";
+}
+@{
+    Layout = "_LayoutUser";
+}
+<h2 class="mb-4">Listado de Usuarios</h2>
+
+@if (TempData["MensajeExito"] != null)
+{
+    <div class="alert alert-success">@TempData["MensajeExito"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<div class="mb-3">
+    <a asp-page="Agregar" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Agregar Usuario
+    </a>
+</div>
+
+@if (Model.Usuarios == null || !Model.Usuarios.Any())
+{
+    <div class="alert alert-info">No hay usuarios registrados.</div>
+}
+else
+{
+    <table class="table table-bordered table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Nombre</th>
+                <th>Cédula</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Rol</th>
+                <th>Activo</th>
+                <th>Registrado el</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var u in Model.Usuarios)
+            {
+                <tr>
+                    <td>@u.Nombre</td>
+                    <td>@u.Cedula</td>
+                    <td>@u.Email</td>
+                    <td>@(string.IsNullOrWhiteSpace(u.Telefono) ? "—" : u.Telefono)</td>
+                    <td>
+                        @switch (u.RolId)
+                        {
+                            case 1:
+                                <span class="badge bg-danger">Administrador</span>
+                                break;
+                            case 2:
+
+                                <span class="badge bg-primary">Cliente</span>
+                                break;
+                            case 3:
+
+                                <span class="badge bg-warning text-dark">Técnico</span>
+                                break;
+                            default:
+
+                                <span class="badge bg-secondary">Rol @u.RolId</span>
+                                break;
+                        }
+                    </td>
+                    <td>
+                        @if (u.Activo)
+                        {
+                            <span class="badge bg-success">Sí</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">No</span>
+                        }
+                    </td>
+                    <td>@u.CreadoEn.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        <a asp-page="Editar" asp-route-id="@u.Id" class="btn btn-sm btn-primary">
+                            <i class="bi bi-pencil"></i> Editar
+                        </a>
+                        <a asp-page="Eliminar" asp-route-id="@u.Id" class="btn btn-sm btn-danger ms-1">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

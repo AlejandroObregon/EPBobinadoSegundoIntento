@@ -1,0 +1,41 @@
+﻿@page "{id:int}"
+@model Web.Pages.Motores.EliminarModel
+@{
+    ViewData["Title"] = "Eliminar Motor";
+}
+@{
+    Layout = "_LayoutUser";
+}
+<h2 class="mb-4">¿Desea eliminar este motor?</h2>
+
+@if (Model.Motor != null)
+{
+    <dl class="row">
+        <dt class="col-sm-3">Usuario</dt>
+        <dd class="col-sm-9">@(Model.Motor.Usuario?.Nombre ?? "—")</dd>
+
+        <dt class="col-sm-3">Modelo</dt>
+        <dd class="col-sm-9">@(Model.Motor.Modelo?.Nombre ?? "—")</dd>
+
+        <dt class="col-sm-3">Número de Serie</dt>
+        <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Motor.NumeroSerie) ? "—" : Model.Motor.NumeroSerie)</dd>
+
+        <dt class="col-sm-3">Registrado el</dt>
+        <dd class="col-sm-9">@Model.Motor.CreadoEn.ToString("dd/MM/yyyy")</dd>
+    </dl>
+
+    <form method="post">
+        <input type="hidden" name="id" value="@Model.Motor.Id" />
+        <button type="submit" asp-page-handler="Eliminar" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Eliminar
+        </button>
+        <a asp-page="Listado" class="btn btn-secondary ms-2">
+            <i class="bi bi-arrow-left"></i> Cancelar
+        </a>
+    </form>
+}
+else
+{
+    <div class="alert alert-warning">No se encontró el motor a eliminar.</div>
+    <a asp-page="Listado" class="btn btn-secondary">Volver al Listado</a>
+}

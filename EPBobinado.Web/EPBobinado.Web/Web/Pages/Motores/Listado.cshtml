@@ -1,0 +1,63 @@
+﻿@page
+@model Web.Pages.Motores.ListadoModel
+@{
+    ViewData["Title"] = "Listado de Motores";
+}
+@{
+    Layout = "_LayoutUser";
+}
+<h2 class="mb-4">Listado de Motores</h2>
+
+@if (TempData["MensajeExito"] != null)
+{
+    <div class="alert alert-success">@TempData["MensajeExito"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<div class="mb-3">
+    <a asp-page="Agregar" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Agregar Motor
+    </a>
+</div>
+
+@if (Model.Motores == null || !Model.Motores.Any())
+{
+    <div class="alert alert-info">No hay motores registrados.</div>
+}
+else
+{
+    <table class="table table-bordered table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Usuario</th>
+                <th>Modelo</th>
+                <th>Número de Serie</th>
+                <th>Registrado el</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var m in Model.Motores)
+            {
+                <tr>
+                    <td>@(m.Usuario?.Nombre ?? "—")</td>
+                    <td>@(m.Modelo?.Nombre ?? "—")</td>
+                    <td>@(string.IsNullOrWhiteSpace(m.NumeroSerie) ? "—" : m.NumeroSerie)</td>
+                    <td>@m.CreadoEn.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        <a asp-page="Editar" asp-route-id="@m.Id" class="btn btn-sm btn-primary">
+                            <i class="bi bi-pencil"></i> Editar
+                        </a>
+                        <a asp-page="Eliminar" asp-route-id="@m.Id" class="btn btn-sm btn-danger ms-1">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
