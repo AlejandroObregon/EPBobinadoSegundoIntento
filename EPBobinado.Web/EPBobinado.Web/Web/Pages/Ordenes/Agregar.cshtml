@@ -1,0 +1,339 @@
+﻿@page
+@model Web.Pages.Ordenes.AgregarModel
+@{
+    Layout = "_LayoutUser";
+    ViewData["Title"] = "Nueva Orden de Servicio";
+}
+
+<div class="os-page">
+
+    <div class="os-page-header">
+        <div>
+            <h2 class="os-page-title">📋 Nueva Orden de Servicio</h2>
+            <p class="os-page-sub">Completa los datos para registrar una nueva orden</p>
+        </div>
+        <a asp-page="Listado" class="os-btn os-btn-ghost">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="os-alert os-alert-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <ul class="mb-0">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@error.ErrorMessage</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <div class="os-form-card">
+        <form method="post">
+
+            <div class="os-form-section">
+                <h4 class="os-form-section-title">
+                    <i class="bi bi-motorcycle"></i> Motor y Técnico
+                </h4>
+
+                <div class="os-form-grid">
+                    <div class="os-field">
+                        <label asp-for="Orden.MotorId" class="os-label">Motor</label>
+                        <select asp-for="Orden.MotorId" class="os-select">
+                            <option value="">— Seleccione un motor —</option>
+                            @foreach (var m in Model.Motores)
+                            {
+                                <option value="@m.Id">
+                                    @(m.NumeroSerie ?? $"Motor #{m.Id}") — @(m.Modelo?.Nombre ?? "Sin modelo") — @(m.Usuario?.Nombre ?? "Sin usuario")
+                                </option>
+                            }
+                        </select>
+                        <span asp-validation-for="Orden.MotorId" class="os-error"></span>
+                    </div>
+
+                    <div class="os-field">
+                        <label asp-for="Orden.TecnicoId" class="os-label">
+                            Técnico <span class="os-optional">(opcional)</span>
+                        </label>
+                        <select asp-for="Orden.TecnicoId" class="os-select">
+                            <option value="">— Sin asignar —</option>
+                            @foreach (var t in Model.Tecnicos)
+                            {
+                                <option value="@t.Id">@t.Nombre</option>
+                            }
+                        </select>
+                        <span asp-validation-for="Orden.TecnicoId" class="os-error"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="os-form-section">
+                <h4 class="os-form-section-title">
+                    <i class="bi bi-flag"></i> Estado
+                </h4>
+
+                <div class="os-status-picker">
+                    @foreach (var estado in new[] { "Pendiente", "En diagnóstico", "En reparación", "Completado", "Cancelado" })
+                    {
+                        <label class="os-status-option os-status-@estado.ToLower().Replace(" ", "-").Replace("ó", "o").Replace("é", "e")">
+                            <input type="radio" name="Orden.Estado" value="@estado"
+                                   @(estado == "Pendiente" ? "checked" : "") />
+                            <span>@estado</span>
+                        </label>
+                    }
+                </div>
+                <span asp-validation-for="Orden.Estado" class="os-error"></span>
+            </div>
+
+            <div class="os-form-actions">
+                <button type="submit" class="os-btn os-btn-primary">
+                    <i class="bi bi-save"></i> Guardar Orden
+                </button>
+                <a asp-page="Listado" class="os-btn os-btn-ghost">Cancelar</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<style>
+    :root {
+        --os-bg: #f1f5f9;
+        --os-surface: #ffffff;
+        --os-border: #e2e8f0;
+        --os-text: #1e293b;
+        --os-muted: #64748b;
+        --os-radius: 14px;
+        --os-shadow: 0 4px 16px rgba(0,0,0,.08);
+        --os-transition: all .2s ease;
+        --c-pendiente: #f59e0b;
+        --c-diagnostico: #3b82f6;
+        --c-reparacion: #8b5cf6;
+        --c-completado: #10b981;
+        --c-cancelado: #ef4444;
+    }
+
+    .os-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        gap: 16px;
+    }
+
+    .os-page-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--os-text);
+        margin: 0;
+    }
+
+    .os-page-sub {
+        font-size: 14px;
+        color: var(--os-muted);
+        margin: 2px 0 0;
+    }
+
+    .os-alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px 18px;
+        border-radius: var(--os-radius);
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+
+    .os-alert-danger {
+        background: #fef2f2;
+        border: 1px solid #fca5a5;
+        color: #991b1b;
+    }
+
+    .os-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+        transition: var(--os-transition);
+        white-space: nowrap;
+    }
+
+    .os-btn-primary {
+        background: linear-gradient(135deg,#3b82f6,#2563eb);
+        color: white;
+    }
+
+        .os-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59,130,246,.35);
+            color: white;
+            text-decoration: none;
+        }
+
+    .os-btn-ghost {
+        background: var(--os-surface);
+        border: 1px solid var(--os-border);
+        color: var(--os-muted);
+    }
+
+        .os-btn-ghost:hover {
+            background: var(--os-bg);
+            color: var(--os-text);
+            text-decoration: none;
+        }
+
+    .os-form-card {
+        background: var(--os-surface);
+        border-radius: var(--os-radius);
+        box-shadow: var(--os-shadow);
+        border: 1px solid var(--os-border);
+        padding: 32px;
+    }
+
+    .os-form-section {
+        margin-bottom: 32px;
+    }
+
+    .os-form-section-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--os-text);
+        margin-bottom: 18px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--os-border);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .os-form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .os-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .os-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #475569;
+    }
+
+    .os-optional {
+        font-weight: 400;
+        color: var(--os-muted);
+    }
+
+    .os-select {
+        padding: 11px 14px;
+        border: 1px solid var(--os-border);
+        border-radius: 10px;
+        font-size: 14px;
+        color: var(--os-text);
+        background: white;
+        transition: var(--os-transition);
+        outline: none;
+    }
+
+        .os-select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,.12);
+        }
+
+    .os-error {
+        font-size: 12px;
+        color: #ef4444;
+    }
+
+    .os-form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 8px;
+    }
+
+    .os-status-picker {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .os-status-option {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
+
+        .os-status-option input[type="radio"] {
+            display: none;
+        }
+
+        .os-status-option span {
+            padding: 8px 18px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 600;
+            border: 2px solid var(--os-border);
+            color: var(--os-muted);
+            background: white;
+            transition: var(--os-transition);
+            user-select: none;
+        }
+
+        .os-status-option input:checked + span {
+            color: white;
+            border-color: transparent;
+        }
+
+    .os-status-pendiente input:checked + span {
+        background: var(--c-pendiente);
+    }
+
+    .os-status-en-diagnostico input:checked + span {
+        background: var(--c-diagnostico);
+    }
+
+    .os-status-en-reparacion input:checked + span {
+        background: var(--c-reparacion);
+    }
+
+    .os-status-completado input:checked + span {
+        background: var(--c-completado);
+    }
+
+    .os-status-cancelado input:checked + span {
+        background: var(--c-cancelado);
+    }
+
+    .os-status-option:hover span {
+        border-color: #94a3b8;
+    }
+
+    @@media (max-width: 768px) {
+        .os-page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .os-form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

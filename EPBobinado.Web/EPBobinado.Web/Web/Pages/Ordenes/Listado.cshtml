@@ -1,0 +1,727 @@
+﻿@page
+@model Web.Pages.Ordenes.ListadoModel
+@{
+    Layout = "_LayoutUser";
+    ViewData["Title"] = "Órdenes de Servicio";
+}
+
+<div class="os-page">
+
+    <!-- HEADER -->
+    <div class="os-page-header">
+        <div>
+            <h2 class="os-page-title">📋 Órdenes de Servicio</h2>
+            <p class="os-page-sub">@Model.Ordenes.Count orden(es) registrada(s)</p>
+        </div>
+        <a asp-page="Agregar" class="os-btn os-btn-primary">
+            <i class="bi bi-plus-circle"></i> Nueva Orden
+        </a>
+    </div>
+
+    @if (TempData["MensajeExito"] != null)
+    {
+        <div class="os-alert os-alert-success">
+            <i class="bi bi-check-circle-fill"></i> @TempData["MensajeExito"]
+        </div>
+    }
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="os-alert os-alert-success">
+            <i class="bi bi-check-circle-fill"></i> @TempData["Success"]
+        </div>
+    }
+
+    @if (!Model.Ordenes.Any())
+    {
+        <div class="os-empty">
+            <div class="os-empty-icon">📋</div>
+            <h3>No hay órdenes registradas</h3>
+            <p>Crea la primera orden de servicio para comenzar</p>
+            <a asp-page="Agregar" class="os-btn os-btn-primary">
+                <i class="bi bi-plus-circle"></i> Nueva Orden
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- RESUMEN POR ESTADO -->
+        <div class="os-summary-strip">
+            @{
+                var estados = new[] { "Pendiente", "En diagnóstico", "En reparación", "Completado", "Cancelado" };
+                foreach (var e in estados)
+                {
+                    var count = Model.Ordenes.Count(o => o.Estado == e);
+                    var slug = e.ToLower().Replace(" ", "-").Replace("ó", "o").Replace("é", "e");
+                    <div class="os-summary-chip os-summary-@slug">
+                        <span class="os-summary-count">@count</span>
+                        <span class="os-summary-label">@e</span>
+                    </div>
+                }
+            }
+        </div>
+
+        <!-- TABLA -->
+        <div class="os-table-card">
+            <table class="os-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Motor</th>
+                        <th>Usuario</th>
+                        <th>Técnico</th>
+                        <th>Estado</th>
+                        <th>Creada el</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var o in Model.Ordenes.OrderByDescending(x => x.CreadoEn))
+                    {
+                        var slug = o.Estado.ToLower().Replace(" ", "-").Replace("ó", "o").Replace("é", "e");
+                        <tr class="os-table-row">
+                            <td><span class="os-id">#@o.Id</span></td>
+                            <td>
+                                <div class="os-motor-cell">
+                                    <span class="os-motor-icon">🏍️</span>
+                                    <div>
+                                        <strong>@(o.Motor?.NumeroSerie ?? $"Motor #{o.MotorId}")</strong>
+                                        <small>@(o.Motor?.Modelo?.Nombre ?? "—")</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>@(o.Motor?.Usuario?.Nombre ?? "—")</td>
+                            <td>
+                                @if (o.Tecnico != null)
+                                {
+                                    <span class="os-tecnico">
+                                        <i class="bi bi-person-gear"></i> @o.Tecnico.Nombre
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="os-unassigned">Sin asignar</span>
+                                }
+                            </td>
+                            <td><span class="os-badge os-badge-@slug">@o.Estado</span></td>
+                            <td>@o.CreadoEn.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <div class="os-actions">
+                                    <a asp-page="Editar" asp-route-id="@o.Id" class="os-action-btn os-action-edit" title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a asp-page="Eliminar" asp-route-id="@o.Id" class="os-action-btn os-action-delete" title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<style>
+    /* ── SHARED OS STYLES ─────────────────────────────────── */
+    :root {
+        --os-bg: #f1f5f9;
+        --os-surface: #ffffff;
+        --os-border: #e2e8f0;
+        --os-text: #1e293b;
+        --os-muted: #64748b;
+        --os-radius: 14px;
+        --os-shadow: 0 4px 16px rgba(0,0,0,.08);
+        --os-transition: all .2s ease;
+        /* Estado colors */
+        --c-pendiente: #f59e0b;
+        --c-diagnostico: #3b82f6;
+        --c-reparacion: #8b5cf6;
+        --c-completado: #10b981;
+        --c-cancelado: #ef4444;
+    }
+
+    .os-page {
+        padding: 0;
+    }
+
+    /* PAGE HEADER */
+    .os-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        gap: 16px;
+    }
+
+    .os-page-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--os-text);
+        margin: 0;
+    }
+
+    .os-page-sub {
+        font-size: 14px;
+        color: var(--os-muted);
+        margin: 2px 0 0;
+    }
+
+    /* ALERTS */
+    .os-alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px 18px;
+        border-radius: var(--os-radius);
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+
+    .os-alert-success {
+        background: #ecfdf5;
+        border: 1px solid #6ee7b7;
+        color: #065f46;
+    }
+
+    .os-alert-danger {
+        background: #fef2f2;
+        border: 1px solid #fca5a5;
+        color: #991b1b;
+    }
+
+    .os-alert-warning {
+        background: #fffbeb;
+        border: 1px solid #fcd34d;
+        color: #92400e;
+    }
+
+    /* BUTTONS */
+    .os-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+        transition: var(--os-transition);
+        white-space: nowrap;
+    }
+
+    .os-btn-primary {
+        background: linear-gradient(135deg,#3b82f6,#2563eb);
+        color: white;
+    }
+
+        .os-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59,130,246,.35);
+            color: white;
+            text-decoration: none;
+        }
+
+    .os-btn-danger {
+        background: linear-gradient(135deg,#ef4444,#dc2626);
+        color: white;
+    }
+
+        .os-btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239,68,68,.35);
+            color: white;
+            text-decoration: none;
+        }
+
+    .os-btn-ghost {
+        background: var(--os-surface);
+        border: 1px solid var(--os-border);
+        color: var(--os-muted);
+    }
+
+        .os-btn-ghost:hover {
+            background: var(--os-bg);
+            color: var(--os-text);
+            text-decoration: none;
+        }
+
+    /* SUMMARY STRIP */
+    .os-summary-strip {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+    }
+
+    .os-summary-chip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 100px;
+        font-size: 13px;
+        font-weight: 600;
+        border: 2px solid;
+        background: white;
+    }
+
+    .os-summary-count {
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    .os-summary-pendiente {
+        border-color: var(--c-pendiente);
+        color: var(--c-pendiente);
+    }
+
+    .os-summary-en-diagnostico {
+        border-color: var(--c-diagnostico);
+        color: var(--c-diagnostico);
+    }
+
+    .os-summary-en-reparacion {
+        border-color: var(--c-reparacion);
+        color: var(--c-reparacion);
+    }
+
+    .os-summary-completado {
+        border-color: var(--c-completado);
+        color: var(--c-completado);
+    }
+
+    .os-summary-cancelado {
+        border-color: var(--c-cancelado);
+        color: var(--c-cancelado);
+    }
+
+    /* TABLE */
+    .os-table-card {
+        background: var(--os-surface);
+        border-radius: var(--os-radius);
+        box-shadow: var(--os-shadow);
+        overflow: hidden;
+        border: 1px solid var(--os-border);
+    }
+
+    .os-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+        .os-table thead th {
+            padding: 14px 18px;
+            background: #f8fafc;
+            color: var(--os-muted);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            border-bottom: 1px solid var(--os-border);
+            white-space: nowrap;
+        }
+
+    .os-table-row td {
+        padding: 16px 18px;
+        border-bottom: 1px solid var(--os-border);
+        vertical-align: middle;
+        color: var(--os-text);
+    }
+
+    .os-table-row:last-child td {
+        border-bottom: none;
+    }
+
+    .os-table-row {
+        transition: var(--os-transition);
+        animation: fadeInRow .4s ease both;
+    }
+
+        .os-table-row:hover {
+            background: #f8fafc;
+        }
+
+    @@keyframes fadeInRow {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .os-id {
+        font-weight: 700;
+        color: var(--os-muted);
+        font-size: 13px;
+    }
+
+    .os-motor-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .os-motor-icon {
+        font-size: 22px;
+    }
+
+    .os-motor-cell strong {
+        display: block;
+        font-weight: 600;
+    }
+
+    .os-motor-cell small {
+        display: block;
+        color: var(--os-muted);
+        font-size: 12px;
+    }
+
+    .os-tecnico {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: var(--os-text);
+        font-weight: 500;
+    }
+
+    .os-unassigned {
+        color: var(--os-muted);
+        font-style: italic;
+        font-size: 13px;
+    }
+
+    /* BADGES */
+    .os-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 100px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .02em;
+    }
+
+    .os-badge-pendiente {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .os-badge-en-diagnostico {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .os-badge-en-reparacion {
+        background: #ede9fe;
+        color: #5b21b6;
+    }
+
+    .os-badge-completado {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .os-badge-cancelado {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    /* ACTIONS */
+    .os-actions {
+        display: flex;
+        gap: 6px;
+    }
+
+    .os-action-btn {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        text-decoration: none;
+        transition: var(--os-transition);
+        border: 1px solid var(--os-border);
+        background: white;
+    }
+
+    .os-action-edit {
+        color: #3b82f6;
+    }
+
+        .os-action-edit:hover {
+            background: #dbeafe;
+            border-color: #3b82f6;
+            color: #1e40af;
+            text-decoration: none;
+        }
+
+    .os-action-delete {
+        color: #ef4444;
+    }
+
+        .os-action-delete:hover {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+            text-decoration: none;
+        }
+
+    /* EMPTY STATE */
+    .os-empty {
+        text-align: center;
+        padding: 80px 24px;
+        background: white;
+        border-radius: var(--os-radius);
+        border: 1px dashed var(--os-border);
+    }
+
+    .os-empty-icon {
+        font-size: 56px;
+        margin-bottom: 16px;
+    }
+
+    .os-empty h3 {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--os-text);
+        margin-bottom: 8px;
+    }
+
+    .os-empty p {
+        color: var(--os-muted);
+        margin-bottom: 24px;
+    }
+
+    /* FORM CARD */
+    .os-form-card {
+        background: var(--os-surface);
+        border-radius: var(--os-radius);
+        box-shadow: var(--os-shadow);
+        border: 1px solid var(--os-border);
+        padding: 32px;
+    }
+
+    .os-form-section {
+        margin-bottom: 32px;
+    }
+
+    .os-form-section-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--os-text);
+        margin-bottom: 18px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--os-border);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .os-form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .os-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .os-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #475569;
+    }
+
+    .os-optional {
+        font-weight: 400;
+        color: var(--os-muted);
+    }
+
+    .os-select, .os-input {
+        padding: 11px 14px;
+        border: 1px solid var(--os-border);
+        border-radius: 10px;
+        font-size: 14px;
+        color: var(--os-text);
+        background: white;
+        transition: var(--os-transition);
+        outline: none;
+    }
+
+        .os-select:focus, .os-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,.12);
+        }
+
+    .os-error {
+        font-size: 12px;
+        color: #ef4444;
+    }
+
+    /* STATUS PICKER */
+    .os-status-picker {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .os-status-option {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        cursor: pointer;
+    }
+
+        .os-status-option input[type="radio"] {
+            display: none;
+        }
+
+        .os-status-option span {
+            padding: 8px 18px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 600;
+            border: 2px solid var(--os-border);
+            color: var(--os-muted);
+            background: white;
+            transition: var(--os-transition);
+            user-select: none;
+        }
+
+        .os-status-option input:checked + span {
+            color: white;
+            border-color: transparent;
+        }
+
+    .os-status-pendiente input:checked + span {
+        background: var(--c-pendiente);
+    }
+
+    .os-status-en-diagnostico input:checked + span {
+        background: var(--c-diagnostico);
+    }
+
+    .os-status-en-reparacion input:checked + span {
+        background: var(--c-reparacion);
+    }
+
+    .os-status-completado input:checked + span {
+        background: var(--c-completado);
+    }
+
+    .os-status-cancelado input:checked + span {
+        background: var(--c-cancelado);
+    }
+
+    .os-status-option:hover span {
+        border-color: #94a3b8;
+    }
+
+    /* FORM ACTIONS */
+    .os-form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 8px;
+    }
+
+    /* DELETE CARD */
+    .os-delete-card {
+        background: var(--os-surface);
+        border-radius: var(--os-radius);
+        box-shadow: var(--os-shadow);
+        border: 1px solid var(--os-border);
+        padding: 32px;
+    }
+
+    .os-delete-warning {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 20px;
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        border-radius: 10px;
+        color: #9a3412;
+        font-size: 15px;
+        font-weight: 500;
+        margin-bottom: 28px;
+    }
+
+        .os-delete-warning i {
+            font-size: 22px;
+            color: #f97316;
+            flex-shrink: 0;
+        }
+
+    .os-detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+
+    .os-detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 14px 16px;
+        background: var(--os-bg);
+        border-radius: 10px;
+    }
+
+    .os-detail-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--os-muted);
+        text-transform: uppercase;
+        letter-spacing: .06em;
+    }
+
+    .os-detail-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--os-text);
+    }
+
+    /* RESPONSIVE */
+    @@media (max-width: 768px) {
+        .os-page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .os-form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .os-summary-strip {
+            gap: 8px;
+        }
+
+        .os-table-card {
+            overflow-x: auto;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        // Animación stagger en las filas
+        document.querySelectorAll('.os-table-row').forEach((row, i) => {
+            row.style.animationDelay = `${i * 0.04}s`;
+        });
+    </script>
+}

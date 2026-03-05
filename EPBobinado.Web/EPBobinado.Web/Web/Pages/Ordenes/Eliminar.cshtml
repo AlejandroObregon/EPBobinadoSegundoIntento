@@ -1,0 +1,266 @@
+﻿@page "{id:int}"
+@model Web.Pages.Ordenes.EliminarModel
+@{
+    Layout = "_LayoutUser";
+    ViewData["Title"] = "Eliminar Orden de Servicio";
+}
+
+<div class="os-page">
+
+    <div class="os-page-header">
+        <div>
+            <h2 class="os-page-title">🗑️ Eliminar Orden de Servicio</h2>
+            <p class="os-page-sub">Esta acción no se puede deshacer</p>
+        </div>
+        <a asp-page="Listado" class="os-btn os-btn-ghost">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    @if (Model.Orden != null)
+    {
+        <div class="os-delete-card">
+            <div class="os-delete-warning">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>¿Está seguro de que desea eliminar la orden <strong>#@Model.Orden.Id</strong>?</span>
+            </div>
+
+            <div class="os-detail-grid">
+                <div class="os-detail-item">
+                    <span class="os-detail-label">Motor</span>
+                    <span class="os-detail-value">@(Model.Orden.Motor?.NumeroSerie ?? $"Motor #{Model.Orden.MotorId}")</span>
+                </div>
+                <div class="os-detail-item">
+                    <span class="os-detail-label">Modelo</span>
+                    <span class="os-detail-value">@(Model.Orden.Motor?.Modelo?.Nombre ?? "—")</span>
+                </div>
+                <div class="os-detail-item">
+                    <span class="os-detail-label">Usuario</span>
+                    <span class="os-detail-value">@(Model.Orden.Motor?.Usuario?.Nombre ?? "—")</span>
+                </div>
+                <div class="os-detail-item">
+                    <span class="os-detail-label">Técnico</span>
+                    <span class="os-detail-value">@(Model.Orden.Tecnico?.Nombre ?? "Sin asignar")</span>
+                </div>
+                <div class="os-detail-item">
+                    <span class="os-detail-label">Estado</span>
+                    <span class="os-badge os-badge-@Model.Orden.Estado.ToLower().Replace(" ", "-").Replace("ó", "o").Replace("é", "e")">
+                        @Model.Orden.Estado
+                    </span>
+                </div>
+                <div class="os-detail-item">
+                    <span class="os-detail-label">Creada el</span>
+                    <span class="os-detail-value">@Model.Orden.CreadoEn.ToString("dd/MM/yyyy HH:mm")</span>
+                </div>
+            </div>
+
+            <form method="post">
+                <input type="hidden" name="id" value="@Model.Orden.Id" />
+                <div class="os-form-actions">
+                    <button type="submit" asp-page-handler="Eliminar" class="os-btn os-btn-danger">
+                        <i class="bi bi-trash"></i> Confirmar Eliminación
+                    </button>
+                    <a asp-page="Listado" class="os-btn os-btn-ghost">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    }
+    else
+    {
+        <div class="os-alert os-alert-warning">
+            <i class="bi bi-search"></i> No se encontró la orden de servicio.
+        </div>
+        <a asp-page="Listado" class="os-btn os-btn-ghost mt-3">Volver al Listado</a>
+    }
+</div>
+
+<style>
+    :root {
+        --os-bg: #f1f5f9;
+        --os-surface: #ffffff;
+        --os-border: #e2e8f0;
+        --os-text: #1e293b;
+        --os-muted: #64748b;
+        --os-radius: 14px;
+        --os-shadow: 0 4px 16px rgba(0,0,0,.08);
+        --os-transition: all .2s ease;
+        --c-pendiente: #f59e0b;
+        --c-diagnostico: #3b82f6;
+        --c-reparacion: #8b5cf6;
+        --c-completado: #10b981;
+        --c-cancelado: #ef4444;
+    }
+
+    .os-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        gap: 16px;
+    }
+
+    .os-page-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--os-text);
+        margin: 0;
+    }
+
+    .os-page-sub {
+        font-size: 14px;
+        color: var(--os-muted);
+        margin: 2px 0 0;
+    }
+
+    .os-alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px 18px;
+        border-radius: var(--os-radius);
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+
+    .os-alert-warning {
+        background: #fffbeb;
+        border: 1px solid #fcd34d;
+        color: #92400e;
+    }
+
+    .os-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+        transition: var(--os-transition);
+        white-space: nowrap;
+    }
+
+    .os-btn-danger {
+        background: linear-gradient(135deg,#ef4444,#dc2626);
+        color: white;
+    }
+
+        .os-btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239,68,68,.35);
+            color: white;
+            text-decoration: none;
+        }
+
+    .os-btn-ghost {
+        background: var(--os-surface);
+        border: 1px solid var(--os-border);
+        color: var(--os-muted);
+    }
+
+        .os-btn-ghost:hover {
+            background: var(--os-bg);
+            color: var(--os-text);
+            text-decoration: none;
+        }
+
+    .os-form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 8px;
+    }
+
+    .os-delete-card {
+        background: var(--os-surface);
+        border-radius: var(--os-radius);
+        box-shadow: var(--os-shadow);
+        border: 1px solid var(--os-border);
+        padding: 32px;
+    }
+
+    .os-delete-warning {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 20px;
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        border-radius: 10px;
+        color: #9a3412;
+        font-size: 15px;
+        font-weight: 500;
+        margin-bottom: 28px;
+    }
+
+        .os-delete-warning i {
+            font-size: 22px;
+            color: #f97316;
+            flex-shrink: 0;
+        }
+
+    .os-detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+
+    .os-detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 14px 16px;
+        background: var(--os-bg);
+        border-radius: 10px;
+    }
+
+    .os-detail-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--os-muted);
+        text-transform: uppercase;
+        letter-spacing: .06em;
+    }
+
+    .os-detail-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--os-text);
+    }
+
+    .os-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 100px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .os-badge-pendiente {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .os-badge-en-diagnostico {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .os-badge-en-reparacion {
+        background: #ede9fe;
+        color: #5b21b6;
+    }
+
+    .os-badge-completado {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .os-badge-cancelado {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+</style>

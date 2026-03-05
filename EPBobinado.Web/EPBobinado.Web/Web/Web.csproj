@@ -16,7 +16,6 @@
     <Folder Include="Pages\Diagnosticos_Iniciales\" />
     <Folder Include="Pages\Diagnosticos_Tecnicos\" />
     <Folder Include="Pages\Cotizaciones\" />
-    <Folder Include="Pages\Ordenes\" />
   </ItemGroup>
 
 </Project>
