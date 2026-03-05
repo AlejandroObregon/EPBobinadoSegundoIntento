@@ -30,7 +30,6 @@ namespace DA
                 Telefono = request.Telefono,
                 Activo = request.Activo
             });
-
             return resultadoConsulta;
         }
 
@@ -76,6 +75,17 @@ namespace DA
             string query = @"ObtenerUsuario";
             var resultadoConsulta = await _sqlConnection.QueryAsync<UsuarioResponse>(query,
                 new { Id = Id });
+            return resultadoConsulta.FirstOrDefault();
+        }
+
+        public async Task<UsuarioResponse?> Login(string email, string passwordHash)
+        {
+            string query = @"LoginUsuario";
+            var resultadoConsulta = await _sqlConnection.QueryAsync<UsuarioResponse>(query, new
+            {
+                Email = email,
+                PasswordHash = passwordHash
+            });
             return resultadoConsulta.FirstOrDefault();
         }
 

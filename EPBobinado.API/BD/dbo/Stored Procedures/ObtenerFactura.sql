@@ -1,6 +1,7 @@
-﻿
+﻿-- =============================================
 -- Obtener una factura por ID
-CREATE   PROCEDURE ObtenerFactura
+-- =============================================
+CREATE PROCEDURE ObtenerFactura
     @Id INT
 AS
 BEGIN
@@ -8,10 +9,11 @@ BEGIN
     SELECT f.Id, f.OrdenId, f.Total, f.Impuesto, f.Fecha,
            os.Estado AS OrdenEstado,
            m.Id AS MotorId, m.NumeroSerie AS MotorNumeroSerie,
-           cl.Id AS ClienteId, cl.Nombre AS ClienteNombre, cl.Telefono AS ClienteTelefono
+           u.Id AS UsuarioId, u.Nombre AS UsuarioNombre, u.Telefono AS UsuarioTelefono
     FROM Facturas f
     INNER JOIN OrdenesServicio os ON f.OrdenId = os.Id
     INNER JOIN Motores m ON os.MotorId = m.Id
-    INNER JOIN Clientes cl ON m.ClienteId = cl.Id
+    INNER JOIN Usuarios u ON m.UsuarioId = u.Id
     WHERE f.Id = @Id;
 END
+GO

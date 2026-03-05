@@ -1,0 +1,92 @@
+﻿@page
+@model Web.Pages.Auth.LoginModel
+@{
+    Layout = "_LayoutAuth";
+    ViewData["Title"] = "Iniciar Sesión";
+}
+
+<div class="auth-card">
+
+    <div class="auth-brand">
+        <div class="auth-brand-icon">🔧</div>
+        <h1>Mi Taller</h1>
+        <p>Inicia sesión en tu cuenta</p>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="auth-alert">
+            <ul>
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@error.ErrorMessage</li>
+                }
+            </ul>
+        </div>
+    }
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="auth-success">@TempData["Success"]</div>
+    }
+
+    <form method="post">
+
+        <div class="mb-4">
+            <label class="auth-label">Correo electrónico</label>
+            <div class="input-group-auth">
+                <i class="bi bi-envelope input-icon"></i>
+                <input asp-for="Credenciales.Email"
+                       class="auth-input"
+                       type="email"
+                       placeholder="correo@ejemplo.com" />
+            </div>
+            <span asp-validation-for="Credenciales.Email" class="field-error"></span>
+        </div>
+
+        <div class="mb-4">
+            <label class="auth-label">Contraseña</label>
+            <div class="input-group-auth">
+                <i class="bi bi-lock input-icon"></i>
+                <input asp-for="Credenciales.Password"
+                       id="passwordInput"
+                       class="auth-input"
+                       type="password"
+                       placeholder="Tu contraseña" />
+                <button type="button" class="toggle-password" onclick="togglePassword()">
+                    <i class="bi bi-eye" id="toggleIcon"></i>
+                </button>
+            </div>
+            <span asp-validation-for="Credenciales.Password" class="field-error"></span>
+        </div>
+
+        <button type="submit" class="btn-auth">
+            <i class="bi bi-box-arrow-in-right me-2"></i> Iniciar Sesión
+        </button>
+
+    </form>
+
+    <div class="auth-divider"><span>¿No tienes cuenta?</span></div>
+
+    <div class="auth-footer">
+        <a asp-page="Registro">Crear una cuenta nueva</a>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePassword() {
+            const input = document.getElementById('passwordInput');
+            const icon  = document.getElementById('toggleIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'bi bi-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'bi bi-eye';
+            }
+        }
+    </script>
+}

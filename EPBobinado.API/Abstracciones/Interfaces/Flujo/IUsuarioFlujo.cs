@@ -9,5 +9,6 @@ namespace Abstracciones.Interfaces.Flujo
         Task<int> Agregar(UsuarioRequest usuario);
         Task<int> Editar(int Id, UsuarioRequest usuario);
         Task<int> Eliminar(int Id);
+        Task<UsuarioResponse?> Login(string email, string password);
     }
 }

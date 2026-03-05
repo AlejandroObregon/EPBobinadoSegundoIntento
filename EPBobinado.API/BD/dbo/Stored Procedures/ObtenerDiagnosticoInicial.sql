@@ -1,6 +1,8 @@
 ﻿
+-- =============================================
 -- Obtener un diagnóstico inicial por ID
-CREATE   PROCEDURE ObtenerDiagnosticoInicial
+-- =============================================
+CREATE PROCEDURE ObtenerDiagnosticoInicial
     @Id INT
 AS
 BEGIN
@@ -8,10 +10,11 @@ BEGIN
     SELECT di.Id, di.OrdenId, di.Descripcion, di.CreadoEn,
            os.Estado AS OrdenEstado,
            m.Id AS MotorId, m.NumeroSerie AS MotorNumeroSerie,
-           c.Nombre AS ClienteNombre
+           u.Nombre AS UsuarioNombre
     FROM DiagnosticosIniciales di
     INNER JOIN OrdenesServicio os ON di.OrdenId = os.Id
     INNER JOIN Motores m ON os.MotorId = m.Id
-    INNER JOIN Clientes c ON m.ClienteId = c.Id
+    INNER JOIN Usuarios u ON m.UsuarioId = u.Id
     WHERE di.Id = @Id;
 END
+GO

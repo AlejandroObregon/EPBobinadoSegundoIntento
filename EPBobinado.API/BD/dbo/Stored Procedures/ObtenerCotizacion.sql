@@ -1,6 +1,8 @@
 ﻿
+-- =============================================
 -- Obtener una cotización por ID
-CREATE   PROCEDURE ObtenerCotizacion
+-- =============================================
+CREATE PROCEDURE ObtenerCotizacion
     @Id INT
 AS
 BEGIN
@@ -8,10 +10,11 @@ BEGIN
     SELECT c.Id, c.OrdenId, c.Total, c.Aprobada, c.CreadoEn,
            os.Estado AS OrdenEstado,
            m.Id AS MotorId, m.NumeroSerie AS MotorNumeroSerie,
-           cl.Id AS ClienteId, cl.Nombre AS ClienteNombre, cl.Email AS ClienteEmail
+           u.Id AS UsuarioId, u.Nombre AS UsuarioNombre, u.Email AS UsuarioEmail
     FROM Cotizaciones c
     INNER JOIN OrdenesServicio os ON c.OrdenId = os.Id
     INNER JOIN Motores m ON os.MotorId = m.Id
-    INNER JOIN Clientes cl ON m.ClienteId = cl.Id
+    INNER JOIN Usuarios u ON m.UsuarioId = u.Id
     WHERE c.Id = @Id;
 END
+GO

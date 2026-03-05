@@ -1,0 +1,127 @@
+﻿@page
+@model Web.Pages.Auth.RegistroModel
+@{
+    Layout = "_LayoutAuth";
+    ViewData["Title"] = "Crear Cuenta";
+}
+
+<div class="auth-card">
+
+    <div class="auth-brand">
+        <div class="auth-brand-icon">🔧</div>
+        <h1>Mi Taller</h1>
+        <p>Crea tu cuenta nueva</p>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="auth-alert">
+            <ul>
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@error.ErrorMessage</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <form method="post">
+
+        <div class="mb-3">
+            <label class="auth-label">Nombre completo</label>
+            <div class="input-group-auth">
+                <i class="bi bi-person input-icon"></i>
+                <input asp-for="Datos.Nombre" class="auth-input" placeholder="Juan Pérez" />
+            </div>
+            <span asp-validation-for="Datos.Nombre" class="field-error"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="auth-label">Cédula</label>
+            <div class="input-group-auth">
+                <i class="bi bi-card-text input-icon"></i>
+                <input asp-for="Datos.Cedula" class="auth-input" placeholder="1-1234-5678" />
+            </div>
+            <span asp-validation-for="Datos.Cedula" class="field-error"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="auth-label">Correo electrónico</label>
+            <div class="input-group-auth">
+                <i class="bi bi-envelope input-icon"></i>
+                <input asp-for="Datos.Email" class="auth-input" type="email" placeholder="correo@ejemplo.com" />
+            </div>
+            <span asp-validation-for="Datos.Email" class="field-error"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="auth-label">Teléfono <span style="color:#475569;font-weight:400">(opcional)</span></label>
+            <div class="input-group-auth">
+                <i class="bi bi-telephone input-icon"></i>
+                <input asp-for="Datos.Telefono" class="auth-input" placeholder="8888-8888" />
+            </div>
+            <span asp-validation-for="Datos.Telefono" class="field-error"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="auth-label">Contraseña</label>
+            <div class="input-group-auth">
+                <i class="bi bi-lock input-icon"></i>
+                <input asp-for="Datos.Password"
+                       id="passInput"
+                       class="auth-input"
+                       type="password"
+                       placeholder="Mínimo 6 caracteres" />
+                <button type="button" class="toggle-password" onclick="togglePass('passInput','icon1')">
+                    <i class="bi bi-eye" id="icon1"></i>
+                </button>
+            </div>
+            <span asp-validation-for="Datos.Password" class="field-error"></span>
+        </div>
+
+        <div class="mb-4">
+            <label class="auth-label">Confirmar contraseña</label>
+            <div class="input-group-auth">
+                <i class="bi bi-lock-fill input-icon"></i>
+                <input asp-for="Datos.ConfirmarPassword"
+                       id="passConfirmInput"
+                       class="auth-input"
+                       type="password"
+                       placeholder="Repite tu contraseña" />
+                <button type="button" class="toggle-password" onclick="togglePass('passConfirmInput','icon2')">
+                    <i class="bi bi-eye" id="icon2"></i>
+                </button>
+            </div>
+            <span asp-validation-for="Datos.ConfirmarPassword" class="field-error"></span>
+        </div>
+
+        <button type="submit" class="btn-auth">
+            <i class="bi bi-person-plus me-2"></i> Crear Cuenta
+        </button>
+
+    </form>
+
+    <div class="auth-divider"><span>¿Ya tienes cuenta?</span></div>
+
+    <div class="auth-footer">
+        <a asp-page="Login">Iniciar sesión</a>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePass(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon  = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'bi bi-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'bi bi-eye';
+            }
+        }
+    </script>
+}

@@ -176,5 +176,6 @@
     <Build Include="dbo\Stored Procedures\AgregarConfiguracionImpuesto.sql" />
     <Build Include="dbo\Stored Procedures\AgregarCliente.sql" />
     <Build Include="dbo\Stored Procedures\AgregarBitacora.sql" />
+    <Build Include="dbo\Stored Procedures\LoginUsuario.sql" />
   </ItemGroup>
 </Project>

@@ -1,19 +1,19 @@
-﻿
--- Obtener una orden de servicio por ID
-CREATE   PROCEDURE ObtenerOrdenServicio
+﻿-- Obtener una orden de servicio por ID
+CREATE PROCEDURE ObtenerOrdenServicio
     @Id INT
 AS
 BEGIN
     SET NOCOUNT ON;
     SELECT os.Id, os.MotorId, os.Estado, os.TecnicoId, os.CreadoEn,
            m.NumeroSerie AS MotorNumeroSerie,
-           c.Id AS ClienteId, c.Nombre AS ClienteNombre, c.Telefono AS ClienteTelefono,
+           u.Id AS UsuarioId, u.Nombre AS UsuarioNombre, u.Telefono AS UsuarioTelefono,
            mm.Id AS ModeloId, mm.Nombre AS ModeloNombre, mm.Especificaciones,
-           u.Nombre AS TecnicoNombre, u.Email AS TecnicoEmail
+           t.Nombre AS TecnicoNombre, t.Email AS TecnicoEmail
     FROM OrdenesServicio os
     INNER JOIN Motores m ON os.MotorId = m.Id
-    INNER JOIN Clientes c ON m.ClienteId = c.Id
+    INNER JOIN Usuarios u ON m.UsuarioId = u.Id
     INNER JOIN ModelosMotor mm ON m.ModeloId = mm.Id
-    LEFT JOIN Usuarios u ON os.TecnicoId = u.Id
+    LEFT JOIN Usuarios t ON os.TecnicoId = t.Id
     WHERE os.Id = @Id;
 END
+GO

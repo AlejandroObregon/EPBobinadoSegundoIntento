@@ -4,7 +4,7 @@
    ========================================================= */
 
 -- Obtener todos los motores
-CREATE OR ALTER PROCEDURE ObtenerMotores
+CREATE PROCEDURE ObtenerMotores
 AS
 BEGIN
     SET NOCOUNT ON;

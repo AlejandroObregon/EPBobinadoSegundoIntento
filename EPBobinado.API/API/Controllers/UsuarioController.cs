@@ -1,6 +1,7 @@
 ﻿using Abstracciones.Interfaces.API;
 using Abstracciones.Interfaces.Flujo;
 using Abstracciones.Modelos;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -23,6 +24,15 @@ namespace API.Controllers
         {
             var resultado = await _usuarioFlujo.Agregar(request);
             return CreatedAtAction(nameof(Obtener), new { Id = resultado });
+        }
+
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login(Abstracciones.Modelos.LoginRequest request)
+        {
+            var resultado = await _usuarioFlujo.Login(request.Email, request.Password);
+            if (resultado == null)
+                return Unauthorized("Correo o contraseña incorrectos.");
+            return Ok(resultado);
         }
 
         [HttpPut("{Id}")]
