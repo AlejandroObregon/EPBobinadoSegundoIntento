@@ -177,5 +177,6 @@
     <Build Include="dbo\Stored Procedures\AgregarCliente.sql" />
     <Build Include="dbo\Stored Procedures\AgregarBitacora.sql" />
     <Build Include="dbo\Stored Procedures\LoginUsuario.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerMotoresPorUsuario.sql" />
   </ItemGroup>
 </Project>

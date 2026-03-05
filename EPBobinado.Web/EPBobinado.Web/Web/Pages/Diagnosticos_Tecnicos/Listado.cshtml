@@ -1,0 +1,450 @@
+﻿@page
+@model Web.Pages.DiagnosticoTecnico.ListadoModel
+@{
+    Layout = "_LayoutUser";
+    ViewData["Title"] = "Diagnósticos Técnicos";
+}
+
+<div class="dt-page">
+
+    <div class="dt-page-header">
+        <div>
+            <h2 class="dt-page-title">🔧 Diagnósticos Técnicos</h2>
+            <p class="dt-page-sub">@Model.Diagnosticos.Count diagnóstico(s) registrado(s)</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-page="MisDiagnosticos" class="dt-btn dt-btn-secondary">
+                <i class="bi bi-person-gear"></i> Mis Diagnósticos
+            </a>
+            <a asp-page="Agregar" class="dt-btn dt-btn-primary">
+                <i class="bi bi-plus-circle"></i> Nuevo Diagnóstico
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["MensajeExito"] != null)
+    {
+        <div class="dt-alert dt-alert-success"><i class="bi bi-check-circle-fill"></i> @TempData["MensajeExito"]</div>
+    }
+    @if (TempData["Success"] != null)
+    {
+        <div class="dt-alert dt-alert-success"><i class="bi bi-check-circle-fill"></i> @TempData["Success"]</div>
+    }
+
+    @if (!Model.Diagnosticos.Any())
+    {
+        <div class="dt-empty">
+            <div class="dt-empty-icon">🔧</div>
+            <h3>No hay diagnósticos técnicos</h3>
+            <p>Registra el primer diagnóstico técnico para comenzar</p>
+            <a asp-page="Agregar" class="dt-btn dt-btn-primary">
+                <i class="bi bi-plus-circle"></i> Nuevo Diagnóstico
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="dt-cards-grid">
+            @foreach (var d in Model.Diagnosticos.OrderByDescending(x => x.CreadoEn))
+            {
+                var estadoSlug = (d.Orden?.Estado ?? "").ToLower()
+                .Replace(" ", "-").Replace("ó", "o").Replace("é", "e");
+                <div class="dt-card">
+                    <div class="dt-card-header">
+                        <div class="dt-card-id">#@d.Id</div>
+                        <div class="dt-card-badges">
+                            <span class="dt-badge dt-badge-@estadoSlug">@(d.Orden?.Estado ?? "Sin estado")</span>
+                            @if (d.Orden?.Tecnico != null)
+                            {
+                                <span class="dt-badge dt-badge-tecnico">
+                                    <i class="bi bi-person-gear"></i> @d.Orden.Tecnico.Nombre
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="dt-card-body">
+                        <div class="dt-card-meta">
+                            <span><i class="bi bi-clipboard-check"></i> Orden <strong>#@d.OrdenId</strong></span>
+                            @if (d.Orden?.Motor != null)
+                            {
+                                <span><i class="bi bi-motorcycle"></i> @(d.Orden.Motor.NumeroSerie ?? $"Motor #{d.Orden.MotorId}")</span>
+                            }
+                            @if (d.Orden?.Motor?.Usuario != null)
+                            {
+                                <span><i class="bi bi-person"></i> @d.Orden.Motor.Usuario.Nombre</span>
+                            }
+                        </div>
+
+                        <div class="dt-card-desc">
+                            @if (d.Detalle.Length > 160)
+                            {
+                                @d.Detalle[..160]
+                    
+                                <span class="dt-desc-more">...</span>
+                            }
+                            else
+                            {
+                                @d.Detalle
+                            }
+                        </div>
+                    </div>
+
+                    <div class="dt-card-footer">
+                        <span class="dt-card-date">
+                            <i class="bi bi-calendar3"></i> @d.CreadoEn.ToString("dd/MM/yyyy")
+                        </span>
+                        <div class="dt-actions">
+                            <a asp-page="Editar" asp-route-id="@d.Id" class="dt-action-btn dt-action-edit" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a asp-page="Eliminar" asp-route-id="@d.Id" class="dt-action-btn dt-action-delete" title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    :root {
+        --dt-bg: #f1f5f9;
+        --dt-surface: #fff;
+        --dt-border: #e2e8f0;
+        --dt-text: #1e293b;
+        --dt-muted: #64748b;
+        --dt-radius: 14px;
+        --dt-shadow: 0 4px 16px rgba(0,0,0,.07);
+        --dt-transition: all .2s ease;
+        --c-pendiente: #f59e0b;
+        --c-diagnostico: #3b82f6;
+        --c-reparacion: #8b5cf6;
+        --c-completado: #10b981;
+        --c-cancelado: #ef4444
+    }
+
+    .dt-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        gap: 16px;
+        flex-wrap: wrap
+    }
+
+    .dt-page-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--dt-text);
+        margin: 0
+    }
+
+    .dt-page-sub {
+        font-size: 14px;
+        color: var(--dt-muted);
+        margin: 2px 0 0
+    }
+
+    .dt-alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px 18px;
+        border-radius: var(--dt-radius);
+        font-size: 14px;
+        margin-bottom: 20px
+    }
+
+    .dt-alert-success {
+        background: #ecfdf5;
+        border: 1px solid #6ee7b7;
+        color: #065f46
+    }
+
+    .dt-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+        transition: var(--dt-transition);
+        white-space: nowrap
+    }
+
+    .dt-btn-primary {
+        background: linear-gradient(135deg,#3b82f6,#2563eb);
+        color: white
+    }
+
+        .dt-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59,130,246,.35);
+            color: white;
+            text-decoration: none
+        }
+
+    .dt-btn-secondary {
+        background: white;
+        border: 1px solid var(--dt-border);
+        color: var(--dt-text)
+    }
+
+        .dt-btn-secondary:hover {
+            background: var(--dt-bg);
+            text-decoration: none
+        }
+
+    .dt-btn-ghost {
+        background: var(--dt-surface);
+        border: 1px solid var(--dt-border);
+        color: var(--dt-muted)
+    }
+
+        .dt-btn-ghost:hover {
+            background: var(--dt-bg);
+            color: var(--dt-text);
+            text-decoration: none
+        }
+
+    .dt-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill,minmax(340px,1fr));
+        gap: 20px
+    }
+
+    .dt-card {
+        background: var(--dt-surface);
+        border-radius: var(--dt-radius);
+        border: 1px solid var(--dt-border);
+        box-shadow: var(--dt-shadow);
+        display: flex;
+        flex-direction: column;
+        transition: var(--dt-transition);
+        animation: fadeCard .4s ease both;
+        overflow: hidden
+    }
+
+        .dt-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,.1)
+        }
+
+    @@keyframes fadeCard {
+        from {
+            opacity: 0;
+            transform: translateY(12px)
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0)
+        }
+    }
+
+    .dt-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px 12px;
+        border-bottom: 1px solid var(--dt-border);
+        gap: 8px;
+        flex-wrap: wrap
+    }
+
+    .dt-card-badges {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap
+    }
+
+    .dt-card-id {
+        font-weight: 700;
+        font-size: 18px;
+        color: var(--dt-text)
+    }
+
+    .dt-card-body {
+        padding: 16px 20px;
+        flex: 1
+    }
+
+    .dt-card-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        margin-bottom: 14px;
+        font-size: 13px;
+        color: var(--dt-muted)
+    }
+
+        .dt-card-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px
+        }
+
+        .dt-card-meta i {
+            color: #94a3b8
+        }
+
+        .dt-card-meta strong {
+            color: var(--dt-text)
+        }
+
+    .dt-card-desc {
+        font-size: 14px;
+        color: #334155;
+        line-height: 1.6;
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 12px 14px;
+        border-left: 3px solid #8b5cf6
+    }
+
+    .dt-desc-more {
+        color: var(--dt-muted)
+    }
+
+    .dt-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 20px;
+        border-top: 1px solid var(--dt-border);
+        background: #f8fafc
+    }
+
+    .dt-card-date {
+        font-size: 12px;
+        color: var(--dt-muted);
+        display: flex;
+        align-items: center;
+        gap: 5px
+    }
+
+    .dt-actions {
+        display: flex;
+        gap: 6px
+    }
+
+    .dt-action-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        text-decoration: none;
+        transition: var(--dt-transition);
+        border: 1px solid var(--dt-border);
+        background: white
+    }
+
+    .dt-action-edit {
+        color: #3b82f6
+    }
+
+        .dt-action-edit:hover {
+            background: #dbeafe;
+            border-color: #3b82f6;
+            color: #1e40af;
+            text-decoration: none
+        }
+
+    .dt-action-delete {
+        color: #ef4444
+    }
+
+        .dt-action-delete:hover {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+            text-decoration: none
+        }
+
+    .dt-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 100px;
+        font-size: 12px;
+        font-weight: 700
+    }
+
+    .dt-badge-pendiente {
+        background: #fef3c7;
+        color: #92400e
+    }
+
+    .dt-badge-en-diagnostico {
+        background: #dbeafe;
+        color: #1e40af
+    }
+
+    .dt-badge-en-reparacion {
+        background: #ede9fe;
+        color: #5b21b6
+    }
+
+    .dt-badge-completado {
+        background: #d1fae5;
+        color: #065f46
+    }
+
+    .dt-badge-cancelado {
+        background: #fee2e2;
+        color: #991b1b
+    }
+
+    .dt-badge-sin-estado {
+        background: #f1f5f9;
+        color: #64748b
+    }
+
+    .dt-badge-tecnico {
+        background: #f0fdf4;
+        color: #166534;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px
+    }
+
+    .dt-empty {
+        text-align: center;
+        padding: 80px 24px;
+        background: white;
+        border-radius: var(--dt-radius);
+        border: 1px dashed var(--dt-border)
+    }
+
+    .dt-empty-icon {
+        font-size: 56px;
+        margin-bottom: 16px
+    }
+
+    .dt-empty h3 {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--dt-text);
+        margin-bottom: 8px
+    }
+
+    .dt-empty p {
+        color: var(--dt-muted);
+        margin-bottom: 24px
+    }
+
+    @@media(max-width:768px) {
+        .dt-cards-grid {
+            grid-template-columns: 1fr
+        }
+    }
+</style>

@@ -1,5 +1,5 @@
-﻿CREATE PROCEDURE ObtenerMotor
-    @Id INT
+﻿CREATE PROCEDURE ObtenerMotoresPorUsuario
+    @UsuarioId INT
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -22,6 +22,7 @@ BEGIN
     FROM Motores m
     INNER JOIN Usuarios     u  ON m.UsuarioId = u.Id
     INNER JOIN ModelosMotor mm ON m.ModeloId  = mm.Id
-    WHERE m.Id = @Id;
+    WHERE m.UsuarioId = @UsuarioId
+    ORDER BY m.CreadoEn DESC;
 END
 GO

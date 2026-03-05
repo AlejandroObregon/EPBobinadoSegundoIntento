@@ -1,31 +1,21 @@
-﻿
-/* =========================================================
-   MOTORES
-   ========================================================= */
-
--- Obtener todos los motores
-CREATE PROCEDURE ObtenerMotores
+﻿CREATE PROCEDURE ObtenerMotores
 AS
 BEGIN
     SET NOCOUNT ON;
-
     SELECT
-        m.Id,
-        m.UsuarioId,
-        m.ModeloId,
-        m.NumeroSerie,
-        m.CreadoEn,
-        -- datos del usuario
-        u.Id        AS UsuarioId,
-        u.Nombre    AS Nombre,
-        u.Email     AS Email,
-        u.Cedula    AS Cedula,
-        u.Telefono  AS Telefono,
-        -- datos del modelo
-        mm.Id       AS ModeloId,
-        mm.Nombre   AS ModeloNombre
+        m.Id, m.UsuarioId, m.ModeloId, m.NumeroSerie, m.CreadoEn,
+        u.Id         AS UsuId,
+        u.Nombre     AS UsuNombre,
+        u.Email      AS UsuEmail,
+        u.Cedula     AS UsuCedula,
+        u.Telefono   AS UsuTelefono,
+        u.RolId      AS UsuRolId,
+        u.Activo     AS UsuActivo,
+        mm.Id        AS ModId,
+        mm.Nombre    AS ModNombre,
+        mm.Especificaciones AS ModEspecificaciones
     FROM Motores m
-    INNER JOIN Usuarios      u  ON m.UsuarioId = u.Id
-    INNER JOIN ModelosMotor  mm ON m.ModeloId  = mm.Id;
+    INNER JOIN Usuarios     u  ON m.UsuarioId = u.Id
+    INNER JOIN ModelosMotor mm ON m.ModeloId  = mm.Id
+    ORDER BY m.CreadoEn DESC;
 END
-GO

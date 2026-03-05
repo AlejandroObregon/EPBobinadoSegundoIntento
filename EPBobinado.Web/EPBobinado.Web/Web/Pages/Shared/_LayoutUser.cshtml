@@ -342,10 +342,16 @@
                     <span class="menu-label">Órdenes</span>
                 </a>
             </li>
-            <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Servicios") ? "active" : "")">
-                <a href="/Servicios/Listado">
+            <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Diagnosticos_iniciales") ? "active" : "")">
+                <a href="/Diagnosticos_iniciales/Listado">
                     <span class="menu-icon"><i class="bi bi-wrench-adjustable"></i></span>
-                    <span class="menu-label">Servicios</span>
+                    <span class="menu-label">Diagnósticos Iniciales</span>
+                </a>
+            </li>
+            <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Diagnosticos_tecnicos") ? "active" : "")">
+                <a href="/Diagnosticos_tecnicos/Listado">
+                    <span class="menu-icon"><i class="bi bi-wrench-adjustable"></i></span>
+                    <span class="menu-label">Diagnósticos Técnicos</span>
                 </a>
             </li>
             <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Historial") ? "active" : "")">
@@ -392,7 +398,7 @@
                         <span class="user-role">@(Context.Session.GetString("UsuarioNivel") ?? "")</span>
                     </div>
                 </div>
-                <a href="/Login" class="btn-logout" title="Cerrar sesión"
+                <a href="auth/Login" class="btn-logout" title="Cerrar sesión"
                    onclick="return confirm('¿Está seguro de cerrar sesión?')">
                     <i class="bi bi-box-arrow-right"></i>
                 </a>

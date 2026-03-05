@@ -13,8 +13,6 @@
 
   <ItemGroup>
     <Folder Include="Components\" />
-    <Folder Include="Pages\Diagnosticos_Iniciales\" />
-    <Folder Include="Pages\Diagnosticos_Tecnicos\" />
     <Folder Include="Pages\Cotizaciones\" />
   </ItemGroup>
 

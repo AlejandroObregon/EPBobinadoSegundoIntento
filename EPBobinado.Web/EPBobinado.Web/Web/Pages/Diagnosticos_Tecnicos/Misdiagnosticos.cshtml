@@ -1,0 +1,557 @@
+﻿@page
+@model Web.Pages.DiagnosticoTecnico.MisDiagnosticosModel
+@{
+    Layout = "_LayoutUser";
+    ViewData["Title"] = "Mis Diagnósticos Técnicos";
+}
+
+<div class="dt-page">
+
+    <!-- HERO DEL TÉCNICO -->
+    <div class="dt-tecnico-hero">
+        <div class="dt-tecnico-avatar">
+            @Model.NombreTecnico[0]
+        </div>
+        <div>
+            <h2 class="dt-page-title">Mis Diagnósticos Técnicos</h2>
+            <p class="dt-page-sub">
+                <i class="bi bi-person-gear"></i> @Model.NombreTecnico
+                &nbsp;·&nbsp;
+                @Model.Diagnosticos.Count diagnóstico(s) asignado(s)
+            </p>
+        </div>
+        <a asp-page="Agregar" class="dt-btn dt-btn-primary ms-auto">
+            <i class="bi bi-plus-circle"></i> Nuevo Diagnóstico
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="dt-alert dt-alert-success"><i class="bi bi-check-circle-fill"></i> @TempData["Success"]</div>
+    }
+
+    @if (!Model.Diagnosticos.Any())
+    {
+        <div class="dt-empty">
+            <div class="dt-empty-icon">🔧</div>
+            <h3>No tienes diagnósticos asignados</h3>
+            <p>Los diagnósticos técnicos de órdenes que te están asignadas aparecerán aquí</p>
+            <a asp-page="Listado" class="dt-btn dt-btn-ghost">Ver todos los diagnósticos</a>
+        </div>
+    }
+    else
+    {
+        <!-- RESUMEN RÁPIDO -->
+        <div class="dt-mis-stats">
+            @{
+                var porEstado = Model.Diagnosticos
+                .GroupBy(d => d.Orden?.Estado ?? "Sin estado")
+                .OrderByDescending(g => g.Count());
+            }
+            @foreach (var grupo in porEstado)
+            {
+                var slug = grupo.Key.ToLower().Replace(" ", "-").Replace("ó", "o").Replace("é", "e");
+                <div class="dt-stat-chip dt-stat-@slug">
+                    <span class="dt-stat-num">@grupo.Count()</span>
+                    <span class="dt-stat-label">@grupo.Key</span>
+                </div>
+            }
+        </div>
+
+        <!-- TARJETAS -->
+        <div class="dt-cards-grid">
+            @foreach (var d in Model.Diagnosticos)
+            {
+                var estadoSlug = (d.Orden?.Estado ?? "").ToLower()
+                .Replace(" ", "-").Replace("ó", "o").Replace("é", "e");
+                <div class="dt-card dt-card-mine">
+                    <div class="dt-card-header">
+                        <div class="dt-card-id">#@d.Id</div>
+                        <span class="dt-badge dt-badge-@estadoSlug">@(d.Orden?.Estado ?? "Sin estado")</span>
+                    </div>
+
+                    <div class="dt-card-body">
+                        <div class="dt-card-meta">
+                            <span><i class="bi bi-clipboard-check"></i> Orden <strong>#@d.OrdenId</strong></span>
+                            @if (d.Orden?.Motor != null)
+                            {
+                                <span>
+                                    <i class="bi bi-motorcycle"></i>
+                                    @(d.Orden.Motor.NumeroSerie ?? $"Motor #{d.Orden.MotorId}")
+                                    — @(d.Orden.Motor.Modelo?.Nombre ?? "")
+                                </span>
+                            }
+                            @if (d.Orden?.Motor?.Usuario != null)
+                            {
+                                <span><i class="bi bi-person"></i> Cliente: @d.Orden.Motor.Usuario.Nombre</span>
+                            }
+                        </div>
+
+                        <div class="dt-card-desc">
+                            @if (d.Detalle.Length > 180)
+                            {
+                                @d.Detalle[..180]
+                    
+                                <span class="dt-desc-more">...</span>
+                            }
+                            else
+                            {
+                                @d.Detalle
+                            }
+                        </div>
+                    </div>
+
+                    <div class="dt-card-footer">
+                        <span class="dt-card-date">
+                            <i class="bi bi-calendar3"></i> @d.CreadoEn.ToString("dd/MM/yyyy HH:mm")
+                        </span>
+                        <div class="dt-actions">
+                            <a asp-page="Editar" asp-route-id="@d.Id" class="dt-action-btn dt-action-edit" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a asp-page="Eliminar" asp-route-id="@d.Id" class="dt-action-btn dt-action-delete" title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    :root {
+        --dt-bg: #f1f5f9;
+        --dt-surface: #fff;
+        --dt-border: #e2e8f0;
+        --dt-text: #1e293b;
+        --dt-muted: #64748b;
+        --dt-radius: 14px;
+        --dt-shadow: 0 4px 16px rgba(0,0,0,.07);
+        --dt-transition: all .2s ease;
+        --c-pendiente: #f59e0b;
+        --c-diagnostico: #3b82f6;
+        --c-reparacion: #8b5cf6;
+        --c-completado: #10b981;
+        --c-cancelado: #ef4444
+    }
+
+    .dt-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        gap: 16px;
+        flex-wrap: wrap
+    }
+
+    .dt-page-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--dt-text);
+        margin: 0
+    }
+
+    .dt-page-sub {
+        font-size: 14px;
+        color: var(--dt-muted);
+        margin: 2px 0 0
+    }
+
+    /* HERO */
+    .dt-tecnico-hero {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        background: linear-gradient(135deg,#1e293b,#334155);
+        border-radius: var(--dt-radius);
+        padding: 28px 32px;
+        margin-bottom: 28px;
+        flex-wrap: wrap
+    }
+
+    .dt-tecnico-avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: linear-gradient(135deg,#3b82f6,#2563eb);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        font-weight: 700;
+        flex-shrink: 0;
+        box-shadow: 0 4px 16px rgba(59,130,246,.4)
+    }
+
+    .dt-tecnico-hero .dt-page-title {
+        color: white
+    }
+
+    .dt-tecnico-hero .dt-page-sub {
+        color: #94a3b8
+    }
+
+    /* STATS */
+    .dt-mis-stats {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 24px
+    }
+
+    .dt-stat-chip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 18px;
+        border-radius: 100px;
+        background: white;
+        border: 2px solid;
+        font-size: 13px;
+        font-weight: 600
+    }
+
+    .dt-stat-num {
+        font-size: 20px;
+        font-weight: 700
+    }
+
+    .dt-stat-pendiente {
+        border-color: var(--c-pendiente);
+        color: var(--c-pendiente)
+    }
+
+    .dt-stat-en-diagnostico {
+        border-color: var(--c-diagnostico);
+        color: var(--c-diagnostico)
+    }
+
+    .dt-stat-en-reparacion {
+        border-color: var(--c-reparacion);
+        color: var(--c-reparacion)
+    }
+
+    .dt-stat-completado {
+        border-color: var(--c-completado);
+        color: var(--c-completado)
+    }
+
+    .dt-stat-cancelado {
+        border-color: var(--c-cancelado);
+        color: var(--c-cancelado)
+    }
+
+    .dt-stat-sin-estado {
+        border-color: #cbd5e1;
+        color: #64748b
+    }
+
+    /* ALERT */
+    .dt-alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px 18px;
+        border-radius: var(--dt-radius);
+        font-size: 14px;
+        margin-bottom: 20px
+    }
+
+    .dt-alert-success {
+        background: #ecfdf5;
+        border: 1px solid #6ee7b7;
+        color: #065f46
+    }
+
+    /* BTN */
+    .dt-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+        transition: var(--dt-transition);
+        white-space: nowrap
+    }
+
+    .dt-btn-primary {
+        background: linear-gradient(135deg,#3b82f6,#2563eb);
+        color: white
+    }
+
+        .dt-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59,130,246,.35);
+            color: white;
+            text-decoration: none
+        }
+
+    .dt-btn-ghost {
+        background: var(--dt-surface);
+        border: 1px solid var(--dt-border);
+        color: var(--dt-muted)
+    }
+
+        .dt-btn-ghost:hover {
+            background: var(--dt-bg);
+            color: var(--dt-text);
+            text-decoration: none
+        }
+
+    /* CARDS */
+    .dt-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill,minmax(340px,1fr));
+        gap: 20px
+    }
+
+    .dt-card {
+        background: var(--dt-surface);
+        border-radius: var(--dt-radius);
+        border: 1px solid var(--dt-border);
+        box-shadow: var(--dt-shadow);
+        display: flex;
+        flex-direction: column;
+        transition: var(--dt-transition);
+        animation: fadeCard .4s ease both;
+        overflow: hidden
+    }
+
+        .dt-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,.1)
+        }
+
+    .dt-card-mine {
+        border-top: 3px solid #3b82f6
+    }
+
+    @@keyframes fadeCard {
+        from {
+            opacity: 0;
+            transform: translateY(12px)
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0)
+        }
+    }
+
+    .dt-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px 12px;
+        border-bottom: 1px solid var(--dt-border);
+        gap: 8px;
+        flex-wrap: wrap
+    }
+
+    .dt-card-badges {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap
+    }
+
+    .dt-card-id {
+        font-weight: 700;
+        font-size: 18px;
+        color: var(--dt-text)
+    }
+
+    .dt-card-body {
+        padding: 16px 20px;
+        flex: 1
+    }
+
+    .dt-card-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        margin-bottom: 14px;
+        font-size: 13px;
+        color: var(--dt-muted)
+    }
+
+        .dt-card-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px
+        }
+
+        .dt-card-meta i {
+            color: #94a3b8
+        }
+
+        .dt-card-meta strong {
+            color: var(--dt-text)
+        }
+
+    .dt-card-desc {
+        font-size: 14px;
+        color: #334155;
+        line-height: 1.6;
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 12px 14px;
+        border-left: 3px solid #8b5cf6
+    }
+
+    .dt-desc-more {
+        color: var(--dt-muted)
+    }
+
+    .dt-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 20px;
+        border-top: 1px solid var(--dt-border);
+        background: #f8fafc
+    }
+
+    .dt-card-date {
+        font-size: 12px;
+        color: var(--dt-muted);
+        display: flex;
+        align-items: center;
+        gap: 5px
+    }
+
+    .dt-actions {
+        display: flex;
+        gap: 6px
+    }
+
+    .dt-action-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        text-decoration: none;
+        transition: var(--dt-transition);
+        border: 1px solid var(--dt-border);
+        background: white
+    }
+
+    .dt-action-edit {
+        color: #3b82f6
+    }
+
+        .dt-action-edit:hover {
+            background: #dbeafe;
+            border-color: #3b82f6;
+            color: #1e40af;
+            text-decoration: none
+        }
+
+    .dt-action-delete {
+        color: #ef4444
+    }
+
+        .dt-action-delete:hover {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+            text-decoration: none
+        }
+
+    /* BADGES */
+    .dt-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 100px;
+        font-size: 12px;
+        font-weight: 700
+    }
+
+    .dt-badge-pendiente {
+        background: #fef3c7;
+        color: #92400e
+    }
+
+    .dt-badge-en-diagnostico {
+        background: #dbeafe;
+        color: #1e40af
+    }
+
+    .dt-badge-en-reparacion {
+        background: #ede9fe;
+        color: #5b21b6
+    }
+
+    .dt-badge-completado {
+        background: #d1fae5;
+        color: #065f46
+    }
+
+    .dt-badge-cancelado {
+        background: #fee2e2;
+        color: #991b1b
+    }
+
+    .dt-badge-sin-estado {
+        background: #f1f5f9;
+        color: #64748b
+    }
+
+    .dt-badge-tecnico {
+        background: #f0fdf4;
+        color: #166534;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px
+    }
+
+    /* EMPTY */
+    .dt-empty {
+        text-align: center;
+        padding: 80px 24px;
+        background: white;
+        border-radius: var(--dt-radius);
+        border: 1px dashed var(--dt-border)
+    }
+
+    .dt-empty-icon {
+        font-size: 56px;
+        margin-bottom: 16px
+    }
+
+    .dt-empty h3 {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--dt-text);
+        margin-bottom: 8px
+    }
+
+    .dt-empty p {
+        color: var(--dt-muted);
+        margin-bottom: 24px
+    }
+
+    @@media(max-width:768px) {
+        .dt-cards-grid {
+            grid-template-columns: 1fr
+        }
+
+        .dt-tecnico-hero {
+            padding: 20px
+        }
+
+        .dt-mis-stats {
+            gap: 8px
+        }
+    }
+</style>

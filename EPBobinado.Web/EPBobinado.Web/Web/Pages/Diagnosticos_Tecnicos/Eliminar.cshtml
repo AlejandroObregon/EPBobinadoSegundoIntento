@@ -1,0 +1,234 @@
+﻿@page "{id:int}"
+@model Web.Pages.DiagnosticoTecnico.EliminarModel
+@{
+    Layout = "_LayoutUser";
+    ViewData["Title"] = "Eliminar Diagnóstico Técnico";
+}
+
+<div class="dt-page">
+
+    <div class="dt-page-header">
+        <div>
+            <h2 class="dt-page-title">🗑️ Eliminar Diagnóstico Técnico</h2>
+            <p class="dt-page-sub">Esta acción no se puede deshacer</p>
+        </div>
+        <a asp-page="Listado" class="dt-btn dt-btn-ghost">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    @if (Model.Diagnostico != null)
+    {
+        <div class="dt-delete-card">
+            <div class="dt-delete-warning">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>¿Está seguro de que desea eliminar el diagnóstico técnico <strong>#@Model.Diagnostico.Id</strong>?</span>
+            </div>
+
+            <div class="dt-detail-grid">
+                <div class="dt-detail-item">
+                    <span class="dt-detail-label">Orden</span>
+                    <span class="dt-detail-value">#@Model.Diagnostico.OrdenId</span>
+                </div>
+                <div class="dt-detail-item">
+                    <span class="dt-detail-label">Estado de Orden</span>
+                    <span class="dt-detail-value">@(Model.Diagnostico.Orden?.Estado ?? "—")</span>
+                </div>
+                <div class="dt-detail-item">
+                    <span class="dt-detail-label">Motor</span>
+                    <span class="dt-detail-value">@(Model.Diagnostico.Orden?.Motor?.NumeroSerie ?? "—")</span>
+                </div>
+                <div class="dt-detail-item">
+                    <span class="dt-detail-label">Usuario</span>
+                    <span class="dt-detail-value">@(Model.Diagnostico.Orden?.Motor?.Usuario?.Nombre ?? "—")</span>
+                </div>
+                <div class="dt-detail-item">
+                    <span class="dt-detail-label">Técnico asignado</span>
+                    <span class="dt-detail-value">@(Model.Diagnostico.Orden?.Tecnico?.Nombre ?? "Sin asignar")</span>
+                </div>
+                <div class="dt-detail-item">
+                    <span class="dt-detail-label">Registrado el</span>
+                    <span class="dt-detail-value">@Model.Diagnostico.CreadoEn.ToString("dd/MM/yyyy HH:mm")</span>
+                </div>
+                <div class="dt-detail-item dt-detail-full">
+                    <span class="dt-detail-label">Detalle</span>
+                    <span class="dt-detail-value">@Model.Diagnostico.Detalle</span>
+                </div>
+            </div>
+
+            <form method="post">
+                <input type="hidden" name="id" value="@Model.Diagnostico.Id" />
+                <div class="dt-form-actions">
+                    <button type="submit" asp-page-handler="Eliminar" class="dt-btn dt-btn-danger">
+                        <i class="bi bi-trash"></i> Confirmar Eliminación
+                    </button>
+                    <a asp-page="Listado" class="dt-btn dt-btn-ghost">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    }
+    else
+    {
+        <div class="dt-alert dt-alert-warning">
+            <i class="bi bi-search"></i> No se encontró el diagnóstico técnico.
+        </div>
+        <a asp-page="Listado" class="dt-btn dt-btn-ghost mt-3">Volver al Listado</a>
+    }
+</div>
+
+<style>
+    :root {
+        --dt-bg: #f1f5f9;
+        --dt-surface: #fff;
+        --dt-border: #e2e8f0;
+        --dt-text: #1e293b;
+        --dt-muted: #64748b;
+        --dt-radius: 14px;
+        --dt-shadow: 0 4px 16px rgba(0,0,0,.07);
+        --dt-transition: all .2s ease
+    }
+
+    .dt-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        gap: 16px
+    }
+
+    .dt-page-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--dt-text);
+        margin: 0
+    }
+
+    .dt-page-sub {
+        font-size: 14px;
+        color: var(--dt-muted);
+        margin: 2px 0 0
+    }
+
+    .dt-alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px 18px;
+        border-radius: var(--dt-radius);
+        font-size: 14px;
+        margin-bottom: 20px
+    }
+
+    .dt-alert-warning {
+        background: #fffbeb;
+        border: 1px solid #fcd34d;
+        color: #92400e
+    }
+
+    .dt-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+        transition: var(--dt-transition);
+        white-space: nowrap
+    }
+
+    .dt-btn-danger {
+        background: linear-gradient(135deg,#ef4444,#dc2626);
+        color: white
+    }
+
+        .dt-btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239,68,68,.35);
+            color: white;
+            text-decoration: none
+        }
+
+    .dt-btn-ghost {
+        background: var(--dt-surface);
+        border: 1px solid var(--dt-border);
+        color: var(--dt-muted)
+    }
+
+        .dt-btn-ghost:hover {
+            background: var(--dt-bg);
+            color: var(--dt-text);
+            text-decoration: none
+        }
+
+    .dt-form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 8px
+    }
+
+    .dt-delete-card {
+        background: var(--dt-surface);
+        border-radius: var(--dt-radius);
+        box-shadow: var(--dt-shadow);
+        border: 1px solid var(--dt-border);
+        padding: 32px
+    }
+
+    .dt-delete-warning {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 20px;
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        border-radius: 10px;
+        color: #9a3412;
+        font-size: 15px;
+        font-weight: 500;
+        margin-bottom: 28px
+    }
+
+        .dt-delete-warning i {
+            font-size: 22px;
+            color: #f97316;
+            flex-shrink: 0
+        }
+
+    .dt-detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill,minmax(200px,1fr));
+        gap: 16px;
+        margin-bottom: 28px
+    }
+
+    .dt-detail-full {
+        grid-column: 1/-1
+    }
+
+    .dt-detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 14px 16px;
+        background: var(--dt-bg);
+        border-radius: 10px
+    }
+
+    .dt-detail-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--dt-muted);
+        text-transform: uppercase;
+        letter-spacing: .06em
+    }
+
+    .dt-detail-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--dt-text)
+    }
+</style>

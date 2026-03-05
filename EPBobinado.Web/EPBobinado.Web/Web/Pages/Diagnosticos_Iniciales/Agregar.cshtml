@@ -1,0 +1,229 @@
+﻿@page
+@model Web.Pages.DiagnosticoInicial.AgregarModel
+@{
+    Layout = "_LayoutUser";
+    ViewData["Title"] = "Nuevo Diagnóstico Inicial";
+}
+
+<div class="di-page">
+
+    <div class="di-page-header">
+        <div>
+            <h2 class="di-page-title">🔍 Nuevo Diagnóstico Inicial</h2>
+            <p class="di-page-sub">Registra el diagnóstico inicial de una orden de servicio</p>
+        </div>
+        <a asp-page="Listado" class="di-btn di-btn-ghost">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="di-alert di-alert-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <ul class="mb-0">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@error.ErrorMessage</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <div class="di-form-card">
+        <form method="post">
+
+            <div class="di-field">
+                <label asp-for="Diagnostico.OrdenId" class="di-label">Orden de Servicio</label>
+                <select asp-for="Diagnostico.OrdenId" class="di-select">
+                    <option value="">— Seleccione una orden —</option>
+                    @foreach (var o in Model.Ordenes)
+                    {
+                        <option value="@o.Id">
+                            #@o.Id — @o.Estado
+                            @if (o.Motor != null)
+                            {
+                                <text> — @(o.Motor.NumeroSerie ?? $"Motor #{o.MotorId}")</text>
+                            }
+                            @if (o.Motor?.Usuario != null)
+                            {
+                                <text> (@o.Motor.Usuario.Nombre)</text>
+                            }
+                        </option>
+                    }
+                </select>
+                <span asp-validation-for="Diagnostico.OrdenId" class="di-error"></span>
+            </div>
+
+            <div class="di-field">
+                <label asp-for="Diagnostico.Descripcion" class="di-label">Descripción del Diagnóstico</label>
+                <textarea asp-for="Diagnostico.Descripcion" class="di-textarea" rows="6"
+                          placeholder="Describe detalladamente el diagnóstico inicial del motor: estado observado, síntomas, posibles causas..."></textarea>
+                <span asp-validation-for="Diagnostico.Descripcion" class="di-error"></span>
+            </div>
+
+            <div class="di-form-actions">
+                <button type="submit" class="di-btn di-btn-primary">
+                    <i class="bi bi-save"></i> Guardar Diagnóstico
+                </button>
+                <a asp-page="Listado" class="di-btn di-btn-ghost">Cancelar</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<style>
+    :root {
+        --di-bg: #f1f5f9;
+        --di-surface: #fff;
+        --di-border: #e2e8f0;
+        --di-text: #1e293b;
+        --di-muted: #64748b;
+        --di-radius: 14px;
+        --di-shadow: 0 4px 16px rgba(0,0,0,.07);
+        --di-transition: all .2s ease;
+    }
+
+    .di-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        gap: 16px
+    }
+
+    .di-page-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--di-text);
+        margin: 0
+    }
+
+    .di-page-sub {
+        font-size: 14px;
+        color: var(--di-muted);
+        margin: 2px 0 0
+    }
+
+    .di-alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px 18px;
+        border-radius: var(--di-radius);
+        font-size: 14px;
+        margin-bottom: 20px
+    }
+
+    .di-alert-danger {
+        background: #fef2f2;
+        border: 1px solid #fca5a5;
+        color: #991b1b
+    }
+
+    .di-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+        transition: var(--di-transition);
+        white-space: nowrap
+    }
+
+    .di-btn-primary {
+        background: linear-gradient(135deg,#3b82f6,#2563eb);
+        color: white
+    }
+
+        .di-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59,130,246,.35);
+            color: white;
+            text-decoration: none
+        }
+
+    .di-btn-ghost {
+        background: var(--di-surface);
+        border: 1px solid var(--di-border);
+        color: var(--di-muted)
+    }
+
+        .di-btn-ghost:hover {
+            background: var(--di-bg);
+            color: var(--di-text);
+            text-decoration: none
+        }
+
+    .di-form-card {
+        background: var(--di-surface);
+        border-radius: var(--di-radius);
+        box-shadow: var(--di-shadow);
+        border: 1px solid var(--di-border);
+        padding: 32px
+    }
+
+    .di-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 24px
+    }
+
+    .di-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #475569
+    }
+
+    .di-select, .di-textarea {
+        padding: 11px 14px;
+        border: 1px solid var(--di-border);
+        border-radius: 10px;
+        font-size: 14px;
+        color: var(--di-text);
+        background: white;
+        transition: var(--di-transition);
+        outline: none;
+        width: 100%
+    }
+
+        .di-select:focus, .di-textarea:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,.12)
+        }
+
+    .di-textarea {
+        resize: vertical;
+        font-family: inherit;
+        line-height: 1.6
+    }
+
+    .di-error {
+        font-size: 12px;
+        color: #ef4444
+    }
+
+    .di-form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 8px
+    }
+
+    @@media(max-width:768px) {
+        .di-page-header {
+            flex-direction: column;
+            align-items: flex-start
+        }
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
