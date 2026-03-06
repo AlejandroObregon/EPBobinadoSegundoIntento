@@ -1,11 +1,13 @@
 using Abstracciones.Modelos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Security.Cryptography;
 using System.Text.Json;
+using Web.Pages;
 
 namespace Web.Pages
 {
-    public class ClienteHomeModel : PageModel
+    public class ClienteHomeModel : PageModelBase
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _config;
@@ -16,9 +18,8 @@ namespace Web.Pages
             _config = config;
         }
 
-        // ── Datos del cliente ─────────────────────────────────────
-        public string UsuarioNombre { get; set; } = "";
-        public int UsuarioId { get; set; }
+        // ── Datos del cliente (heredados de PageModelBase) ───────────
+        // UsuarioId, UsuarioRol, UsuarioNombre disponibles desde la base
 
         // ── Métricas ──────────────────────────────────────────────
         public int TotalMotores { get; set; }
@@ -32,20 +33,15 @@ namespace Web.Pages
 
         public async Task<IActionResult> OnGetAsync()
         {
-            // Verificar sesión
-            var nombre = HttpContext.Session.GetString("UsuarioNombre");
-            if (string.IsNullOrWhiteSpace(nombre))
-                return Redirect("/Auth/Login");
-
-            int.TryParse(HttpContext.Session.GetString("UsuarioId"), out int uid);
-            int.TryParse(HttpContext.Session.GetString("UsuarioNivel"), out int rol);
+            // Verificar sesión activa (solo clientes)
+            var auth = VerificarSesion();
+            if (auth != null) return auth;
 
             // Solo clientes aquí; admins/técnicos van al dashboard general
-            if (rol != 1)
+            if (UsuarioRol != 1)
                 return Redirect("/HomePage/HomePage");
 
-            UsuarioNombre = nombre;
-            UsuarioId = uid;
+            // UsuarioNombre ya está disponible desde PageModelBase
 
             var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             var client = _httpClientFactory.CreateClient();
@@ -58,7 +54,7 @@ namespace Web.Pages
                 {
                     var todos = JsonSerializer.Deserialize<List<MotorResponse>>(
                         await resp.Content.ReadAsStringAsync(), opciones) ?? new();
-                    MisMotores = todos.Where(m => m.UsuarioId == uid).ToList();
+                    MisMotores = todos.Where(m => m.UsuarioId == UsuarioId).ToList();
                     TotalMotores = MisMotores.Count;
                 }
             }

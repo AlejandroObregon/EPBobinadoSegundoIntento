@@ -1,12 +1,13 @@
 using Abstracciones.Modelos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Web.Pages;
 using System.Net;
 using System.Text.Json;
 
 namespace Web.Pages.Producto
 {
-    public class CatalogoModel : PageModel
+    public class CatalogoModel : PageModelBase
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _config;
@@ -24,9 +25,8 @@ namespace Web.Pages.Producto
         public async Task<IActionResult> OnGetAsync()
         {
             // Redirigir si no hay sesión activa
-            var usuarioId = HttpContext.Session.GetString("UsuarioId");
-            if (string.IsNullOrWhiteSpace(usuarioId))
-                return RedirectToPage("/Auth/Login");
+            var auth = VerificarSesion();
+            if (auth != null) return auth;
 
             // Construir endpoint
             var section = _config.GetSection("ApiEndPointsProducto");

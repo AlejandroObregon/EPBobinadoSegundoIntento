@@ -1,11 +1,12 @@
 using Abstracciones.Modelos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Web.Pages;
 using System.Text.Json;
 
 namespace Web.Pages.HomePage
 {
-    public class HomePageModel : PageModel
+    public class HomePageModel : PageModelBase
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _config;
@@ -32,9 +33,12 @@ namespace Web.Pages.HomePage
             var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             var client = _httpClientFactory.CreateClient();
 
-            // Obtener UsuarioId de sesión para filtrar si es un cliente
-            int.TryParse(HttpContext.Session.GetString("UsuarioId"), out int usuarioId);
-            int.TryParse(HttpContext.Session.GetString("UsuarioNivel"), out int rol);
+            // Verificar sesión activa
+            var auth = VerificarSesion();
+            if (auth != null) return auth;
+
+            int usuarioId = UsuarioId;
+            int rol = UsuarioRol;
 
             // Los clientes tienen su propio dashboard
             if (rol == 1)

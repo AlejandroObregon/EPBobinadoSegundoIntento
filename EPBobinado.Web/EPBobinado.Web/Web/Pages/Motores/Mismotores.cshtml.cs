@@ -1,12 +1,13 @@
 using Abstracciones.Modelos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Web.Pages;
 using System.Net;
 using System.Text.Json;
 
 namespace Web.Pages.Cliente
 {
-    public class MisMotoresModel : PageModel
+    public class MisMotoresModel : PageModelBase
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _config;
@@ -21,11 +22,10 @@ namespace Web.Pages.Cliente
 
         public async Task<IActionResult> OnGetAsync()
         {
-            var idStr = HttpContext.Session.GetString("UsuarioId");
-            if (string.IsNullOrWhiteSpace(idStr))
-                return Redirect("/Auth/Login");
+            var auth = VerificarSesion();
+            if (auth != null) return auth;
 
-            int.TryParse(idStr, out int usuarioId);
+            int usuarioId = UsuarioId;
 
             var section = _config.GetSection("ApiEndPointsMotor");
             var urlBase = (section.GetValue<string>("UrlBase") ?? "").Trim();
