@@ -1,0 +1,748 @@
+﻿@page "/Cliente/MisOrdenes"
+@model Web.Pages.Cliente.MisOrdenesModel
+@{
+    Layout = "_LayoutUser";
+    ViewData["Title"] = "Mis Órdenes";
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+
+<div class="mio-page">
+
+    <!-- HEADER -->
+    <div class="mio-header">
+        <div class="mio-header-left">
+            <div class="mio-header-icon">📋</div>
+            <div>
+                <h1 class="mio-title">MIS ÓRDENES</h1>
+                <p class="mio-subtitle">@Model.Ordenes.Count orden(es) de servicio</p>
+            </div>
+        </div>
+        <a asp-page="/Ordenes/Agregar" class="mio-btn mio-btn-primary">
+            <i class="bi bi-plus-lg"></i> Nueva Orden
+        </a>
+    </div>
+
+    @if (!Model.Ordenes.Any())
+    {
+        <div class="mio-empty">
+            <span style="font-size:64px">📋</span>
+            <h3>SIN ÓRDENES DE SERVICIO</h3>
+            <p>Crea tu primera orden para llevar tu moto al taller</p>
+            @if (!Model.MisMotores.Any())
+            {
+                <p class="mio-empty-hint">⚠️ Primero debes <a asp-page="/Motores/Agregar">registrar una moto</a></p>
+            }
+            else
+            {
+                <a asp-page="/Ordenes/Agregar" class="mio-btn mio-btn-primary">
+                    <i class="bi bi-plus-lg"></i> Crear orden
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <!-- CHIPS DE ESTADO -->
+        <div class="mio-chips">
+            <button class="mio-chip mio-chip-all mio-chip-active" data-filter="">
+                <span class="mio-chip-num">@Model.Ordenes.Count</span> Todas
+            </button>
+            @if (Model.TotalPendiente > 0)
+            {
+                <button class="mio-chip mio-chip-pendiente" data-filter="pendiente">
+                    <span class="mio-chip-num">@Model.TotalPendiente</span> Pendiente
+                </button>
+            }
+            @if (Model.TotalDiagnostico > 0)
+            {
+                <button class="mio-chip mio-chip-diagnostico" data-filter="endiagnostico">
+                    <span class="mio-chip-num">@Model.TotalDiagnostico</span> En diagnóstico
+                </button>
+            }
+            @if (Model.TotalReparacion > 0)
+            {
+                <button class="mio-chip mio-chip-reparacion" data-filter="enreparacion">
+                    <span class="mio-chip-num">@Model.TotalReparacion</span> En reparación
+                </button>
+            }
+            @if (Model.TotalCompletado > 0)
+            {
+                <button class="mio-chip mio-chip-completado" data-filter="completado">
+                    <span class="mio-chip-num">@Model.TotalCompletado</span> Completado
+                </button>
+            }
+            @if (Model.TotalCancelado > 0)
+            {
+                <button class="mio-chip mio-chip-cancelado" data-filter="cancelado">
+                    <span class="mio-chip-num">@Model.TotalCancelado</span> Cancelado
+                </button>
+            }
+        </div>
+
+        <!-- LISTA DE ÓRDENES -->
+        <div class="mio-list" id="mio-list">
+            @foreach (var o in Model.Ordenes)
+            {
+                var slug = o.Estado.ToLower()
+                .Replace(" ", "").Replace("ó", "o").Replace("é", "e").Replace("ú", "u").Replace("í", "i");
+                var activos = new[] { "Pendiente", "En diagnóstico", "En reparación" };
+                var esActiva = activos.Contains(o.Estado);
+
+                <div class="mio-card" data-estado="@slug">
+
+                    <!-- Franja lateral de color según estado -->
+                    <div class="mio-card-stripe mio-stripe-@slug"></div>
+
+                    <div class="mio-card-main">
+
+                        <!-- Fila superior: moto + badge -->
+                        <div class="mio-card-top">
+                            <div class="mio-moto-info">
+                                <span class="mio-moto-icon">🏍️</span>
+                                <div>
+                                    <p class="mio-moto-serie">
+                                        @(o.Motor?.NumeroSerie ?? $"Motor #{o.MotorId}")
+                                    </p>
+                                    <p class="mio-moto-modelo">
+                                        @(o.Motor?.Modelo?.Nombre ?? "Modelo desconocido")
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="mio-card-right">
+                                <span class="mio-badge mio-badge-@slug">@o.Estado</span>
+                                <span class="mio-order-id">#@o.Id</span>
+                            </div>
+                        </div>
+
+                        <!-- Detalle: técnico + fecha + progreso -->
+                        <div class="mio-card-detail">
+                            <div class="mio-detail-item">
+                                <i class="bi bi-person-gear"></i>
+                                <div>
+                                    <span class="mio-detail-lbl">Técnico asignado</span>
+                                    <span class="mio-detail-val">@(o.Tecnico?.Nombre ?? "Sin asignar aún")</span>
+                                </div>
+                            </div>
+                            <div class="mio-detail-item">
+                                <i class="bi bi-calendar3"></i>
+                                <div>
+                                    <span class="mio-detail-lbl">Fecha de ingreso</span>
+                                    <span class="mio-detail-val">@o.CreadoEn.ToString("dd 'de' MMMM, yyyy")</span>
+                                </div>
+                            </div>
+                            @if (o.Tecnico?.Email != null)
+                            {
+                                <div class="mio-detail-item">
+                                    <i class="bi bi-envelope"></i>
+                                    <div>
+                                        <span class="mio-detail-lbl">Contacto técnico</span>
+                                        <span class="mio-detail-val">@o.Tecnico.Email</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Barra de progreso del flujo -->
+                        <div class="mio-progress">
+                            @{
+                                var pasos = new[] { "Pendiente", "En diagnóstico", "En reparación", "Completado" };
+                                int pasoActual = Array.IndexOf(pasos, o.Estado);
+                                if (pasoActual < 0) pasoActual = o.Estado == "Cancelado" ? -1 : 0;
+                            }
+                            @if (o.Estado != "Cancelado")
+                            {
+                                <div class="mio-progress-track">
+                                    @for (int i = 0; i < pasos.Length; i++)
+                                    {
+                                        var done = i <= pasoActual;
+                                        var current = i == pasoActual;
+                                        <div class="mio-step @(done ? "mio-step-done" : "") @(current ? "mio-step-current" : "")">
+                                            <div class="mio-step-dot">
+                                                @if (done && !current)
+                                                {
+                                                    <i class="bi bi-check-lg"></i>
+                                                }
+                                                else if (current)
+                                                {
+
+                                                    <i class="bi bi-clock-fill"></i>
+                                                }
+                                            </div>
+                                            <span class="mio-step-label">@pasos[i]</span>
+                                        </div>
+                                        @if (i < pasos.Length - 1)
+                                        {
+                                            <div class="mio-step-line @(i < pasoActual ? "mio-line-done" : "")"></div>
+                                        }
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="mio-cancelled-note">
+                                    <i class="bi bi-x-circle-fill"></i> Esta orden fue cancelada
+                                </div>
+                            }
+                        </div>
+
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div id="mio-no-results" class="mio-empty" style="display:none">
+            <span style="font-size:44px">🔍</span>
+            <h3>SIN RESULTADOS</h3>
+            <p>No tienes órdenes con ese estado</p>
+        </div>
+    }
+</div>
+
+<style>
+    :root {
+        --mio-surface: #fff;
+        --mio-border: #e2e8f0;
+        --mio-bg: #f8fafc;
+        --mio-text: #0f172a;
+        --mio-muted: #64748b;
+        --mio-radius: 14px;
+        --mio-shadow: 0 4px 20px rgba(0,0,0,.07);
+        --mio-ff: 'Barlow Condensed',sans-serif;
+        --mio-ff-body: 'Barlow',sans-serif;
+        --c-pendiente: #f59e0b;
+        --c-diagnostico: #3b82f6;
+        --c-reparacion: #8b5cf6;
+        --c-completado: #10b981;
+        --c-cancelado: #ef4444;
+    }
+
+    .mio-page {
+        font-family: var(--mio-ff-body);
+    }
+
+    /* HEADER */
+    .mio-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .mio-header-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .mio-header-icon {
+        font-size: 44px;
+    }
+
+    .mio-title {
+        font-family: var(--mio-ff);
+        font-size: 40px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        color: var(--mio-text);
+        margin: 0;
+    }
+
+    .mio-subtitle {
+        font-size: 12px;
+        color: var(--mio-muted);
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        margin: 4px 0 0;
+    }
+
+    /* BUTTONS */
+    .mio-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 11px 22px;
+        border-radius: 9px;
+        font-family: var(--mio-ff-body);
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all .2s;
+        white-space: nowrap;
+    }
+
+    .mio-btn-primary {
+        background: linear-gradient(135deg,#3b82f6,#2563eb);
+        color: white;
+    }
+
+        .mio-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59,130,246,.35);
+            color: white;
+            text-decoration: none;
+        }
+
+    /* CHIPS */
+    .mio-chips {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+    }
+
+    .mio-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 16px;
+        border-radius: 100px;
+        border: 2px solid;
+        background: white;
+        font-family: var(--mio-ff-body);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all .2s;
+    }
+
+    .mio-chip-num {
+        font-family: var(--mio-ff);
+        font-size: 18px;
+        font-weight: 800;
+    }
+
+    .mio-chip-all {
+        border-color: #94a3b8;
+        color: #475569;
+    }
+
+    .mio-chip-pendiente {
+        border-color: var(--c-pendiente);
+        color: var(--c-pendiente);
+    }
+
+    .mio-chip-diagnostico {
+        border-color: var(--c-diagnostico);
+        color: var(--c-diagnostico);
+    }
+
+    .mio-chip-reparacion {
+        border-color: var(--c-reparacion);
+        color: var(--c-reparacion);
+    }
+
+    .mio-chip-completado {
+        border-color: var(--c-completado);
+        color: var(--c-completado);
+    }
+
+    .mio-chip-cancelado {
+        border-color: var(--c-cancelado);
+        color: var(--c-cancelado);
+    }
+
+    .mio-chip-active, .mio-chip:hover {
+        color: white !important;
+    }
+
+    .mio-chip-all.mio-chip-active, .mio-chip-all:hover {
+        background: #475569;
+        border-color: #475569;
+    }
+
+    .mio-chip-pendiente.mio-chip-active, .mio-chip-pendiente:hover {
+        background: var(--c-pendiente);
+        border-color: var(--c-pendiente);
+    }
+
+    .mio-chip-diagnostico.mio-chip-active, .mio-chip-diagnostico:hover {
+        background: var(--c-diagnostico);
+        border-color: var(--c-diagnostico);
+    }
+
+    .mio-chip-reparacion.mio-chip-active, .mio-chip-reparacion:hover {
+        background: var(--c-reparacion);
+        border-color: var(--c-reparacion);
+    }
+
+    .mio-chip-completado.mio-chip-active, .mio-chip-completado:hover {
+        background: var(--c-completado);
+        border-color: var(--c-completado);
+    }
+
+    .mio-chip-cancelado.mio-chip-active, .mio-chip-cancelado:hover {
+        background: var(--c-cancelado);
+        border-color: var(--c-cancelado);
+    }
+
+    /* LISTA */
+    .mio-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    /* CARD */
+    .mio-card {
+        display: flex;
+        background: var(--mio-surface);
+        border-radius: var(--mio-radius);
+        border: 1px solid var(--mio-border);
+        box-shadow: var(--mio-shadow);
+        overflow: hidden;
+        transition: all .22s;
+        animation: mioIn .4s ease both;
+    }
+
+        .mio-card:hover {
+            box-shadow: 0 8px 32px rgba(0,0,0,.1);
+            transform: translateY(-2px);
+        }
+
+    @@keyframes mioIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px)
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0)
+        }
+    }
+
+    .mio-card-stripe {
+        width: 5px;
+        flex-shrink: 0;
+    }
+
+    .mio-stripe-pendiente {
+        background: var(--c-pendiente);
+    }
+
+    .mio-stripe-endiagnostico {
+        background: var(--c-diagnostico);
+    }
+
+    .mio-stripe-enreparacion {
+        background: var(--c-reparacion);
+    }
+
+    .mio-stripe-completado {
+        background: var(--c-completado);
+    }
+
+    .mio-stripe-cancelado {
+        background: var(--c-cancelado);
+    }
+
+    .mio-card-main {
+        flex: 1;
+        padding: 20px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    /* TOP ROW */
+    .mio-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .mio-moto-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .mio-moto-icon {
+        font-size: 30px;
+    }
+
+    .mio-moto-serie {
+        font-family: var(--mio-ff);
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: .5px;
+        color: var(--mio-text);
+        margin: 0 0 2px;
+    }
+
+    .mio-moto-modelo {
+        font-size: 13px;
+        color: var(--mio-muted);
+        margin: 0;
+    }
+
+    .mio-card-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 6px;
+        flex-shrink: 0;
+    }
+
+    .mio-order-id {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--mio-muted);
+    }
+
+    /* BADGE */
+    .mio-badge {
+        display: inline-block;
+        padding: 5px 14px;
+        border-radius: 100px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .04em;
+    }
+
+    .mio-badge-pendiente {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .mio-badge-endiagnostico {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .mio-badge-enreparacion {
+        background: #ede9fe;
+        color: #5b21b6;
+    }
+
+    .mio-badge-completado {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .mio-badge-cancelado {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    /* DETAIL ROW */
+    .mio-card-detail {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+        padding: 14px 16px;
+        background: #f8fafc;
+        border-radius: 10px;
+    }
+
+    .mio-detail-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+        font-size: 13px;
+    }
+
+        .mio-detail-item > i {
+            color: var(--mio-muted);
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+    .mio-detail-lbl {
+        display: block;
+        font-size: 11px;
+        color: var(--mio-muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        margin-bottom: 1px;
+    }
+
+    .mio-detail-val {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--mio-text);
+    }
+
+    /* PROGRESS BAR */
+    .mio-progress-track {
+        display: flex;
+        align-items: center;
+        gap: 0;
+    }
+
+    .mio-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        flex-shrink: 0;
+    }
+
+    .mio-step-dot {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        border: 2px solid #cbd5e1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: #94a3b8;
+        transition: all .2s;
+    }
+
+    .mio-step-label {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--mio-muted);
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        white-space: nowrap;
+    }
+
+    .mio-step-done .mio-step-dot {
+        background: #d1fae5;
+        border-color: #10b981;
+        color: #065f46;
+    }
+
+    .mio-step-current .mio-step-dot {
+        background: #dbeafe;
+        border-color: #3b82f6;
+        color: #1e40af;
+        box-shadow: 0 0 0 3px rgba(59,130,246,.2);
+    }
+
+    .mio-step-current .mio-step-label {
+        color: #3b82f6;
+        font-weight: 700;
+    }
+
+    .mio-step-line {
+        flex: 1;
+        height: 2px;
+        background: #e2e8f0;
+        margin-bottom: 18px;
+        min-width: 20px;
+        transition: background .2s;
+    }
+
+    .mio-line-done {
+        background: #10b981;
+    }
+
+    .mio-cancelled-note {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--c-cancelado);
+        padding: 10px 14px;
+        background: #fef2f2;
+        border-radius: 8px;
+        border: 1px solid #fecaca;
+    }
+
+    /* EMPTY */
+    .mio-empty {
+        text-align: center;
+        padding: 80px 24px;
+        background: var(--mio-surface);
+        border-radius: var(--mio-radius);
+        border: 1px dashed var(--mio-border);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .mio-empty h3 {
+            font-family: var(--mio-ff);
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: var(--mio-text);
+            margin: 0;
+        }
+
+        .mio-empty p {
+            font-size: 14px;
+            color: var(--mio-muted);
+            margin: 0;
+        }
+
+    .mio-empty-hint {
+        font-size: 14px;
+        color: var(--mio-muted);
+    }
+
+        .mio-empty-hint a {
+            color: #3b82f6;
+        }
+
+    @@media(max-width:768px) {
+        .mio-header {
+            flex-direction: column;
+            align-items: flex-start
+        }
+
+        .mio-title {
+            font-size: 30px
+        }
+
+        .mio-card-detail {
+            flex-direction: column;
+            gap: 12px
+        }
+
+        .mio-progress-track {
+            overflow-x: auto;
+            padding-bottom: 4px
+        }
+
+        .mio-step-label {
+            font-size: 9px
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        (function(){
+            const chips = document.querySelectorAll('.mio-chip');
+            const cards = document.querySelectorAll('.mio-card');
+            const noRes = document.getElementById('mio-no-results');
+
+            chips.forEach(chip => {
+                chip.addEventListener('click', function(){
+                    chips.forEach(c => c.classList.remove('mio-chip-active'));
+                    this.classList.add('mio-chip-active');
+
+                    const filter = this.dataset.filter;
+                    let visible = 0;
+
+                    cards.forEach((card, i) => {
+                        const show = !filter || card.dataset.estado === filter;
+                        card.style.display = show ? '' : 'none';
+                        if(show){ card.style.animationDelay = `${visible * 0.06}s`; visible++; }
+                    });
+
+                    if(noRes) noRes.style.display = visible === 0 ? 'flex' : 'none';
+                });
+            });
+
+            // Stagger inicial
+            cards.forEach((c, i) => c.style.animationDelay = `${i * 0.06}s`);
+        })();
+    </script>
+}
