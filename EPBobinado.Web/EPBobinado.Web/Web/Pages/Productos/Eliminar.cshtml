@@ -1,48 +1,866 @@
 ﻿@page "{id:int}"
 @model Web.Pages.Producto.EliminarModel
 @{
-    ViewData["Title"] = "Eliminar Producto";
-}
-@{
     Layout = "_LayoutUser";
+    ViewData["Title"] = "Eliminar Producto";
+    var p = Model.Producto;
 }
 
-<h2 class="mb-4">¿Desea eliminar este producto?</h2>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 
-@if (Model.Producto != null)
-{
-    <dl class="row">
-        <dt class="col-sm-3">Nombre</dt>
-        <dd class="col-sm-9">@Model.Producto.Nombre</dd>
+<div class="pr-page">
+    <div class="pr-header">
+        <div class="pr-header-left">
+            <div class="pr-header-icon">🗑️</div>
+            <div>
+                <h1 class="pr-title">ELIMINAR PRODUCTO</h1>
+                <p class="pr-subtitle">Esta acción no se puede deshacer</p>
+            </div>
+        </div>
+        <a asp-page="Listado" class="pr-btn pr-btn-ghost"><i class="bi bi-arrow-left"></i> Volver</a>
+    </div>
 
-        <dt class="col-sm-3">Categoría</dt>
-        <dd class="col-sm-9">@Model.Producto.Categoria</dd>
+    @if (p != null)
+    {
+        <div class="pr-form-wrap" style="max-width:600px">
+            <div class="pr-form-card">
+                <div class="pr-delete-warning">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>¿Confirmar la eliminación de <strong>@p.Nombre</strong>?</span>
+                </div>
 
-        <dt class="col-sm-3">Precio</dt>
-        <dd class="col-sm-9">@Model.Producto.Precio.ToString("C")</dd>
+                <div class="pr-del-preview">
+                    <div class="pr-del-icon">📦</div>
+                    <div>
+                        <p class="pr-del-name">@p.Nombre</p>
+                        <span class="pr-cat-tag">@(string.IsNullOrWhiteSpace(p.Categoria) ? "Sin categoría" : p.Categoria)</span>
+                    </div>
+                    <div class="pr-del-price">@p.Precio.ToString("₡#,##0.00")</div>
+                </div>
 
-        <dt class="col-sm-3">Stock</dt>
-        <dd class="col-sm-9">@Model.Producto.Stock</dd>
+                <div class="pr-detail-grid">
+                    <div class="pr-detail-item">
+                        <span class="pr-detail-label">Precio</span>
+                        <span class="pr-detail-value">@p.Precio.ToString("₡#,##0.00")</span>
+                    </div>
+                    <div class="pr-detail-item">
+                        <span class="pr-detail-label">Stock</span>
+                        <span class="pr-detail-value @(p.Stock <= p.StockMinimo ? "pr-warn-text" : "")">
+                            @p.Stock @(p.Stock <= p.StockMinimo ? "⚠️" : "")
+                        </span>
+                    </div>
+                    <div class="pr-detail-item">
+                        <span class="pr-detail-label">Stock mínimo</span>
+                        <span class="pr-detail-value">@p.StockMinimo</span>
+                    </div>
+                    <div class="pr-detail-item">
+                        <span class="pr-detail-label">Estado</span>
+                        <span class="pr-detail-value">
+                            @if (p.Activo)
+                            {
+                                <span class="pr-status pr-status-active"><span class="pr-dot"></span>Activo</span>
+                            }
+                            else
+                            {
+                                <span class="pr-status pr-status-inactive"><span class="pr-dot"></span>Inactivo</span>
+                            }
+                        </span>
+                    </div>
+                </div>
 
-        <dt class="col-sm-3">Stock Mínimo</dt>
-        <dd class="col-sm-9">@Model.Producto.StockMinimo</dd>
+                <form method="post">
+                    <input type="hidden" name="id" value="@p.Id" />
+                    <div class="pr-form-actions">
+                        <button type="submit" asp-page-handler="Eliminar" class="pr-btn pr-btn-danger">
+                            <i class="bi bi-trash-fill"></i> Confirmar Eliminación
+                        </button>
+                        <a asp-page="Listado" class="pr-btn pr-btn-ghost">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="pr-toast pr-toast-danger"><i class="bi bi-search"></i> No se encontró el producto.</div>
+        <a asp-page="Listado" class="pr-btn pr-btn-ghost">Volver al listado</a>
+    }
+</div>
 
-        <dt class="col-sm-3">Activo</dt>
-        <dd class="col-sm-9">@(Model.Producto.Activo ? "Sí" : "No")</dd>
-    </dl>
+<style>
+    :root {
+        --pr-surface: #fff;
+        --pr-border: #e2e8f0;
+        --pr-text: #0f172a;
+        --pr-muted: #64748b;
+        --pr-radius: 14px;
+        --pr-shadow: 0 4px 20px rgba(0,0,0,.07);
+        --pr-amber: #f59e0b;
+        --pr-amber2: #d97706;
+        --pr-ff-title: 'Barlow Condensed',sans-serif;
+        --pr-ff-body: 'Barlow',sans-serif;
+    }
 
-    <form method="post">
-        <input type="hidden" name="id" value="@Model.Producto.Id" />
-        <button type="submit" asp-page-handler="Eliminar" class="btn btn-danger">
-            <i class="bi bi-trash"></i> Eliminar
-        </button>
-        <a asp-page="./Listado" class="btn btn-secondary ms-2">
-            <i class="bi bi-arrow-left"></i> Cancelar
-        </a>
-    </form>
-}
-else
-{
-    <div class="alert alert-warning">No se encontró el producto a eliminar.</div>
-    <a asp-page="./Listado" class="btn btn-secondary">Volver al Listado</a>
-}
+    .pr-page {
+        font-family: var(--pr-ff-body)
+    }
+
+    /* HEADER */
+    .pr-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 28px;
+        gap: 16px;
+        flex-wrap: wrap
+    }
+
+    .pr-header-left {
+        display: flex;
+        align-items: center;
+        gap: 16px
+    }
+
+    .pr-header-icon {
+        font-size: 42px;
+        filter: drop-shadow(0 0 10px rgba(245,158,11,.3))
+    }
+
+    .pr-title {
+        font-family: var(--pr-ff-title);
+        font-size: 34px;
+        font-weight: 800;
+        color: var(--pr-text);
+        margin: 0;
+        letter-spacing: .5px;
+        text-transform: uppercase
+    }
+
+    .pr-title-id {
+        font-size: 24px;
+        color: var(--pr-amber);
+        font-weight: 700
+    }
+
+    .pr-subtitle {
+        font-size: 13px;
+        color: var(--pr-muted);
+        margin: 4px 0 0
+    }
+
+    /* BUTTONS */
+    .pr-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 20px;
+        border-radius: 9px;
+        font-family: var(--pr-ff-body);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+        transition: all .2s;
+        white-space: nowrap
+    }
+
+    .pr-btn-primary {
+        background: linear-gradient(135deg,var(--pr-amber),var(--pr-amber2));
+        color: #0f172a
+    }
+
+        .pr-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245,158,11,.4);
+            color: #0f172a;
+            text-decoration: none
+        }
+
+    .pr-btn-ghost {
+        background: var(--pr-surface);
+        border: 1.5px solid var(--pr-border);
+        color: var(--pr-muted)
+    }
+
+        .pr-btn-ghost:hover {
+            border-color: var(--pr-amber);
+            color: var(--pr-amber2);
+            text-decoration: none
+        }
+
+    .pr-btn-danger {
+        background: linear-gradient(135deg,#ef4444,#dc2626);
+        color: white
+    }
+
+        .pr-btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239,68,68,.35);
+            color: white;
+            text-decoration: none
+        }
+
+    /* TOASTS */
+    .pr-toast {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px 18px;
+        border-radius: var(--pr-radius);
+        font-size: 14px;
+        margin-bottom: 20px
+    }
+
+    .pr-toast-success {
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        color: #065f46
+    }
+
+    .pr-toast-danger {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #991b1b
+    }
+
+    /* STATS */
+    .pr-stats {
+        display: grid;
+        grid-template-columns: repeat(4,1fr);
+        gap: 14px;
+        margin-bottom: 22px
+    }
+
+    .pr-stat {
+        background: var(--pr-surface);
+        border: 1.5px solid var(--pr-border);
+        border-radius: 12px;
+        padding: 16px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        position: relative;
+        overflow: hidden
+    }
+
+        .pr-stat::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--pr-amber);
+            border-radius: 12px 0 0 12px
+        }
+
+    .pr-stat-warn::before {
+        background: #ef4444
+    }
+
+    .pr-stat-num {
+        font-family: var(--pr-ff-title);
+        font-size: 32px;
+        font-weight: 800;
+        color: var(--pr-text);
+        line-height: 1
+    }
+
+    .pr-stat-label {
+        font-size: 12px;
+        color: var(--pr-muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .06em
+    }
+
+    /* TOOLBAR */
+    .pr-toolbar {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+        align-items: center
+    }
+
+    .pr-search-wrap {
+        position: relative;
+        flex: 1;
+        min-width: 240px
+    }
+
+    .pr-search-icon {
+        position: absolute;
+        left: 13px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--pr-muted);
+        font-size: 14px;
+        pointer-events: none
+    }
+
+    .pr-search-input {
+        width: 100%;
+        padding: 10px 36px 10px 38px;
+        border: 1.5px solid var(--pr-border);
+        border-radius: 9px;
+        font-family: var(--pr-ff-body);
+        font-size: 14px;
+        color: var(--pr-text);
+        outline: none;
+        transition: all .2s;
+        background: var(--pr-surface)
+    }
+
+        .pr-search-input:focus {
+            border-color: var(--pr-amber);
+            box-shadow: 0 0 0 3px rgba(245,158,11,.12)
+        }
+
+        .pr-search-input::placeholder {
+            color: #9ca3af
+        }
+
+    .pr-search-clear {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--pr-muted);
+        display: flex;
+        align-items: center;
+        padding: 3px;
+        border-radius: 5px
+    }
+
+        .pr-search-clear:hover {
+            color: var(--pr-text)
+        }
+
+    .pr-select-filter {
+        padding: 10px 14px;
+        border: 1.5px solid var(--pr-border);
+        border-radius: 9px;
+        font-family: var(--pr-ff-body);
+        font-size: 13px;
+        color: var(--pr-text);
+        outline: none;
+        cursor: pointer;
+        background: var(--pr-surface);
+        transition: all .2s
+    }
+
+        .pr-select-filter:focus {
+            border-color: var(--pr-amber)
+        }
+
+    .pr-count-label {
+        font-size: 13px;
+        color: var(--pr-muted);
+        margin: 0 0 12px
+    }
+
+    /* TABLE */
+    .pr-table-card {
+        background: var(--pr-surface);
+        border-radius: var(--pr-radius);
+        border: 1px solid var(--pr-border);
+        box-shadow: var(--pr-shadow);
+        overflow: hidden
+    }
+
+    .pr-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px
+    }
+
+        .pr-table thead th {
+            padding: 12px 16px;
+            background: #f8fafc;
+            color: var(--pr-muted);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            border-bottom: 1px solid var(--pr-border);
+            white-space: nowrap;
+            font-family: var(--pr-ff-title)
+        }
+
+    .pr-row {
+        border-bottom: 1px solid var(--pr-border);
+        transition: background .12s;
+        animation: prRowIn .35s ease both
+    }
+
+        .pr-row:last-child {
+            border-bottom: none
+        }
+
+        .pr-row:hover {
+            background: #fafafa
+        }
+
+    @@keyframes prRowIn {
+        from {
+            opacity: 0;
+            transform: translateY(5px)
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0)
+        }
+    }
+
+    .pr-row td {
+        padding: 13px 16px;
+        vertical-align: middle;
+        color: var(--pr-text)
+    }
+
+    .pr-id {
+        font-size: 12px;
+        font-weight: 700;
+        color: #9ca3af;
+        font-family: var(--pr-ff-title)
+    }
+
+    .pr-name-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px
+    }
+
+    .pr-product-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--pr-amber);
+        flex-shrink: 0
+    }
+
+    .pr-product-name {
+        font-weight: 600
+    }
+
+    .pr-cat-tag {
+        display: inline-block;
+        padding: 3px 10px;
+        background: #fef3c7;
+        color: #92400e;
+        border-radius: 100px;
+        font-size: 11px;
+        font-weight: 700;
+        font-family: var(--pr-ff-title);
+        text-transform: uppercase;
+        letter-spacing: .05em
+    }
+
+    .pr-price {
+        font-family: var(--pr-ff-title);
+        font-weight: 700;
+        font-size: 15px;
+        color: var(--pr-amber2)
+    }
+
+    .pr-stock {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 8px
+    }
+
+    .pr-stock-ok {
+        background: #ecfdf5;
+        color: #065f46
+    }
+
+    .pr-stock-low {
+        background: #fef3c7;
+        color: #92400e
+    }
+
+    .pr-td-muted {
+        font-size: 13px;
+        color: var(--pr-muted)
+    }
+
+    .pr-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 600
+    }
+
+    .pr-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        flex-shrink: 0
+    }
+
+    .pr-status-active .pr-dot {
+        background: #10b981;
+        box-shadow: 0 0 0 2px rgba(16,185,129,.25)
+    }
+
+    .pr-status-active {
+        color: #065f46
+    }
+
+    .pr-status-inactive .pr-dot {
+        background: #9ca3af
+    }
+
+    .pr-status-inactive {
+        color: var(--pr-muted)
+    }
+
+    .pr-actions {
+        display: flex;
+        gap: 6px
+    }
+
+    .pr-action {
+        width: 31px;
+        height: 31px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        text-decoration: none;
+        border: 1.5px solid var(--pr-border);
+        background: white;
+        transition: all .18s
+    }
+
+    .pr-action-edit {
+        color: var(--pr-amber2)
+    }
+
+        .pr-action-edit:hover {
+            background: #fef3c7;
+            border-color: var(--pr-amber);
+            text-decoration: none;
+            color: #92400e
+        }
+
+    .pr-action-delete {
+        color: #ef4444
+    }
+
+        .pr-action-delete:hover {
+            background: #fee2e2;
+            border-color: #ef4444;
+            text-decoration: none;
+            color: #991b1b
+        }
+
+    .pr-no-results {
+        padding: 56px 24px;
+        text-align: center;
+        color: var(--pr-muted);
+        flex-direction: column;
+        align-items: center;
+        gap: 10px
+    }
+
+        .pr-no-results p {
+            margin: 0;
+            font-size: 15px
+        }
+
+    /* FORM */
+    .pr-form-wrap {
+        max-width: 640px
+    }
+
+    .pr-form-card {
+        background: var(--pr-surface);
+        border-radius: var(--pr-radius);
+        box-shadow: var(--pr-shadow);
+        border: 1.5px solid var(--pr-border);
+        padding: 36px
+    }
+
+    .pr-section-title {
+        font-family: var(--pr-ff-title);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        color: var(--pr-amber2);
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1.5px solid var(--pr-border);
+        display: flex;
+        align-items: center;
+        gap: 8px
+    }
+
+    .pr-form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-bottom: 26px
+    }
+
+    .pr-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px
+    }
+
+    .pr-field-full {
+        grid-column: 1/-1
+    }
+
+    .pr-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--pr-muted);
+        letter-spacing: .05em;
+        text-transform: uppercase
+    }
+
+    .pr-input {
+        padding: 11px 14px;
+        border: 1.5px solid var(--pr-border);
+        border-radius: 9px;
+        font-family: var(--pr-ff-body);
+        font-size: 14px;
+        color: var(--pr-text);
+        background: var(--pr-surface);
+        outline: none;
+        transition: all .2s;
+        width: 100%
+    }
+
+        .pr-input:focus {
+            border-color: var(--pr-amber);
+            box-shadow: 0 0 0 3px rgba(245,158,11,.12)
+        }
+
+        .pr-input::placeholder {
+            color: #9ca3af
+        }
+
+    .pr-input-prefix {
+        position: relative
+    }
+
+        .pr-input-prefix .pr-input {
+            padding-left: 30px
+        }
+
+    .pr-prefix {
+        position: absolute;
+        left: 11px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--pr-muted);
+        font-weight: 700;
+        font-size: 14px;
+        pointer-events: none
+    }
+
+    .pr-error {
+        font-size: 12px;
+        color: #ef4444
+    }
+
+    .pr-checkbox-wrap {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 14px;
+        background: #fefce8;
+        border: 1.5px solid #fde68a;
+        border-radius: 9px;
+        cursor: pointer;
+        transition: all .2s
+    }
+
+        .pr-checkbox-wrap:hover {
+            border-color: var(--pr-amber)
+        }
+
+    .pr-checkbox {
+        width: 17px;
+        height: 17px;
+        accent-color: var(--pr-amber);
+        cursor: pointer
+    }
+
+    .pr-checkbox-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--pr-text);
+        cursor: pointer
+    }
+
+    .pr-form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 28px;
+        padding-top: 24px;
+        border-top: 1.5px solid var(--pr-border)
+    }
+
+    /* DELETE */
+    .pr-delete-warning {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 15px 18px;
+        background: #fff7ed;
+        border: 1.5px solid #fed7aa;
+        border-radius: 9px;
+        color: #9a3412;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 22px
+    }
+
+        .pr-delete-warning i {
+            font-size: 20px;
+            color: #f97316;
+            flex-shrink: 0
+        }
+
+    .pr-del-preview {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 18px;
+        background: #fafafa;
+        border: 1.5px solid var(--pr-border);
+        border-radius: 12px;
+        margin-bottom: 22px
+    }
+
+    .pr-del-icon {
+        font-size: 36px
+    }
+
+    .pr-del-name {
+        font-family: var(--pr-ff-title);
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--pr-text);
+        margin: 0 0 6px
+    }
+
+    .pr-del-price {
+        margin-left: auto;
+        font-family: var(--pr-ff-title);
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--pr-amber2)
+    }
+
+    .pr-detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill,minmax(160px,1fr));
+        gap: 12px;
+        margin-bottom: 26px
+    }
+
+    .pr-detail-item {
+        background: #f8fafc;
+        border: 1px solid var(--pr-border);
+        border-radius: 9px;
+        padding: 12px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px
+    }
+
+    .pr-detail-label {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--pr-muted);
+        text-transform: uppercase;
+        letter-spacing: .07em
+    }
+
+    .pr-detail-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--pr-text)
+    }
+
+    .pr-warn-text {
+        color: #d97706
+    }
+
+    /* EMPTY */
+    .pr-empty {
+        text-align: center;
+        padding: 80px 24px;
+        background: var(--pr-surface);
+        border-radius: var(--pr-radius);
+        border: 1.5px dashed var(--pr-border)
+    }
+
+    .pr-empty-icon {
+        font-size: 56px;
+        margin-bottom: 16px
+    }
+
+    .pr-empty h3 {
+        font-family: var(--pr-ff-title);
+        font-size: 22px;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: var(--pr-text);
+        margin-bottom: 8px
+    }
+
+    .pr-empty p {
+        color: var(--pr-muted);
+        margin-bottom: 24px
+    }
+
+    @@media(max-width:900px) {
+        .pr-stats {
+            grid-template-columns: 1fr 1fr
+        }
+
+        .pr-form-grid {
+            grid-template-columns: 1fr
+        }
+    }
+
+    @@media(max-width:768px) {
+        .pr-header {
+            flex-direction: column;
+            align-items: flex-start
+        }
+
+        .pr-form-card {
+            padding: 24px
+        }
+
+        .pr-table-card {
+            overflow-x: auto
+        }
+    }
+
+    @@media(max-width:480px) {
+        .pr-stats {
+            grid-template-columns: 1fr 1fr
+        }
+    }
+</style>

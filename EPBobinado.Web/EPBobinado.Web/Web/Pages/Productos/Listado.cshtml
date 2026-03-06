@@ -1,86 +1,989 @@
 ﻿@page
 @model Web.Pages.Producto.ListadoModel
 @{
-    ViewData["Title"] = "Listado de Productos";
-}
-@{
     Layout = "_LayoutUser";
+    ViewData["Title"] = "Productos";
 }
 
-<h2 class="mb-4">Listado de Productos</h2>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 
-@if (TempData["MensajeExito"] != null)
-{
-    <div class="alert alert-success">@TempData["MensajeExito"]</div>
-}
+<div class="pr-page">
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
+    <!-- HEADER -->
+    <div class="pr-header">
+        <div class="pr-header-left">
+            <div class="pr-header-icon">🛒</div>
+            <div>
+                <h1 class="pr-title">PRODUCTOS</h1>
+                <p class="pr-subtitle">@Model.Productos.Count producto(s) en inventario</p>
+            </div>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a asp-page="Catalogo" class="pr-btn pr-btn-ghost">
+                <i class="bi bi-grid-3x3-gap"></i> Ver Catálogo
+            </a>
+            <a asp-page="Agregar" class="pr-btn pr-btn-primary">
+                <i class="bi bi-plus-lg"></i> Nuevo Producto
+            </a>
+        </div>
+    </div>
 
-<div class="mb-3">
-    <a asp-page="./Agregar" class="btn btn-success">
-        <i class="bi bi-plus-circle"></i> Agregar Producto
-    </a>
+    @if (TempData["MensajeExito"] != null)
+    {
+        <div class="pr-toast pr-toast-success"><i class="bi bi-check-circle-fill"></i> @TempData["MensajeExito"]</div>
+    }
+    @if (TempData["Success"] != null)
+    {
+        <div class="pr-toast pr-toast-success"><i class="bi bi-check-circle-fill"></i> @TempData["Success"]</div>
+    }
+
+    @if (!Model.Productos.Any())
+    {
+        <div class="pr-empty">
+            <div class="pr-empty-icon">📦</div>
+            <h3>SIN PRODUCTOS</h3>
+            <p>Agrega el primer producto al inventario</p>
+            <a asp-page="Agregar" class="pr-btn pr-btn-primary"><i class="bi bi-plus-lg"></i> Nuevo Producto</a>
+        </div>
+    }
+    else
+    {
+        <!-- STATS -->
+        <div class="pr-stats">
+            <div class="pr-stat">
+                <span class="pr-stat-num">@Model.Productos.Count</span>
+                <span class="pr-stat-label">Total</span>
+            </div>
+            <div class="pr-stat">
+                <span class="pr-stat-num">@Model.Productos.Count(p => p.Activo)</span>
+                <span class="pr-stat-label">Activos</span>
+            </div>
+            <div class="pr-stat pr-stat-warn">
+                <span class="pr-stat-num">@Model.Productos.Count(p => p.Stock <= p.StockMinimo)</span>
+                <span class="pr-stat-label">Stock bajo</span>
+            </div>
+            <div class="pr-stat">
+                <span class="pr-stat-num">@Model.Productos.Select(p => p.Categoria).Distinct().Count()</span>
+                <span class="pr-stat-label">Categorías</span>
+            </div>
+        </div>
+
+        <!-- TOOLBAR -->
+        <div class="pr-toolbar">
+            <div class="pr-search-wrap">
+                <i class="bi bi-search pr-search-icon"></i>
+                <input id="pr-search" type="text" class="pr-search-input"
+                       placeholder="Buscar por nombre o categoría..." autocomplete="off" />
+                <button id="pr-clear" class="pr-search-clear" style="display:none">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <select id="pr-cat-filter" class="pr-select-filter">
+                <option value="">Todas las categorías</option>
+                @foreach (var cat in Model.Productos.Select(p => p.Categoria).Where(c => !string.IsNullOrWhiteSpace(c)).Distinct().OrderBy(c => c))
+                {
+                    <option value="@cat.ToLower()">@cat</option>
+                }
+            </select>
+            <select id="pr-estado-filter" class="pr-select-filter">
+                <option value="">Todos</option>
+                <option value="activo">Activos</option>
+                <option value="inactivo">Inactivos</option>
+                <option value="bajo">Stock bajo</option>
+            </select>
+        </div>
+
+        <p class="pr-count-label" id="pr-count"></p>
+
+        <!-- TABLA -->
+        <div class="pr-table-card">
+            <table class="pr-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Mín.</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="pr-tbody">
+                    @foreach (var p in Model.Productos.OrderBy(x => x.Nombre))
+                    {
+                        var stockBajo = p.Stock <= p.StockMinimo;
+                        <tr class="pr-row"
+                            data-nombre="@p.Nombre.ToLower()"
+                            data-cat="@(p.Categoria?.ToLower() ?? "")"
+                            data-activo="@(p.Activo ? "activo" : "inactivo")"
+                            data-stock="@(stockBajo ? "bajo" : "ok")">
+                            <td><span class="pr-id">#@p.Id</span></td>
+                            <td>
+                                <div class="pr-name-cell">
+                                    <div class="pr-product-dot"></div>
+                                    <span class="pr-product-name">@p.Nombre</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="pr-cat-tag">@(string.IsNullOrWhiteSpace(p.Categoria) ? "—" : p.Categoria)</span>
+                            </td>
+                            <td class="pr-price">@p.Precio.ToString("₡#,##0.00")</td>
+                            <td>
+                                @if (stockBajo)
+                                {
+                                    <span class="pr-stock pr-stock-low"><i class="bi bi-exclamation-triangle-fill"></i> @p.Stock</span>
+                                }
+                                else
+                                {
+                                    <span class="pr-stock pr-stock-ok">@p.Stock</span>
+                                }
+                            </td>
+                            <td class="pr-td-muted">@p.StockMinimo</td>
+                            <td>
+                                @if (p.Activo)
+                                {
+                                    <span class="pr-status pr-status-active"><span class="pr-dot"></span>Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="pr-status pr-status-inactive"><span class="pr-dot"></span>Inactivo</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="pr-actions">
+                                    <a asp-page="Editar" asp-route-id="@p.Id" class="pr-action pr-action-edit" title="Editar">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </a>
+                                    <a asp-page="Eliminar" asp-route-id="@p.Id" class="pr-action pr-action-delete" title="Eliminar">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div id="pr-no-results" class="pr-no-results" style="display:none">
+                <i class="bi bi-search" style="font-size:28px"></i>
+                <p>No se encontraron productos con ese criterio</p>
+            </div>
+        </div>
+    }
 </div>
 
-@if (Model.Productos == null || !Model.Productos.Any())
-{
-    <div class="alert alert-info">No hay productos registrados.</div>
-}
-else
-{
-    <table class="table table-bordered table-striped table-hover">
-        <thead class="table-dark">
-            <tr>
-                <th>Nombre</th>
-                <th>Categoría</th>
-                <th>Precio</th>
-                <th>Stock</th>
-                <th>Stock Mínimo</th>
-                <th>Activo</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var p in Model.Productos)
-            {
-                <tr>
-                    <td>@p.Nombre</td>
-                    <td>@p.Categoria</td>
-                    <td>@p.Precio.ToString("C")</td>
-                    <td>
-                        @if (p.Stock <= p.StockMinimo)
-                        {
-                            <span class="badge bg-danger">@p.Stock</span>
-                        }
-                        else
-                        {
-                            <span>@p.Stock</span>
-                        }
-                    </td>
-                    <td>@p.StockMinimo</td>
-                    <td>
-                        @if (p.Activo)
-                        {
-                            <span class="badge bg-success">Sí</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-secondary">No</span>
-                        }
-                    </td>
-                    <td>
-                        <a asp-page="./Editar" asp-route-id="@p.Id" class="btn btn-sm btn-primary">
-                            <i class="bi bi-pencil"></i> Editar
-                        </a>
-                        <a asp-page="./Eliminar" asp-route-id="@p.Id" class="btn btn-sm btn-danger ms-1">
-                            <i class="bi bi-trash"></i> Eliminar
-                        </a>
-                    </td>
-                </tr>
+<style>
+    :root {
+        --pr-surface: #fff;
+        --pr-border: #e2e8f0;
+        --pr-text: #0f172a;
+        --pr-muted: #64748b;
+        --pr-radius: 14px;
+        --pr-shadow: 0 4px 20px rgba(0,0,0,.07);
+        --pr-amber: #f59e0b;
+        --pr-amber2: #d97706;
+        --pr-ff-title: 'Barlow Condensed',sans-serif;
+        --pr-ff-body: 'Barlow',sans-serif;
+    }
+
+    .pr-page {
+        font-family: var(--pr-ff-body)
+    }
+
+    /* HEADER */
+    .pr-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 28px;
+        gap: 16px;
+        flex-wrap: wrap
+    }
+
+    .pr-header-left {
+        display: flex;
+        align-items: center;
+        gap: 16px
+    }
+
+    .pr-header-icon {
+        font-size: 42px;
+        filter: drop-shadow(0 0 10px rgba(245,158,11,.3))
+    }
+
+    .pr-title {
+        font-family: var(--pr-ff-title);
+        font-size: 34px;
+        font-weight: 800;
+        color: var(--pr-text);
+        margin: 0;
+        letter-spacing: .5px;
+        text-transform: uppercase
+    }
+
+    .pr-title-id {
+        font-size: 24px;
+        color: var(--pr-amber);
+        font-weight: 700
+    }
+
+    .pr-subtitle {
+        font-size: 13px;
+        color: var(--pr-muted);
+        margin: 4px 0 0
+    }
+
+    /* BUTTONS */
+    .pr-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 20px;
+        border-radius: 9px;
+        font-family: var(--pr-ff-body);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+        transition: all .2s;
+        white-space: nowrap
+    }
+
+    .pr-btn-primary {
+        background: linear-gradient(135deg,var(--pr-amber),var(--pr-amber2));
+        color: #0f172a
+    }
+
+        .pr-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245,158,11,.4);
+            color: #0f172a;
+            text-decoration: none
+        }
+
+    .pr-btn-ghost {
+        background: var(--pr-surface);
+        border: 1.5px solid var(--pr-border);
+        color: var(--pr-muted)
+    }
+
+        .pr-btn-ghost:hover {
+            border-color: var(--pr-amber);
+            color: var(--pr-amber2);
+            text-decoration: none
+        }
+
+    .pr-btn-danger {
+        background: linear-gradient(135deg,#ef4444,#dc2626);
+        color: white
+    }
+
+        .pr-btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239,68,68,.35);
+            color: white;
+            text-decoration: none
+        }
+
+    /* TOASTS */
+    .pr-toast {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px 18px;
+        border-radius: var(--pr-radius);
+        font-size: 14px;
+        margin-bottom: 20px
+    }
+
+    .pr-toast-success {
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        color: #065f46
+    }
+
+    .pr-toast-danger {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #991b1b
+    }
+
+    /* STATS */
+    .pr-stats {
+        display: grid;
+        grid-template-columns: repeat(4,1fr);
+        gap: 14px;
+        margin-bottom: 22px
+    }
+
+    .pr-stat {
+        background: var(--pr-surface);
+        border: 1.5px solid var(--pr-border);
+        border-radius: 12px;
+        padding: 16px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        position: relative;
+        overflow: hidden
+    }
+
+        .pr-stat::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--pr-amber);
+            border-radius: 12px 0 0 12px
+        }
+
+    .pr-stat-warn::before {
+        background: #ef4444
+    }
+
+    .pr-stat-num {
+        font-family: var(--pr-ff-title);
+        font-size: 32px;
+        font-weight: 800;
+        color: var(--pr-text);
+        line-height: 1
+    }
+
+    .pr-stat-label {
+        font-size: 12px;
+        color: var(--pr-muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .06em
+    }
+
+    /* TOOLBAR */
+    .pr-toolbar {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+        align-items: center
+    }
+
+    .pr-search-wrap {
+        position: relative;
+        flex: 1;
+        min-width: 240px
+    }
+
+    .pr-search-icon {
+        position: absolute;
+        left: 13px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--pr-muted);
+        font-size: 14px;
+        pointer-events: none
+    }
+
+    .pr-search-input {
+        width: 100%;
+        padding: 10px 36px 10px 38px;
+        border: 1.5px solid var(--pr-border);
+        border-radius: 9px;
+        font-family: var(--pr-ff-body);
+        font-size: 14px;
+        color: var(--pr-text);
+        outline: none;
+        transition: all .2s;
+        background: var(--pr-surface)
+    }
+
+        .pr-search-input:focus {
+            border-color: var(--pr-amber);
+            box-shadow: 0 0 0 3px rgba(245,158,11,.12)
+        }
+
+        .pr-search-input::placeholder {
+            color: #9ca3af
+        }
+
+    .pr-search-clear {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--pr-muted);
+        display: flex;
+        align-items: center;
+        padding: 3px;
+        border-radius: 5px
+    }
+
+        .pr-search-clear:hover {
+            color: var(--pr-text)
+        }
+
+    .pr-select-filter {
+        padding: 10px 14px;
+        border: 1.5px solid var(--pr-border);
+        border-radius: 9px;
+        font-family: var(--pr-ff-body);
+        font-size: 13px;
+        color: var(--pr-text);
+        outline: none;
+        cursor: pointer;
+        background: var(--pr-surface);
+        transition: all .2s
+    }
+
+        .pr-select-filter:focus {
+            border-color: var(--pr-amber)
+        }
+
+    .pr-count-label {
+        font-size: 13px;
+        color: var(--pr-muted);
+        margin: 0 0 12px
+    }
+
+    /* TABLE */
+    .pr-table-card {
+        background: var(--pr-surface);
+        border-radius: var(--pr-radius);
+        border: 1px solid var(--pr-border);
+        box-shadow: var(--pr-shadow);
+        overflow: hidden
+    }
+
+    .pr-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px
+    }
+
+        .pr-table thead th {
+            padding: 12px 16px;
+            background: #f8fafc;
+            color: var(--pr-muted);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            border-bottom: 1px solid var(--pr-border);
+            white-space: nowrap;
+            font-family: var(--pr-ff-title)
+        }
+
+    .pr-row {
+        border-bottom: 1px solid var(--pr-border);
+        transition: background .12s;
+        animation: prRowIn .35s ease both
+    }
+
+        .pr-row:last-child {
+            border-bottom: none
+        }
+
+        .pr-row:hover {
+            background: #fafafa
+        }
+
+    @@keyframes prRowIn {
+        from {
+            opacity: 0;
+            transform: translateY(5px)
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0)
+        }
+    }
+
+    .pr-row td {
+        padding: 13px 16px;
+        vertical-align: middle;
+        color: var(--pr-text)
+    }
+
+    .pr-id {
+        font-size: 12px;
+        font-weight: 700;
+        color: #9ca3af;
+        font-family: var(--pr-ff-title)
+    }
+
+    .pr-name-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px
+    }
+
+    .pr-product-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--pr-amber);
+        flex-shrink: 0
+    }
+
+    .pr-product-name {
+        font-weight: 600
+    }
+
+    .pr-cat-tag {
+        display: inline-block;
+        padding: 3px 10px;
+        background: #fef3c7;
+        color: #92400e;
+        border-radius: 100px;
+        font-size: 11px;
+        font-weight: 700;
+        font-family: var(--pr-ff-title);
+        text-transform: uppercase;
+        letter-spacing: .05em
+    }
+
+    .pr-price {
+        font-family: var(--pr-ff-title);
+        font-weight: 700;
+        font-size: 15px;
+        color: var(--pr-amber2)
+    }
+
+    .pr-stock {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 8px
+    }
+
+    .pr-stock-ok {
+        background: #ecfdf5;
+        color: #065f46
+    }
+
+    .pr-stock-low {
+        background: #fef3c7;
+        color: #92400e
+    }
+
+    .pr-td-muted {
+        font-size: 13px;
+        color: var(--pr-muted)
+    }
+
+    .pr-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 600
+    }
+
+    .pr-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        flex-shrink: 0
+    }
+
+    .pr-status-active .pr-dot {
+        background: #10b981;
+        box-shadow: 0 0 0 2px rgba(16,185,129,.25)
+    }
+
+    .pr-status-active {
+        color: #065f46
+    }
+
+    .pr-status-inactive .pr-dot {
+        background: #9ca3af
+    }
+
+    .pr-status-inactive {
+        color: var(--pr-muted)
+    }
+
+    .pr-actions {
+        display: flex;
+        gap: 6px
+    }
+
+    .pr-action {
+        width: 31px;
+        height: 31px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        text-decoration: none;
+        border: 1.5px solid var(--pr-border);
+        background: white;
+        transition: all .18s
+    }
+
+    .pr-action-edit {
+        color: var(--pr-amber2)
+    }
+
+        .pr-action-edit:hover {
+            background: #fef3c7;
+            border-color: var(--pr-amber);
+            text-decoration: none;
+            color: #92400e
+        }
+
+    .pr-action-delete {
+        color: #ef4444
+    }
+
+        .pr-action-delete:hover {
+            background: #fee2e2;
+            border-color: #ef4444;
+            text-decoration: none;
+            color: #991b1b
+        }
+
+    .pr-no-results {
+        padding: 56px 24px;
+        text-align: center;
+        color: var(--pr-muted);
+        flex-direction: column;
+        align-items: center;
+        gap: 10px
+    }
+
+        .pr-no-results p {
+            margin: 0;
+            font-size: 15px
+        }
+
+    /* FORM */
+    .pr-form-wrap {
+        max-width: 640px
+    }
+
+    .pr-form-card {
+        background: var(--pr-surface);
+        border-radius: var(--pr-radius);
+        box-shadow: var(--pr-shadow);
+        border: 1.5px solid var(--pr-border);
+        padding: 36px
+    }
+
+    .pr-section-title {
+        font-family: var(--pr-ff-title);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        color: var(--pr-amber2);
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1.5px solid var(--pr-border);
+        display: flex;
+        align-items: center;
+        gap: 8px
+    }
+
+    .pr-form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-bottom: 26px
+    }
+
+    .pr-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px
+    }
+
+    .pr-field-full {
+        grid-column: 1/-1
+    }
+
+    .pr-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--pr-muted);
+        letter-spacing: .05em;
+        text-transform: uppercase
+    }
+
+    .pr-input {
+        padding: 11px 14px;
+        border: 1.5px solid var(--pr-border);
+        border-radius: 9px;
+        font-family: var(--pr-ff-body);
+        font-size: 14px;
+        color: var(--pr-text);
+        background: var(--pr-surface);
+        outline: none;
+        transition: all .2s;
+        width: 100%
+    }
+
+        .pr-input:focus {
+            border-color: var(--pr-amber);
+            box-shadow: 0 0 0 3px rgba(245,158,11,.12)
+        }
+
+        .pr-input::placeholder {
+            color: #9ca3af
+        }
+
+    .pr-input-prefix {
+        position: relative
+    }
+
+        .pr-input-prefix .pr-input {
+            padding-left: 30px
+        }
+
+    .pr-prefix {
+        position: absolute;
+        left: 11px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--pr-muted);
+        font-weight: 700;
+        font-size: 14px;
+        pointer-events: none
+    }
+
+    .pr-error {
+        font-size: 12px;
+        color: #ef4444
+    }
+
+    .pr-checkbox-wrap {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 14px;
+        background: #fefce8;
+        border: 1.5px solid #fde68a;
+        border-radius: 9px;
+        cursor: pointer;
+        transition: all .2s
+    }
+
+        .pr-checkbox-wrap:hover {
+            border-color: var(--pr-amber)
+        }
+
+    .pr-checkbox {
+        width: 17px;
+        height: 17px;
+        accent-color: var(--pr-amber);
+        cursor: pointer
+    }
+
+    .pr-checkbox-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--pr-text);
+        cursor: pointer
+    }
+
+    .pr-form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 28px;
+        padding-top: 24px;
+        border-top: 1.5px solid var(--pr-border)
+    }
+
+    /* DELETE */
+    .pr-delete-warning {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 15px 18px;
+        background: #fff7ed;
+        border: 1.5px solid #fed7aa;
+        border-radius: 9px;
+        color: #9a3412;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 22px
+    }
+
+        .pr-delete-warning i {
+            font-size: 20px;
+            color: #f97316;
+            flex-shrink: 0
+        }
+
+    .pr-del-preview {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 18px;
+        background: #fafafa;
+        border: 1.5px solid var(--pr-border);
+        border-radius: 12px;
+        margin-bottom: 22px
+    }
+
+    .pr-del-icon {
+        font-size: 36px
+    }
+
+    .pr-del-name {
+        font-family: var(--pr-ff-title);
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--pr-text);
+        margin: 0 0 6px
+    }
+
+    .pr-del-price {
+        margin-left: auto;
+        font-family: var(--pr-ff-title);
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--pr-amber2)
+    }
+
+    .pr-detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill,minmax(160px,1fr));
+        gap: 12px;
+        margin-bottom: 26px
+    }
+
+    .pr-detail-item {
+        background: #f8fafc;
+        border: 1px solid var(--pr-border);
+        border-radius: 9px;
+        padding: 12px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px
+    }
+
+    .pr-detail-label {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--pr-muted);
+        text-transform: uppercase;
+        letter-spacing: .07em
+    }
+
+    .pr-detail-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--pr-text)
+    }
+
+    .pr-warn-text {
+        color: #d97706
+    }
+
+    /* EMPTY */
+    .pr-empty {
+        text-align: center;
+        padding: 80px 24px;
+        background: var(--pr-surface);
+        border-radius: var(--pr-radius);
+        border: 1.5px dashed var(--pr-border)
+    }
+
+    .pr-empty-icon {
+        font-size: 56px;
+        margin-bottom: 16px
+    }
+
+    .pr-empty h3 {
+        font-family: var(--pr-ff-title);
+        font-size: 22px;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: var(--pr-text);
+        margin-bottom: 8px
+    }
+
+    .pr-empty p {
+        color: var(--pr-muted);
+        margin-bottom: 24px
+    }
+
+    @@media(max-width:900px) {
+        .pr-stats {
+            grid-template-columns: 1fr 1fr
+        }
+
+        .pr-form-grid {
+            grid-template-columns: 1fr
+        }
+    }
+
+    @@media(max-width:768px) {
+        .pr-header {
+            flex-direction: column;
+            align-items: flex-start
+        }
+
+        .pr-form-card {
+            padding: 24px
+        }
+
+        .pr-table-card {
+            overflow-x: auto
+        }
+    }
+
+    @@media(max-width:480px) {
+        .pr-stats {
+            grid-template-columns: 1fr 1fr
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        (function(){
+            const search   = document.getElementById('pr-search');
+            const clearBtn = document.getElementById('pr-clear');
+            const catSel   = document.getElementById('pr-cat-filter');
+            const estSel   = document.getElementById('pr-estado-filter');
+            const rows     = Array.from(document.querySelectorAll('.pr-row'));
+            const noRes    = document.getElementById('pr-no-results');
+            const countEl  = document.getElementById('pr-count');
+
+            function filter() {
+                const q   = (search?.value || '').toLowerCase().trim();
+                const cat = catSel?.value  || '';
+                const est = estSel?.value  || '';
+                let vis = 0;
+                rows.forEach((row, i) => {
+                    const matchQ   = !q   || row.dataset.nombre.includes(q) || row.dataset.cat.includes(q);
+                    const matchCat = !cat || row.dataset.cat === cat;
+                    const matchEst = !est || row.dataset.activo === est || (est === 'bajo' && row.dataset.stock === 'bajo');
+                    const show = matchQ && matchCat && matchEst;
+                    row.style.display = show ? '' : 'none';
+                    if(show){ row.style.animationDelay = `${vis*0.03}s`; vis++; }
+                });
+                if(noRes) noRes.style.display = vis === 0 ? 'flex' : 'none';
+                if(countEl) countEl.textContent = vis === rows.length ? '' : `${vis} de ${rows.length} resultado(s)`;
             }
-        </tbody>
-    </table>
+
+            search?.addEventListener('input', function(){ clearBtn.style.display = this.value ? 'flex':'none'; filter(); });
+            clearBtn?.addEventListener('click', function(){ search.value=''; this.style.display='none'; search.focus(); filter(); });
+            catSel?.addEventListener('change', filter);
+            estSel?.addEventListener('change', filter);
+            rows.forEach((r,i)=> r.style.animationDelay=`${i*0.03}s`);
+        })();
+    </script>
 }

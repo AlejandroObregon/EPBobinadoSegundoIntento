@@ -1,36 +1,407 @@
 ﻿@page "{id:int}"
 @model Web.Pages.ModeloMotor.EliminarModel
 @{
-    ViewData["Title"] = "Eliminar Modelo de Motor";
-}
-@{
     Layout = "_LayoutUser";
+    ViewData["Title"] = "Eliminar Modelo de Motor";
+    var m = Model.Modelo;
 }
 
-<h2 class="mb-4">¿Desea eliminar este modelo de motor?</h2>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 
-@if (Model.Modelo != null)
-{
-    <dl class="row">
-        <dt class="col-sm-3">Nombre</dt>
-        <dd class="col-sm-9">@Model.Modelo.Nombre</dd>
+<div class="mm-page">
 
-        <dt class="col-sm-3">Especificaciones</dt>
-        <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Modelo.Especificaciones) ? "—" : Model.Modelo.Especificaciones)</dd>
-    </dl>
-
-    <form method="post">
-        <input type="hidden" name="id" value="@Model.Modelo.Id" />
-        <button type="submit" asp-page-handler="Eliminar" class="btn btn-danger">
-            <i class="bi bi-trash"></i> Eliminar
-        </button>
-        <a asp-page="Listado" class="btn btn-secondary ms-2">
-            <i class="bi bi-arrow-left"></i> Cancelar
+    <div class="mm-header">
+        <div class="mm-header-left">
+            <div class="mm-header-icon">🗑️</div>
+            <div>
+                <h1 class="mm-title">Eliminar Modelo</h1>
+                <p class="mm-subtitle">Esta acción no se puede deshacer</p>
+            </div>
+        </div>
+        <a asp-page="Listado" class="mm-btn mm-btn-ghost">
+            <i class="bi bi-arrow-left"></i> Volver
         </a>
-    </form>
-}
-else
-{
-    <div class="alert alert-warning">No se encontró el modelo de motor a eliminar.</div>
-    <a asp-page="Listado" class="btn btn-secondary">Volver al Listado</a>
-}
+    </div>
+
+    @if (m != null)
+    {
+        <div class="mm-form-wrap" style="max-width:600px">
+            <div class="mm-form-card">
+
+                <div class="mm-delete-warning">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>¿Confirmar la eliminación del modelo <strong>@m.Nombre</strong>?</span>
+                </div>
+
+                <!-- Vista previa de la tarjeta -->
+                <div class="mm-del-preview">
+                    <div class="mm-del-icon-wrap">
+                        <i class="bi bi-gear-wide-connected"></i>
+                    </div>
+                    <div class="mm-del-info">
+                        <p class="mm-del-name">@m.Nombre</p>
+                        <p class="mm-del-id">#@m.Id</p>
+                    </div>
+                </div>
+
+                <div class="mm-detail-grid">
+                    <div class="mm-detail-item">
+                        <span class="mm-detail-label">ID</span>
+                        <span class="mm-detail-value">#@m.Id</span>
+                    </div>
+                    <div class="mm-detail-item">
+                        <span class="mm-detail-label">Nombre</span>
+                        <span class="mm-detail-value">@m.Nombre</span>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(m.Especificaciones))
+                    {
+                        <div class="mm-detail-item mm-detail-full">
+                            <span class="mm-detail-label">Especificaciones</span>
+                            <span class="mm-detail-value mm-detail-specs">@m.Especificaciones</span>
+                        </div>
+                    }
+                </div>
+
+                <form method="post">
+                    <input type="hidden" name="id" value="@m.Id" />
+                    <div class="mm-form-actions">
+                        <button type="submit" asp-page-handler="Eliminar" class="mm-btn mm-btn-danger">
+                            <i class="bi bi-trash-fill"></i> Confirmar Eliminación
+                        </button>
+                        <a asp-page="Listado" class="mm-btn mm-btn-ghost">Cancelar</a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="mm-toast mm-toast-danger">
+            <i class="bi bi-search"></i> No se encontró el modelo solicitado.
+        </div>
+        <a asp-page="Listado" class="mm-btn mm-btn-ghost">Volver al catálogo</a>
+    }
+</div>
+
+<style>
+    :root {
+        --mm-surface: #ffffff;
+        --mm-border: #d1fae5;
+        --mm-green: #10b981;
+        --mm-green2: #059669;
+        --mm-text: #111827;
+        --mm-muted: #6b7280;
+        --mm-radius: 14px;
+        --mm-shadow: 0 4px 20px rgba(0,0,0,.06);
+        --mm-ff-title: 'Barlow Condensed',sans-serif;
+        --mm-ff-body: 'Barlow',sans-serif
+    }
+
+    .mm-page {
+        font-family: var(--mm-ff-body)
+    }
+
+    .mm-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 28px;
+        gap: 16px;
+        flex-wrap: wrap
+    }
+
+    .mm-header-left {
+        display: flex;
+        align-items: center;
+        gap: 16px
+    }
+
+    .mm-header-icon {
+        font-size: 42px;
+        filter: drop-shadow(0 0 10px rgba(16,185,129,.4))
+    }
+
+    .mm-title {
+        font-family: var(--mm-ff-title);
+        font-size: 32px;
+        font-weight: 800;
+        color: var(--mm-text);
+        margin: 0;
+        letter-spacing: -.5px
+    }
+
+    .mm-title-id {
+        font-size: 22px;
+        color: var(--mm-green2);
+        font-weight: 600
+    }
+
+    .mm-subtitle {
+        font-size: 13px;
+        color: var(--mm-muted);
+        margin: 4px 0 0
+    }
+
+    .mm-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 11px 22px;
+        border-radius: 10px;
+        font-family: var(--mm-ff-body);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+        transition: all .2s ease;
+        white-space: nowrap
+    }
+
+    .mm-btn-primary {
+        background: linear-gradient(135deg,var(--mm-green),var(--mm-green2));
+        color: white
+    }
+
+        .mm-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16,185,129,.4);
+            color: white;
+            text-decoration: none
+        }
+
+    .mm-btn-ghost {
+        background: var(--mm-surface);
+        border: 1.5px solid var(--mm-border);
+        color: var(--mm-muted)
+    }
+
+        .mm-btn-ghost:hover {
+            border-color: var(--mm-green);
+            color: var(--mm-green2);
+            text-decoration: none
+        }
+
+    .mm-btn-danger {
+        background: linear-gradient(135deg,#ef4444,#dc2626);
+        color: white
+    }
+
+        .mm-btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239,68,68,.35);
+            color: white;
+            text-decoration: none
+        }
+
+    .mm-toast {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px 18px;
+        border-radius: var(--mm-radius);
+        font-size: 14px;
+        margin-bottom: 20px
+    }
+
+    .mm-toast-danger {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #991b1b
+    }
+
+    .mm-form-wrap {
+        max-width: 580px
+    }
+
+    .mm-form-card {
+        background: var(--mm-surface);
+        border-radius: var(--mm-radius);
+        box-shadow: var(--mm-shadow);
+        border: 1.5px solid var(--mm-border);
+        padding: 36px
+    }
+
+    .mm-form-section-title {
+        font-family: var(--mm-ff-title);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        color: var(--mm-green2);
+        margin-bottom: 22px;
+        padding-bottom: 10px;
+        border-bottom: 1.5px solid var(--mm-border);
+        display: flex;
+        align-items: center;
+        gap: 8px
+    }
+
+    .mm-field {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        margin-bottom: 22px
+    }
+
+    .mm-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--mm-muted);
+        letter-spacing: .04em
+    }
+
+    .mm-input, .mm-textarea {
+        padding: 12px 14px;
+        border: 1.5px solid var(--mm-border);
+        border-radius: 10px;
+        font-family: var(--mm-ff-body);
+        font-size: 14px;
+        color: var(--mm-text);
+        background: var(--mm-surface);
+        outline: none;
+        transition: all .2s ease;
+        width: 100%
+    }
+
+        .mm-input:focus, .mm-textarea:focus {
+            border-color: var(--mm-green);
+            box-shadow: 0 0 0 3px rgba(16,185,129,.12)
+        }
+
+        .mm-input::placeholder, .mm-textarea::placeholder {
+            color: #9ca3af
+        }
+
+    .mm-textarea {
+        resize: vertical;
+        font-family: "Courier New",monospace;
+        line-height: 1.6
+    }
+
+    .mm-error {
+        font-size: 12px;
+        color: #ef4444
+    }
+
+    .mm-form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 28px;
+        padding-top: 24px;
+        border-top: 1.5px solid var(--mm-border)
+    }
+
+    .mm-del-preview {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 18px 20px;
+        background: #f0fdf4;
+        border-radius: 12px;
+        border: 1.5px solid var(--mm-border);
+        margin-bottom: 24px
+    }
+
+    .mm-del-icon-wrap {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(135deg,var(--mm-green),var(--mm-green2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        color: white;
+        flex-shrink: 0
+    }
+
+    .mm-del-name {
+        font-family: var(--mm-ff-title);
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--mm-text);
+        margin: 0 0 2px
+    }
+
+    .mm-del-id {
+        font-size: 12px;
+        color: var(--mm-muted);
+        margin: 0
+    }
+
+    .mm-detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill,minmax(200px,1fr));
+        gap: 14px;
+        margin-bottom: 28px
+    }
+
+    .mm-detail-full {
+        grid-column: 1/-1
+    }
+
+    .mm-detail-item {
+        background: #f0fdf4;
+        border: 1.5px solid var(--mm-border);
+        border-radius: 10px;
+        padding: 14px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px
+    }
+
+    .mm-detail-label {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--mm-muted);
+        text-transform: uppercase;
+        letter-spacing: .08em
+    }
+
+    .mm-detail-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--mm-text)
+    }
+
+    .mm-detail-specs {
+        font-family: "Courier New",monospace;
+        font-size: 13px;
+        font-weight: 400;
+        color: var(--mm-muted);
+        line-height: 1.6
+    }
+
+    .mm-delete-warning {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 20px;
+        background: #fff7ed;
+        border: 1.5px solid #fed7aa;
+        border-radius: 10px;
+        color: #9a3412;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 24px
+    }
+
+        .mm-delete-warning i {
+            font-size: 22px;
+            color: #f97316;
+            flex-shrink: 0
+        }
+
+    @@media(max-width:768px) {
+        .mm-header {
+            flex-direction: column;
+            align-items: flex-start
+        }
+
+        .mm-form-card {
+            padding: 24px
+        }
+    }
+</style>
