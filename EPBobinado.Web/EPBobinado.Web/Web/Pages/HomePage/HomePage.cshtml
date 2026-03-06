@@ -6,7 +6,7 @@
     var userName = HttpContext.Session.GetString("UsuarioNombre") ?? "Usuario";
     var userInitial = userName.Length > 0 ? userName[0].ToString().ToUpper() : "U";
     int.TryParse(HttpContext.Session.GetString("UsuarioNivel"), out int rol);
-    var rolLabel = rol == 1 ? "Administrador" : rol == 3 ? "Técnico" : "Cliente";
+    var rolLabel = rol == 2 ? "Administrador" : rol == 1002 ? "Técnico" : "Cliente";
 }
 
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">

@@ -313,72 +313,106 @@
         <div class="sidebar-header">
             <a class="sidebar-brand" href="/HomePage/HomePage">
                 <i class="bi bi-tools brand-icon"></i>
-                <span class="brand-text">EP Bobinado</span>
+                <span class="brand-text">Mi Taller</span>
             </a>
         </div>
 
-        <ul class="sidebar-menu">
-            <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Usuarios") ? "active" : "")">
-                <a href="/Usuarios/Listado">
-                    <span class="menu-icon"><i class="bi bi-people-fill"></i></span>
-                    <span class="menu-label">Usuarios</span>
-                </a>
-            </li>
-            <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Motores") ? "active" : "")">
-                <a href="/Motores/Listado">
-                    <span class="menu-icon"><i class="bi bi-motorcycle"></i></span>
-                    <span class="menu-label">Motores</span>
-                </a>
-            </li>
-            <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Modelos_Motores") ? "active" : "")">
-                <a href="/Modelos_Motores/Listado">
-                    <span class="menu-icon"><i class="bi bi-gear-wide-connected"></i></span>
-                    <span class="menu-label">Modelos de Motor</span>
-                </a>
-            </li>
-            <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Ordenes") ? "active" : "")">
-                <a href="/Ordenes/Listado">
-                    <span class="menu-icon"><i class="bi bi-clipboard-check-fill"></i></span>
-                    <span class="menu-label">Órdenes</span>
-                </a>
-            </li>
-            <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Diagnosticos_iniciales") ? "active" : "")">
-                <a href="/Diagnosticos_iniciales/Listado">
-                    <span class="menu-icon"><i class="bi bi-wrench-adjustable"></i></span>
-                    <span class="menu-label">Diagnósticos Iniciales</span>
-                </a>
-            </li>
-            <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Diagnosticos_tecnicos") ? "active" : "")">
-                <a href="/Diagnosticos_tecnicos/Listado">
-                    <span class="menu-icon"><i class="bi bi-wrench-adjustable"></i></span>
-                    <span class="menu-label">Diagnósticos Técnicos</span>
-                </a>
-            </li>
-            <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Historial") ? "active" : "")">
-                <a href="/Historial/Listado">
-                    <span class="menu-icon"><i class="bi bi-clock-history"></i></span>
-                    <span class="menu-label">Historial</span>
-                </a>
-            </li>
-            <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Productos") ? "active" : "")">
-                <a href="/Productos/Listado">
-                    <span class="menu-icon"><i class="bi bi-box-seam-fill"></i></span>
-                    <span class="menu-label">Productos</span>
-                </a>
-            </li>
-            <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Cotizaciones") ? "active" : "")">
-                <a href="/Cotizaciones/Listado">
-                    <span class="menu-icon"><i class="bi bi-box-seam-fill"></i></span>
-                    <span class="menu-label">Cotizaciones</span>
-                </a>
-            </li>
-            <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Reportes") ? "active" : "")">
-                <a href="/Reportes/Index">
-                    <span class="menu-icon"><i class="bi bi-bar-chart-fill"></i></span>
-                    <span class="menu-label">Reportes</span>
-                </a>
-            </li>
-        </ul>
+        @{
+            var _rolNivel = Context.Session.GetString("UsuarioNivel") ?? "";
+            int.TryParse(_rolNivel, out int _rol);
+            bool _esCliente = _rol == 1;
+        }
+
+        @if (_esCliente)
+        {
+            <!-- ── MENÚ CLIENTE ── -->
+            <ul class="sidebar-menu">
+                <li class="menu-item @(Context.Request.Path == "/ClienteHome" ? "active" : "")">
+                    <a href="/ClienteHome">
+                        <span class="menu-icon"><i class="bi bi-house-fill"></i></span>
+                        <span class="menu-label">Inicio</span>
+                    </a>
+                </li>
+                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Motores") ? "active" : "")">
+                    <a href="/Motores/Listado">
+                        <span class="menu-icon"><i class="bi bi-motorcycle"></i></span>
+                        <span class="menu-label">Mis Motos</span>
+                    </a>
+                </li>
+                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Ordenes") ? "active" : "")">
+                    <a href="/Ordenes/Listado">
+                        <span class="menu-icon"><i class="bi bi-clipboard-check-fill"></i></span>
+                        <span class="menu-label">Mis Órdenes</span>
+                    </a>
+                </li>
+                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Productos/Catalogo") ? "active" : Context.Request.Path == "/Productos/Catalogo" ? "active" : "")">
+                    <a href="/Productos/Catalogo">
+                        <span class="menu-icon"><i class="bi bi-grid-3x3-gap-fill"></i></span>
+                        <span class="menu-label">Catálogo</span>
+                    </a>
+                </li>
+                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/ModeloMotor") ? "active" : "")">
+                    <a href="/ModeloMotor/Listado">
+                        <span class="menu-icon"><i class="bi bi-gear-wide-connected"></i></span>
+                        <span class="menu-label">Modelos de Motor</span>
+                    </a>
+                </li>
+            </ul>
+        }
+        else
+        {
+            <!-- ── MENÚ ADMIN / TÉCNICO ── -->
+            <ul class="sidebar-menu">
+                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Usuarios") ? "active" : "")">
+                    <a href="/Usuarios/Listado">
+                        <span class="menu-icon"><i class="bi bi-people-fill"></i></span>
+                        <span class="menu-label">Usuarios</span>
+                    </a>
+                </li>
+                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Motores") ? "active" : "")">
+                    <a href="/Motores/Listado">
+                        <span class="menu-icon"><i class="bi bi-motorcycle"></i></span>
+                        <span class="menu-label">Motores</span>
+                    </a>
+                </li>
+                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/ModeloMotor") ? "active" : "")">
+                    <a href="/ModeloMotor/Listado">
+                        <span class="menu-icon"><i class="bi bi-gear-wide-connected"></i></span>
+                        <span class="menu-label">Modelos de Motor</span>
+                    </a>
+                </li>
+                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Ordenes") ? "active" : "")">
+                    <a href="/Ordenes/Listado">
+                        <span class="menu-icon"><i class="bi bi-clipboard-check-fill"></i></span>
+                        <span class="menu-label">Órdenes</span>
+                    </a>
+                </li>
+                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Productos") ? "active" : "")">
+                    <a href="/Productos/Listado">
+                        <span class="menu-icon"><i class="bi bi-box-seam-fill"></i></span>
+                        <span class="menu-label">Productos</span>
+                    </a>
+                </li>
+                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/DiagnosticoTecnico") ? "active" : "")">
+                    <a href="/DiagnosticoTecnico/Listado">
+                        <span class="menu-icon"><i class="bi bi-tools"></i></span>
+                        <span class="menu-label">Diagnósticos</span>
+                    </a>
+                </li>
+                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/DiagnosticoInicial") ? "active" : "")">
+                    <a href="/DiagnosticoInicial/Listado">
+                        <span class="menu-icon"><i class="bi bi-search-heart"></i></span>
+                        <span class="menu-label">Diag. Inicial</span>
+                    </a>
+                </li>
+                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Reportes") ? "active" : "")">
+                    <a href="/Reportes/Index">
+                        <span class="menu-icon"><i class="bi bi-bar-chart-fill"></i></span>
+                        <span class="menu-label">Reportes</span>
+                    </a>
+                </li>
+            </ul>
+        }
     </nav>
 
     <!-- ── MAIN WRAPPER ── -->
@@ -401,7 +435,7 @@
                     </div>
                     <div>
                         <span class="user-name">@(Context.Session.GetString("UsuarioNombre") ?? "Usuario")</span>
-                        <span class="user-role">@(Context.Session.GetString("UsuarioNivel") ?? "")</span>
+                        <span class="user-role">@(Context.Session.GetString("UsuarioRolNombre") ?? Context.Session.GetString("UsuarioNivel") ?? "")</span>
                     </div>
                 </div>
                 <a href="../auth/Login" class="btn-logout" title="Cerrar sesión"

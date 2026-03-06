@@ -53,16 +53,18 @@ namespace Web.Pages.Auth
             HttpContext.Session.SetString("UsuarioId", usuario.Id.ToString());
             HttpContext.Session.SetString("UsuarioNombre", usuario.Nombre);
             HttpContext.Session.SetString("UsuarioEmail", usuario.Email);
-            HttpContext.Session.SetString("UsuarioNivel", ResolverRol(usuario.RolId));
+            HttpContext.Session.SetString("UsuarioNivel", usuario.RolId.ToString()); // número para comparar
+            HttpContext.Session.SetString("UsuarioRolNombre", ResolverRol(usuario.RolId));
 
             return RedirectToPage("/HomePage/HomePage");
         }
 
+        // RolId según BD: 1=Cliente, 2=Admin, 1002=Técnico
         private static string ResolverRol(int rolId) => rolId switch
         {
-            1 => "Administrador",
-            2 => "Cliente",
-            3 => "Técnico",
+            1 => "Cliente",
+            2 => "Administrador",
+            1002 => "Técnico",
             _ => "Usuario"
         };
     }

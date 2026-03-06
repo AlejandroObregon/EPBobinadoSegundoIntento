@@ -36,6 +36,10 @@ namespace Web.Pages.HomePage
             int.TryParse(HttpContext.Session.GetString("UsuarioId"), out int usuarioId);
             int.TryParse(HttpContext.Session.GetString("UsuarioNivel"), out int rol);
 
+            // Los clientes tienen su propio dashboard
+            if (rol == 1)
+                return Redirect("/ClienteHome");
+
             // ── 1. Motores ────────────────────────────────────────
             try
             {
@@ -46,8 +50,8 @@ namespace Web.Pages.HomePage
                     var motores = JsonSerializer.Deserialize<List<MotorResponse>>(
                         await resp.Content.ReadAsStringAsync(), opciones) ?? new();
 
-                    // Si es cliente (RolId=2) mostrar solo sus motores, admins ven todos
-                    MisMotores = rol == 2
+                    // Si es cliente (RolId=1) mostrar solo sus motores, admins/técnicos ven todos
+                    MisMotores = rol == 1
                         ? motores.Where(m => m.UsuarioId == usuarioId).ToList()
                         : motores;
                     TotalMotores = MisMotores.Count;
@@ -66,7 +70,7 @@ namespace Web.Pages.HomePage
                         await resp.Content.ReadAsStringAsync(), opciones) ?? new();
 
                     // Si es cliente filtrar por sus motores
-                    TodasLasOrdenes = rol == 2
+                    TodasLasOrdenes = rol == 1
                         ? ordenes.Where(o => MisMotores.Any(m => m.Id == o.MotorId)).ToList()
                         : ordenes;
 

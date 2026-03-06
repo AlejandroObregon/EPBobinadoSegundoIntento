@@ -42,7 +42,7 @@ namespace Web.Pages.Auth
                 Email = Datos.Email,
                 PasswordHash = Datos.Password,
                 Telefono = Datos.Telefono,
-                RolId = 2,      // Cliente por defecto
+                RolId = 1,      // Cliente por defecto
                 Activo = true
             };
 

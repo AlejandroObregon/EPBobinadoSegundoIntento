@@ -1,0 +1,1444 @@
+﻿@page "/ClienteHome"
+@model Web.Pages.ClienteHomeModel
+@{
+    Layout = "_LayoutUser";
+    ViewData["Title"] = "EP Bobinado";
+
+    var initial = Model.UsuarioNombre.Length > 0 ? Model.UsuarioNombre[0].ToString().ToUpper() : "C";
+
+    // Imágenes del carrusel
+    var slides = new[]
+    {
+        new { Img = "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=500&fit=crop", Titulo = "SERVICIO DE CALIDAD", Sub = "Mantenimiento y reparación especializada en motocicletas" },
+        new { Img = "https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?w=1200&h=500&fit=crop", Titulo = "DIAGNÓSTICO TÉCNICO", Sub = "Detección precisa de fallas con tecnología de punta" },
+        new { Img = "https://images.unsplash.com/photo-1558981285-6f0c94958bb6?w=1200&h=500&fit=crop", Titulo = "REPUESTOS ORIGINALES", Sub = "Solo utilizamos piezas de primera calidad para tu moto" },
+        new { Img = "https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=1200&h=500&fit=crop", Titulo = "TÉCNICOS CERTIFICADOS", Sub = "Más de 10 años de experiencia en el sector" },
+    };
+
+    // Mapa de imágenes para productos
+    string GetProductImg(string? cat)
+    {
+        if (string.IsNullOrWhiteSpace(cat)) return "https://images.unsplash.com/photo-1581090700227-1e37b190418e?w=400&h=260&fit=crop";
+        var k = cat.ToLower();
+        if (k.Contains("lubric") || k.Contains("aceite")) return "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=260&fit=crop";
+        if (k.Contains("freno")) return "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=400&h=260&fit=crop";
+        if (k.Contains("llanta") || k.Contains("neumat")) return "https://images.unsplash.com/photo-1546614042-7df3c24c9e5d?w=400&h=260&fit=crop";
+        if (k.Contains("filtr")) return "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=400&h=260&fit=crop";
+        if (k.Contains("buji")) return "https://images.unsplash.com/photo-1580274455191-1c62238fa333?w=400&h=260&fit=crop";
+        if (k.Contains("cadena") || k.Contains("correa")) return "https://images.unsplash.com/photo-1558981285-6f0c94958bb6?w=400&h=260&fit=crop";
+        if (k.Contains("casco")) return "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400&h=260&fit=crop";
+        if (k.Contains("herram")) return "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?w=400&h=260&fit=crop";
+        return "https://images.unsplash.com/photo-1591637333184-19aa84b3e01f?w=400&h=260&fit=crop";
+    }
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+
+<div class="ch-page">
+
+    <!-- ══════════════════════════════════════════════
+         HERO BIENVENIDA
+    ══════════════════════════════════════════════ -->
+    <div class="ch-welcome">
+        <div class="ch-welcome-left">
+            <div class="ch-avatar">@initial</div>
+            <div>
+                <p class="ch-welcome-hi">¡Bienvenido de vuelta 👋</p>
+                <h1 class="ch-welcome-name">@Model.UsuarioNombre</h1>
+            </div>
+        </div>
+        <div class="ch-welcome-stats">
+            <div class="ch-wstat">
+                <span class="ch-wstat-num">@Model.TotalMotores</span>
+                <span class="ch-wstat-lbl">🏍️ Motos</span>
+            </div>
+            <div class="ch-wstat-div"></div>
+            <div class="ch-wstat">
+                <span class="ch-wstat-num">@Model.OrdenesActivas</span>
+                <span class="ch-wstat-lbl">⏳ Activas</span>
+            </div>
+            <div class="ch-wstat-div"></div>
+            <div class="ch-wstat">
+                <span class="ch-wstat-num">@Model.OrdenesCompletadas</span>
+                <span class="ch-wstat-lbl">✅ Completadas</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         CARRUSEL
+    ══════════════════════════════════════════════ -->
+    <div class="ch-carousel" id="ch-carousel">
+        <div class="ch-carousel-track" id="ch-track">
+            @for (int i = 0; i < slides.Length; i++)
+            {
+                <div class="ch-slide @(i == 0 ? "ch-slide-active" : "")"
+                     style="background-image:url('@slides[i].Img')">
+                    <div class="ch-slide-overlay"></div>
+                    <div class="ch-slide-content">
+                        <h2 class="ch-slide-title">@slides[i].Titulo</h2>
+                        <p class="ch-slide-sub">@slides[i].Sub</p>
+                        <a asp-page="/Motores/Agregar" class="ch-slide-btn">Registrar mi moto →</a>
+                    </div>
+                </div>
+            }
+        </div>
+        <!-- Controles -->
+        <button class="ch-carousel-btn ch-prev" id="ch-prev" aria-label="Anterior">&#8249;</button>
+        <button class="ch-carousel-btn ch-next" id="ch-next" aria-label="Siguiente">&#8250;</button>
+        <!-- Dots -->
+        <div class="ch-dots" id="ch-dots">
+            @for (int i = 0; i < slides.Length; i++)
+            {
+                <button class="ch-dot @(i == 0 ? "ch-dot-active" : "")" data-idx="@i"></button>
+            }
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         ACCESOS RÁPIDOS
+    ══════════════════════════════════════════════ -->
+    <div class="ch-section">
+        <h2 class="ch-section-title">⚡ ACCESOS RÁPIDOS</h2>
+        <div class="ch-quick-grid">
+
+            <a asp-page="/Motores/Agregar" class="ch-quick-card ch-quick-amber">
+                <div class="ch-quick-icon">🏍️</div>
+                <div class="ch-quick-body">
+                    <span class="ch-quick-label">Registrar Motor</span>
+                    <span class="ch-quick-desc">Agrega una nueva moto a tu cuenta</span>
+                </div>
+                <i class="bi bi-arrow-right-circle-fill ch-quick-arrow"></i>
+            </a>
+
+            <a asp-page="/Ordenes/Agregar" class="ch-quick-card ch-quick-blue">
+                <div class="ch-quick-icon">📋</div>
+                <div class="ch-quick-body">
+                    <span class="ch-quick-label">Nueva Orden</span>
+                    <span class="ch-quick-desc">Solicita un servicio para tu moto</span>
+                </div>
+                <i class="bi bi-arrow-right-circle-fill ch-quick-arrow"></i>
+            </a>
+
+            <a asp-page="/Ordenes/Listado" class="ch-quick-card ch-quick-green">
+                <div class="ch-quick-icon">📊</div>
+                <div class="ch-quick-body">
+                    <span class="ch-quick-label">Mis Órdenes</span>
+                    <span class="ch-quick-desc">Seguimiento de tus servicios</span>
+                </div>
+                <i class="bi bi-arrow-right-circle-fill ch-quick-arrow"></i>
+            </a>
+
+            <a asp-page="/Motores/Listado" class="ch-quick-card ch-quick-purple">
+                <div class="ch-quick-icon">🔧</div>
+                <div class="ch-quick-body">
+                    <span class="ch-quick-label">Mis Motos</span>
+                    <span class="ch-quick-desc">Ver y gestionar tus motos</span>
+                </div>
+                <i class="bi bi-arrow-right-circle-fill ch-quick-arrow"></i>
+            </a>
+
+            <a asp-page="/ModeloMotor/Listado" class="ch-quick-card ch-quick-slate">
+                <div class="ch-quick-icon">⚙️</div>
+                <div class="ch-quick-body">
+                    <span class="ch-quick-label">Modelos</span>
+                    <span class="ch-quick-desc">Consulta el catálogo de modelos</span>
+                </div>
+                <i class="bi bi-arrow-right-circle-fill ch-quick-arrow"></i>
+            </a>
+
+            <a asp-page="/Productos/Catalogo" class="ch-quick-card ch-quick-rose">
+                <div class="ch-quick-icon">🛒</div>
+                <div class="ch-quick-body">
+                    <span class="ch-quick-label">Catálogo</span>
+                    <span class="ch-quick-desc">Repuestos y accesorios disponibles</span>
+                </div>
+                <i class="bi bi-arrow-right-circle-fill ch-quick-arrow"></i>
+            </a>
+
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         MIS ÓRDENES RECIENTES
+    ══════════════════════════════════════════════ -->
+    <div class="ch-section">
+        <div class="ch-section-head">
+            <h2 class="ch-section-title">📋 MIS ÓRDENES RECIENTES</h2>
+            <a asp-page="/Ordenes/Listado" class="ch-link">Ver todas →</a>
+        </div>
+
+        @if (!Model.MisOrdenes.Any())
+        {
+            <div class="ch-empty-box">
+                <span>📋</span>
+                <p>No tienes órdenes de servicio aún</p>
+                <a asp-page="/Ordenes/Agregar" class="ch-btn ch-btn-primary">
+                    <i class="bi bi-plus-lg"></i> Crear primera orden
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="ch-orders-list">
+                @foreach (var o in Model.MisOrdenes)
+                {
+                    var slug = o.Estado.ToLower().Replace(" ", "").Replace("ó", "o").Replace("é", "e").Replace("ú", "u").Replace("í", "i");
+                    <div class="ch-order-row">
+                        <div class="ch-order-moto-icon">🏍️</div>
+                        <div class="ch-order-info">
+                            <p class="ch-order-serie">
+                                @(o.Motor?.NumeroSerie ?? $"Motor #{o.MotorId}")
+                                @if (o.Motor?.Modelo != null)
+                                {
+                                    <span class="ch-order-modelo">— @o.Motor.Modelo.Nombre</span>
+                                }
+                            </p>
+                            <p class="ch-order-meta">
+                                @if (o.Tecnico != null)
+                                {
+                                    <span><i class="bi bi-person-gear"></i> @o.Tecnico.Nombre</span>
+                                }
+                                <span><i class="bi bi-calendar3"></i> @o.CreadoEn.ToString("dd/MM/yyyy")</span>
+                            </p>
+                        </div>
+                        <span class="ch-badge ch-badge-@slug">@o.Estado</span>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         PRODUCTOS DESTACADOS
+    ══════════════════════════════════════════════ -->
+    <div class="ch-section">
+        <div class="ch-section-head">
+            <h2 class="ch-section-title">🛒 PRODUCTOS DESTACADOS</h2>
+            <a asp-page="/Productos/Catalogo" class="ch-link">Ver catálogo completo →</a>
+        </div>
+
+        @if (!Model.ProductosDestacados.Any())
+        {
+            <div class="ch-empty-box">
+                <span>📦</span>
+                <p>No hay productos disponibles en este momento</p>
+            </div>
+        }
+        else
+        {
+            <div class="ch-products-grid">
+                @foreach (var p in Model.ProductosDestacados)
+                {
+                    <div class="ch-product-card">
+                        <div class="ch-product-img-wrap">
+                            <img src="@GetProductImg(p.Categoria)"
+                                 alt="@p.Nombre" class="ch-product-img"
+                                 onerror="this.src='https://images.unsplash.com/photo-1581090700227-1e37b190418e?w=400&h=260&fit=crop'" />
+                            @if (!string.IsNullOrWhiteSpace(p.Categoria))
+                            {
+                                <span class="ch-product-cat">@p.Categoria</span>
+                            }
+                        </div>
+                        <div class="ch-product-body">
+                            <h4 class="ch-product-name">@p.Nombre</h4>
+                            <div class="ch-product-footer">
+                                <span class="ch-product-price">₡@p.Precio.ToString("N0")</span>
+                                <span class="ch-product-stock @(p.Stock <= p.StockMinimo ? "ch-stock-low" : "")">
+                                    <i class="bi bi-box-seam"></i> @p.Stock
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div style="text-align:center;margin-top:20px">
+                <a asp-page="/Productos/Catalogo" class="ch-btn ch-btn-outline">
+                    <i class="bi bi-grid-3x3-gap"></i> Ver todo el catálogo
+                </a>
+            </div>
+        }
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         SOBRE EL TALLER + MAPA
+    ══════════════════════════════════════════════ -->
+    <div class="ch-taller-section">
+
+        <!-- Info del taller -->
+        <div class="ch-taller-info">
+            <h2 class="ch-section-title">🏪 SOBRE NOSOTROS</h2>
+            <p class="ch-taller-desc">
+                Somos un taller especializado en motocicletas con más de 10 años de experiencia.
+                Contamos con técnicos certificados y utilizamos únicamente repuestos originales
+                para garantizar la seguridad y el rendimiento de tu moto.
+            </p>
+
+            <div class="ch-taller-features">
+                <div class="ch-feature">
+                    <div class="ch-feature-icon">🔧</div>
+                    <div>
+                        <p class="ch-feature-title">Servicio Integral</p>
+                        <p class="ch-feature-desc">Mantenimiento, diagnóstico y reparación</p>
+                    </div>
+                </div>
+                <div class="ch-feature">
+                    <div class="ch-feature-icon">⏱️</div>
+                    <div>
+                        <p class="ch-feature-title">Tiempo de Entrega</p>
+                        <p class="ch-feature-desc">Comprometidos con tus tiempos</p>
+                    </div>
+                </div>
+                <div class="ch-feature">
+                    <div class="ch-feature-icon">🏆</div>
+                    <div>
+                        <p class="ch-feature-title">Calidad Garantizada</p>
+                        <p class="ch-feature-desc">Garantía en todos los servicios</p>
+                    </div>
+                </div>
+                <div class="ch-feature">
+                    <div class="ch-feature-icon">💳</div>
+                    <div>
+                        <p class="ch-feature-title">Formas de Pago</p>
+                        <p class="ch-feature-desc">Efectivo, tarjeta y transferencia</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Horarios -->
+            <div class="ch-horario">
+                <h3 class="ch-horario-title"><i class="bi bi-clock-fill"></i> HORARIO</h3>
+                <div class="ch-horario-grid">
+                    <span class="ch-horario-dia">Lunes – Viernes</span>
+                    <span class="ch-horario-hora">7:00 am – 6:00 pm</span>
+                    <span class="ch-horario-dia">Sábado</span>
+                    <span class="ch-horario-hora">8:00 am – 3:00 pm</span>
+                    <span class="ch-horario-dia">Domingo</span>
+                    <span class="ch-horario-hora ch-cerrado">Cerrado</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mapa -->
+        <div class="ch-mapa-wrap">
+            <h2 class="ch-section-title">📍 ENCUÉNTRANOS</h2>
+            <div class="ch-mapa">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3930.2!2d-84.0879!3d9.9281!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zOcKwNTUnNDEuMiJOIDg0wrAwNSczNi40Ilc!5e0!3m2!1ses!2scr!4v1000000000000"
+                        width="100%" height="100%" style="border:0" allowfullscreen=""
+                        loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+                        title="Ubicación del taller">
+                </iframe>
+            </div>
+            <p class="ch-mapa-address">
+                <i class="bi bi-geo-alt-fill" style="color:#f59e0b"></i>
+                <strong>San José, Costa Rica</strong> — Frente al parque central
+            </p>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         CONTACTO
+    ══════════════════════════════════════════════ -->
+    <div class="ch-contact-section">
+        <div class="ch-contact-left">
+            <h2 class="ch-section-title" style="color:white">📞 CONTÁCTANOS</h2>
+            <p style="color:#94a3b8;margin-bottom:28px;font-size:15px">
+                ¿Tienes alguna duda? Estamos aquí para ayudarte
+            </p>
+            <div class="ch-contact-items">
+                <div class="ch-contact-item">
+                    <div class="ch-contact-icon">📞</div>
+                    <div>
+                        <p class="ch-contact-label">Teléfono</p>
+                        <a href="tel:+50688887777" class="ch-contact-value">+506 8888-7777</a>
+                    </div>
+                </div>
+                <div class="ch-contact-item">
+                    <div class="ch-contact-icon">📧</div>
+                    <div>
+                        <p class="ch-contact-label">Correo</p>
+                        <a href="mailto:info@mitaller.cr" class="ch-contact-value">info@mitaller.cr</a>
+                    </div>
+                </div>
+                <div class="ch-contact-item">
+                    <div class="ch-contact-icon">💬</div>
+                    <div>
+                        <p class="ch-contact-label">WhatsApp</p>
+                        <a href="https://wa.me/50688887777" target="_blank" class="ch-contact-value">Enviar mensaje</a>
+                    </div>
+                </div>
+                <div class="ch-contact-item">
+                    <div class="ch-contact-icon">📘</div>
+                    <div>
+                        <p class="ch-contact-label">Facebook</p>
+                        <a href="#" class="ch-contact-value">Mi Taller Motos</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulario de contacto rápido (solo UI — conectar a un endpoint de mensajería si se necesita) -->
+        <div class="ch-contact-form-card">
+            <h3 class="ch-contact-form-title">Envíanos un mensaje</h3>
+            <div id="ch-contact-success" class="ch-contact-sent" style="display:none">
+                <i class="bi bi-check-circle-fill"></i> ¡Mensaje enviado! Te contactaremos pronto.
+            </div>
+            <div class="ch-cf-field">
+                <label class="ch-cf-label">Asunto</label>
+                <input id="cf-asunto" type="text" class="ch-cf-input" placeholder="Ej: Consulta sobre mi orden #15" />
+            </div>
+            <div class="ch-cf-field">
+                <label class="ch-cf-label">Mensaje</label>
+                <textarea id="cf-mensaje" class="ch-cf-textarea" rows="4"
+                          placeholder="Cuéntanos en qué podemos ayudarte..."></textarea>
+            </div>
+            <button class="ch-btn ch-btn-primary" style="width:100%" onclick="enviarMensaje()">
+                <i class="bi bi-send-fill"></i> Enviar Mensaje
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    :root {
+        --ch-bg: #f8fafc;
+        --ch-surface: #fff;
+        --ch-border: #e2e8f0;
+        --ch-text: #0f172a;
+        --ch-muted: #64748b;
+        --ch-radius: 14px;
+        --ch-shadow: 0 4px 20px rgba(0,0,0,.07);
+        --ch-amber: #f59e0b;
+        --ch-amber2: #d97706;
+        --ch-ff: 'Barlow Condensed',sans-serif;
+        --ch-ff-body: 'Barlow',sans-serif;
+    }
+
+    * {
+        box-sizing: border-box
+    }
+
+    .ch-page {
+        font-family: var(--ch-ff-body);
+        display: flex;
+        flex-direction: column;
+        gap: 32px
+    }
+
+    /* ── WELCOME ── */
+    .ch-welcome {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        background: linear-gradient(135deg,#0f1923 0%,#1e3a5f 55%,#1a4f8a 100%);
+        border-radius: var(--ch-radius);
+        padding: 26px 32px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .ch-welcome::before {
+            content: '🏍️';
+            position: absolute;
+            right: 260px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 110px;
+            opacity: .05;
+            pointer-events: none
+        }
+
+    .ch-welcome-left {
+        display: flex;
+        align-items: center;
+        gap: 16px
+    }
+
+    .ch-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg,var(--ch-amber),var(--ch-amber2));
+        color: #0f1923;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--ch-ff);
+        font-size: 26px;
+        font-weight: 800;
+        flex-shrink: 0;
+        box-shadow: 0 4px 16px rgba(245,158,11,.35)
+    }
+
+    .ch-welcome-hi {
+        font-size: 13px;
+        color: #94a3b8;
+        margin: 0 0 3px
+    }
+
+    .ch-welcome-name {
+        font-family: var(--ch-ff);
+        font-size: 28px;
+        font-weight: 800;
+        color: white;
+        margin: 0;
+        letter-spacing: .5px;
+        text-transform: uppercase
+    }
+
+    .ch-welcome-stats {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap
+    }
+
+    .ch-wstat {
+        text-align: center
+    }
+
+    .ch-wstat-num {
+        display: block;
+        font-family: var(--ch-ff);
+        font-size: 34px;
+        font-weight: 800;
+        color: var(--ch-amber)
+    }
+
+    .ch-wstat-lbl {
+        display: block;
+        font-size: 12px;
+        color: #94a3b8;
+        white-space: nowrap
+    }
+
+    .ch-wstat-div {
+        width: 1px;
+        height: 40px;
+        background: rgba(255,255,255,.15)
+    }
+
+    /* ── SECTION ── */
+    .ch-section {
+        background: var(--ch-surface);
+        border-radius: var(--ch-radius);
+        border: 1px solid var(--ch-border);
+        box-shadow: var(--ch-shadow);
+        padding: 28px 30px
+    }
+
+    .ch-section-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        gap: 12px
+    }
+
+    .ch-section-title {
+        font-family: var(--ch-ff);
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--ch-text);
+        margin: 0 0 20px;
+        letter-spacing: .5px
+    }
+
+    .ch-section-head .ch-section-title {
+        margin: 0
+    }
+
+    .ch-link {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ch-amber2);
+        text-decoration: none;
+        white-space: nowrap
+    }
+
+        .ch-link:hover {
+            text-decoration: underline
+        }
+
+    /* ── CARRUSEL ── */
+    .ch-carousel {
+        position: relative;
+        border-radius: var(--ch-radius);
+        overflow: hidden;
+        height: 360px;
+        box-shadow: var(--ch-shadow)
+    }
+
+    .ch-slide {
+        position: absolute;
+        inset: 0;
+        background-size: cover;
+        background-position: center;
+        transition: opacity .6s ease,transform .6s ease;
+        opacity: 0;
+        transform: scale(1.02)
+    }
+
+    .ch-slide-active {
+        opacity: 1;
+        transform: scale(1)
+    }
+
+    .ch-slide-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg,rgba(0,0,0,.7) 0%,rgba(0,0,0,.3) 60%,transparent 100%)
+    }
+
+    .ch-slide-content {
+        position: absolute;
+        bottom: 40px;
+        left: 50px;
+        max-width: 520px
+    }
+
+    .ch-slide-title {
+        font-family: var(--ch-ff);
+        font-size: 40px;
+        font-weight: 800;
+        color: white;
+        margin: 0 0 10px;
+        letter-spacing: 1px;
+        text-shadow: 0 2px 8px rgba(0,0,0,.4)
+    }
+
+    .ch-slide-sub {
+        font-size: 16px;
+        color: rgba(255,255,255,.85);
+        margin: 0 0 20px;
+        line-height: 1.5
+    }
+
+    .ch-slide-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: var(--ch-amber);
+        color: #0f1923;
+        border-radius: 9px;
+        font-family: var(--ch-ff);
+        font-size: 15px;
+        font-weight: 800;
+        text-decoration: none;
+        letter-spacing: .5px;
+        transition: all .2s
+    }
+
+        .ch-slide-btn:hover {
+            background: var(--ch-amber2);
+            color: #0f1923;
+            transform: translateX(4px);
+            text-decoration: none
+        }
+
+    .ch-carousel-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.15);
+        backdrop-filter: blur(8px);
+        border: 1.5px solid rgba(255,255,255,.2);
+        color: white;
+        font-size: 28px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all .2s;
+        line-height: 1;
+        z-index: 10
+    }
+
+        .ch-carousel-btn:hover {
+            background: rgba(255,255,255,.3)
+        }
+
+    .ch-prev {
+        left: 16px
+    }
+
+    .ch-next {
+        right: 16px
+    }
+
+    .ch-dots {
+        position: absolute;
+        bottom: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 8px;
+        z-index: 10
+    }
+
+    .ch-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(255,255,255,.4);
+        cursor: pointer;
+        transition: all .25s;
+        padding: 0
+    }
+
+    .ch-dot-active {
+        background: var(--ch-amber);
+        width: 24px;
+        border-radius: 4px
+    }
+
+    /* ── QUICK ACCESS ── */
+    .ch-quick-grid {
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: 14px
+    }
+
+    .ch-quick-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 18px 20px;
+        border-radius: 12px;
+        text-decoration: none;
+        border: 1.5px solid transparent;
+        transition: all .22s;
+        position: relative;
+        overflow: hidden
+    }
+
+        .ch-quick-card:hover {
+            transform: translateY(-3px);
+            text-decoration: none;
+            box-shadow: 0 8px 24px rgba(0,0,0,.1)
+        }
+
+    .ch-quick-icon {
+        font-size: 28px;
+        flex-shrink: 0
+    }
+
+    .ch-quick-body {
+        flex: 1;
+        min-width: 0
+    }
+
+    .ch-quick-label {
+        display: block;
+        font-family: var(--ch-ff);
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: .3px;
+        margin-bottom: 2px
+    }
+
+    .ch-quick-desc {
+        display: block;
+        font-size: 12px;
+        opacity: .75;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis
+    }
+
+    .ch-quick-arrow {
+        font-size: 20px;
+        flex-shrink: 0;
+        opacity: .6;
+        transition: transform .2s
+    }
+
+    .ch-quick-card:hover .ch-quick-arrow {
+        transform: translateX(4px);
+        opacity: 1
+    }
+
+    .ch-quick-amber {
+        background: #fff8e1;
+        border-color: #fde68a;
+        color: #92400e
+    }
+
+    .ch-quick-blue {
+        background: #eff6ff;
+        border-color: #bfdbfe;
+        color: #1e40af
+    }
+
+    .ch-quick-green {
+        background: #f0fdf4;
+        border-color: #bbf7d0;
+        color: #065f46
+    }
+
+    .ch-quick-purple {
+        background: #faf5ff;
+        border-color: #e9d5ff;
+        color: #5b21b6
+    }
+
+    .ch-quick-slate {
+        background: #f8fafc;
+        border-color: #e2e8f0;
+        color: #334155
+    }
+
+    .ch-quick-rose {
+        background: #fff1f2;
+        border-color: #fecdd3;
+        color: #9f1239
+    }
+
+    /* ── ORDERS ── */
+    .ch-orders-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0
+    }
+
+    .ch-order-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 4px;
+        border-bottom: 1px solid var(--ch-border);
+        transition: background .12s
+    }
+
+        .ch-order-row:last-child {
+            border-bottom: none
+        }
+
+        .ch-order-row:hover {
+            background: #f8fafc
+        }
+
+    .ch-order-moto-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: linear-gradient(135deg,#1e293b,#334155);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0
+    }
+
+    .ch-order-info {
+        flex: 1;
+        min-width: 0
+    }
+
+    .ch-order-serie {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--ch-text);
+        margin: 0 0 3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis
+    }
+
+    .ch-order-modelo {
+        font-weight: 400;
+        color: var(--ch-muted);
+        font-size: 13px
+    }
+
+    .ch-order-meta {
+        font-size: 12px;
+        color: var(--ch-muted);
+        margin: 0;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap
+    }
+
+    .ch-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 100px;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+        font-family: var(--ch-ff);
+        letter-spacing: .04em
+    }
+
+    .ch-badge-pendiente {
+        background: #fef3c7;
+        color: #92400e
+    }
+
+    .ch-badge-endiagnostico {
+        background: #dbeafe;
+        color: #1e40af
+    }
+
+    .ch-badge-enreparacion {
+        background: #ede9fe;
+        color: #5b21b6
+    }
+
+    .ch-badge-completado {
+        background: #d1fae5;
+        color: #065f46
+    }
+
+    .ch-badge-cancelado {
+        background: #fee2e2;
+        color: #991b1b
+    }
+
+    /* ── PRODUCTS ── */
+    .ch-products-grid {
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: 16px
+    }
+
+    .ch-product-card {
+        background: var(--ch-surface);
+        border-radius: 12px;
+        border: 1px solid var(--ch-border);
+        overflow: hidden;
+        transition: all .22s
+    }
+
+        .ch-product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 28px rgba(0,0,0,.09)
+        }
+
+    .ch-product-img-wrap {
+        position: relative;
+        height: 160px;
+        overflow: hidden
+    }
+
+    .ch-product-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform .4s
+    }
+
+    .ch-product-card:hover .ch-product-img {
+        transform: scale(1.06)
+    }
+
+    .ch-product-cat {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        background: rgba(15,25,35,.72);
+        backdrop-filter: blur(4px);
+        color: white;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 100px;
+        font-family: var(--ch-ff);
+        text-transform: uppercase;
+        letter-spacing: .06em
+    }
+
+    .ch-product-body {
+        padding: 12px 14px 14px
+    }
+
+    .ch-product-name {
+        font-family: var(--ch-ff);
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--ch-text);
+        margin: 0 0 8px;
+        line-height: 1.3
+    }
+
+    .ch-product-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center
+    }
+
+    .ch-product-price {
+        font-family: var(--ch-ff);
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--ch-amber2)
+    }
+
+    .ch-product-stock {
+        font-size: 11px;
+        font-weight: 600;
+        color: #10b981;
+        display: flex;
+        align-items: center;
+        gap: 4px
+    }
+
+    .ch-stock-low {
+        color: var(--ch-amber)
+    }
+
+    /* ── TALLER + MAPA ── */
+    .ch-taller-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        align-items: start
+    }
+
+    .ch-taller-info {
+        background: var(--ch-surface);
+        border-radius: var(--ch-radius);
+        border: 1px solid var(--ch-border);
+        box-shadow: var(--ch-shadow);
+        padding: 28px 30px
+    }
+
+    .ch-taller-desc {
+        font-size: 15px;
+        color: var(--ch-muted);
+        line-height: 1.7;
+        margin-bottom: 24px
+    }
+
+    .ch-taller-features {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-bottom: 24px
+    }
+
+    .ch-feature {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px;
+        background: #f8fafc;
+        border-radius: 10px;
+        border: 1px solid var(--ch-border)
+    }
+
+    .ch-feature-icon {
+        font-size: 22px;
+        flex-shrink: 0;
+        margin-top: 1px
+    }
+
+    .ch-feature-title {
+        font-family: var(--ch-ff);
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--ch-text);
+        margin: 0 0 2px;
+        letter-spacing: .2px
+    }
+
+    .ch-feature-desc {
+        font-size: 12px;
+        color: var(--ch-muted);
+        margin: 0
+    }
+
+    .ch-horario {
+        background: #fef9ee;
+        border: 1.5px solid #fde68a;
+        border-radius: 10px;
+        padding: 16px 18px
+    }
+
+    .ch-horario-title {
+        font-family: var(--ch-ff);
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--ch-amber2);
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        margin: 0 0 12px;
+        display: flex;
+        align-items: center;
+        gap: 7px
+    }
+
+    .ch-horario-grid {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 6px 20px;
+        font-size: 14px
+    }
+
+    .ch-horario-dia {
+        color: var(--ch-muted);
+        font-weight: 600
+    }
+
+    .ch-horario-hora {
+        color: var(--ch-text);
+        font-weight: 600
+    }
+
+    .ch-cerrado {
+        color: #ef4444
+    }
+
+    .ch-mapa-wrap {
+        background: var(--ch-surface);
+        border-radius: var(--ch-radius);
+        border: 1px solid var(--ch-border);
+        box-shadow: var(--ch-shadow);
+        padding: 28px 30px
+    }
+
+    .ch-mapa {
+        height: 300px;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1.5px solid var(--ch-border);
+        margin-bottom: 12px
+    }
+
+        .ch-mapa iframe {
+            display: block
+        }
+
+    .ch-mapa-address {
+        font-size: 14px;
+        color: var(--ch-muted);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px
+    }
+
+    /* ── CONTACTO ── */
+    .ch-contact-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        align-items: start;
+        background: linear-gradient(135deg,#0f1923 0%,#1a2b3c 100%);
+        border-radius: var(--ch-radius);
+        padding: 36px;
+    }
+
+    .ch-contact-items {
+        display: flex;
+        flex-direction: column;
+        gap: 16px
+    }
+
+    .ch-contact-item {
+        display: flex;
+        align-items: center;
+        gap: 14px
+    }
+
+    .ch-contact-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        background: rgba(245,158,11,.15);
+        border: 1px solid rgba(245,158,11,.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0
+    }
+
+    .ch-contact-label {
+        font-size: 11px;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        margin: 0 0 2px
+    }
+
+    .ch-contact-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: white;
+        text-decoration: none;
+        display: block
+    }
+
+        .ch-contact-value:hover {
+            color: var(--ch-amber);
+            text-decoration: none
+        }
+
+    .ch-contact-form-card {
+        background: #17232f;
+        border: 1px solid #253444;
+        border-radius: 12px;
+        padding: 28px
+    }
+
+    .ch-contact-form-title {
+        font-family: var(--ch-ff);
+        font-size: 18px;
+        font-weight: 800;
+        color: white;
+        margin: 0 0 20px;
+        letter-spacing: .3px
+    }
+
+    .ch-cf-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 16px
+    }
+
+    .ch-cf-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: .06em
+    }
+
+    .ch-cf-input, .ch-cf-textarea {
+        padding: 11px 14px;
+        border: 1.5px solid #253444;
+        border-radius: 8px;
+        background: #0f1923;
+        color: white;
+        font-family: var(--ch-ff-body);
+        font-size: 14px;
+        outline: none;
+        transition: border-color .2s;
+        width: 100%
+    }
+
+        .ch-cf-input:focus, .ch-cf-textarea:focus {
+            border-color: var(--ch-amber)
+        }
+
+        .ch-cf-input::placeholder, .ch-cf-textarea::placeholder {
+            color: #475569
+        }
+
+    .ch-cf-textarea {
+        resize: vertical;
+        line-height: 1.5
+    }
+
+    .ch-contact-sent {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 14px;
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        border-radius: 8px;
+        color: #065f46;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 16px
+    }
+
+    /* ── BUTTONS ── */
+    .ch-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 11px 22px;
+        border-radius: 9px;
+        font-family: var(--ch-ff-body);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+        transition: all .2s;
+        white-space: nowrap
+    }
+
+    .ch-btn-primary {
+        background: linear-gradient(135deg,var(--ch-amber),var(--ch-amber2));
+        color: #0f1923
+    }
+
+        .ch-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245,158,11,.4);
+            color: #0f1923;
+            text-decoration: none
+        }
+
+    .ch-btn-outline {
+        background: transparent;
+        border: 1.5px solid var(--ch-border);
+        color: var(--ch-muted)
+    }
+
+        .ch-btn-outline:hover {
+            border-color: var(--ch-amber);
+            color: var(--ch-amber2);
+            text-decoration: none
+        }
+
+    /* ── EMPTY ── */
+    .ch-empty-box {
+        text-align: center;
+        padding: 40px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        color: var(--ch-muted)
+    }
+
+        .ch-empty-box span {
+            font-size: 44px
+        }
+
+        .ch-empty-box p {
+            margin: 0;
+            font-size: 15px
+        }
+
+    /* ── RESPONSIVE ── */
+    @@media(max-width:1100px) {
+        .ch-quick-grid {
+            grid-template-columns: repeat(2,1fr)
+        }
+
+        .ch-products-grid {
+            grid-template-columns: repeat(2,1fr)
+        }
+    }
+
+    @@media(max-width:900px) {
+        .ch-taller-section, .ch-contact-section {
+            grid-template-columns: 1fr
+        }
+
+        .ch-taller-features {
+            grid-template-columns: 1fr
+        }
+    }
+
+    @@media(max-width:768px) {
+        .ch-welcome {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 22px
+        }
+
+            .ch-welcome::before {
+                display: none
+            }
+
+        .ch-carousel {
+            height: 260px
+        }
+
+        .ch-slide-content {
+            left: 20px;
+            bottom: 24px
+        }
+
+        .ch-slide-title {
+            font-size: 26px
+        }
+
+        .ch-quick-grid {
+            grid-template-columns: 1fr
+        }
+
+        .ch-products-grid {
+            grid-template-columns: 1fr 1fr
+        }
+
+        .ch-section {
+            padding: 20px
+        }
+
+        .ch-contact-section {
+            padding: 24px
+        }
+    }
+
+    @@media(max-width:480px) {
+        .ch-products-grid {
+            grid-template-columns: 1fr
+        }
+
+        .ch-welcome-stats {
+            gap: 12px
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        (function(){
+            const slides   = document.querySelectorAll('.ch-slide');
+            const dots     = document.querySelectorAll('.ch-dot');
+            const total    = slides.length;
+            let current    = 0;
+            let timer;
+
+            function goTo(idx){
+                slides[current].classList.remove('ch-slide-active');
+                dots[current].classList.remove('ch-dot-active');
+                current = (idx + total) % total;
+                slides[current].classList.add('ch-slide-active');
+                dots[current].classList.add('ch-dot-active');
+            }
+
+            function next(){ goTo(current + 1); }
+            function prev(){ goTo(current - 1); }
+
+            function startTimer(){ timer = setInterval(next, 5000); }
+            function resetTimer() { clearInterval(timer); startTimer(); }
+
+            document.getElementById('ch-next')?.addEventListener('click', ()=>{ next(); resetTimer(); });
+            document.getElementById('ch-prev')?.addEventListener('click', ()=>{ prev(); resetTimer(); });
+            dots.forEach(d => d.addEventListener('click', function(){ goTo(+this.dataset.idx); resetTimer(); }));
+
+            // Swipe en móvil
+            let startX = 0;
+            const carousel = document.getElementById('ch-carousel');
+            carousel?.addEventListener('touchstart', e=> startX = e.touches[0].clientX, {passive:true});
+            carousel?.addEventListener('touchend',   e=>{
+                const dx = e.changedTouches[0].clientX - startX;
+                if(Math.abs(dx) > 40){ dx < 0 ? next() : prev(); resetTimer(); }
+            }, {passive:true});
+
+            startTimer();
+        })();
+
+        function enviarMensaje(){
+            const asunto  = document.getElementById('cf-asunto')?.value.trim();
+            const mensaje = document.getElementById('cf-mensaje')?.value.trim();
+            if(!asunto || !mensaje){ alert('Por favor completa todos los campos.'); return; }
+            // Aquí puedes hacer fetch a un endpoint de mensajería
+            document.getElementById('ch-contact-success').style.display = 'flex';
+            document.getElementById('cf-asunto').value  = '';
+            document.getElementById('cf-mensaje').value = '';
+            setTimeout(()=>{ document.getElementById('ch-contact-success').style.display='none'; }, 5000);
+        }
+    </script>
+}
