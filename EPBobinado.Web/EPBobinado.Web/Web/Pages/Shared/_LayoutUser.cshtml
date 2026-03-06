@@ -313,7 +313,7 @@
         <div class="sidebar-header">
             <a class="sidebar-brand" href="/HomePage/HomePage">
                 <i class="bi bi-tools brand-icon"></i>
-                <span class="brand-text">Mi Taller</span>
+                <span class="brand-text">EP Bobinado</span>
             </a>
         </div>
 
@@ -366,6 +366,12 @@
                     <span class="menu-label">Productos</span>
                 </a>
             </li>
+            <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Cotizaciones") ? "active" : "")">
+                <a href="/Cotizaciones/Listado">
+                    <span class="menu-icon"><i class="bi bi-box-seam-fill"></i></span>
+                    <span class="menu-label">Cotizaciones</span>
+                </a>
+            </li>
             <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Reportes") ? "active" : "")">
                 <a href="/Reportes/Index">
                     <span class="menu-icon"><i class="bi bi-bar-chart-fill"></i></span>
@@ -398,7 +404,7 @@
                         <span class="user-role">@(Context.Session.GetString("UsuarioNivel") ?? "")</span>
                     </div>
                 </div>
-                <a href="auth/Login" class="btn-logout" title="Cerrar sesión"
+                <a href="../auth/Login" class="btn-logout" title="Cerrar sesión"
                    onclick="return confirm('¿Está seguro de cerrar sesión?')">
                     <i class="bi bi-box-arrow-right"></i>
                 </a>
