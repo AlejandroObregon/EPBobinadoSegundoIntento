@@ -1,41 +1,312 @@
 ﻿@page "{id:int}"
 @model Web.Pages.Motores.EliminarModel
 @{
+    Layout = "_LayoutUser";
     ViewData["Title"] = "Eliminar Motor";
 }
-@{
-    Layout = "_LayoutUser";
-}
-<h2 class="mb-4">¿Desea eliminar este motor?</h2>
 
-@if (Model.Motor != null)
-{
-    <dl class="row">
-        <dt class="col-sm-3">Usuario</dt>
-        <dd class="col-sm-9">@(Model.Motor.Usuario?.Nombre ?? "—")</dd>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 
-        <dt class="col-sm-3">Modelo</dt>
-        <dd class="col-sm-9">@(Model.Motor.Modelo?.Nombre ?? "—")</dd>
+<div class="mo-page">
 
-        <dt class="col-sm-3">Número de Serie</dt>
-        <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Motor.NumeroSerie) ? "—" : Model.Motor.NumeroSerie)</dd>
-
-        <dt class="col-sm-3">Registrado el</dt>
-        <dd class="col-sm-9">@Model.Motor.CreadoEn.ToString("dd/MM/yyyy")</dd>
-    </dl>
-
-    <form method="post">
-        <input type="hidden" name="id" value="@Model.Motor.Id" />
-        <button type="submit" asp-page-handler="Eliminar" class="btn btn-danger">
-            <i class="bi bi-trash"></i> Eliminar
-        </button>
-        <a asp-page="Listado" class="btn btn-secondary ms-2">
-            <i class="bi bi-arrow-left"></i> Cancelar
+    <div class="mo-header">
+        <div class="mo-header-left">
+            <div class="mo-header-icon">🗑️</div>
+            <div>
+                <h1 class="mo-title">ELIMINAR MOTOR</h1>
+                <p class="mo-subtitle">Esta acción no se puede deshacer</p>
+            </div>
+        </div>
+        <a asp-page="Listado" class="mo-btn mo-btn-ghost">
+            <i class="bi bi-arrow-left"></i> Volver
         </a>
-    </form>
-}
-else
-{
-    <div class="alert alert-warning">No se encontró el motor a eliminar.</div>
-    <a asp-page="Listado" class="btn btn-secondary">Volver al Listado</a>
-}
+    </div>
+
+    @if (Model.Motor != null)
+    {
+        <div class="mo-form-wrap">
+            <div class="mo-form-card">
+
+                <div class="mo-delete-warning">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>¿Confirmar la eliminación del motor <strong>#@Model.Motor.Id</strong>?</span>
+                </div>
+
+                <div class="mo-detail-grid">
+                    <div class="mo-detail-item">
+                        <span class="mo-detail-label">Número de Serie</span>
+                        <span class="mo-detail-value mo-detail-amber">
+                            @(string.IsNullOrWhiteSpace(Model.Motor.NumeroSerie) ? "SIN SERIE" : Model.Motor.NumeroSerie.ToUpper())
+                        </span>
+                    </div>
+                    <div class="mo-detail-item">
+                        <span class="mo-detail-label">ID</span>
+                        <span class="mo-detail-value">#@Model.Motor.Id</span>
+                    </div>
+                    <div class="mo-detail-item">
+                        <span class="mo-detail-label">Modelo</span>
+                        <span class="mo-detail-value">@(Model.Motor.Modelo?.Nombre ?? "—")</span>
+                    </div>
+                    <div class="mo-detail-item">
+                        <span class="mo-detail-label">Propietario</span>
+                        <span class="mo-detail-value">@(Model.Motor.Usuario?.Nombre ?? "—")</span>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(Model.Motor.Usuario?.Email))
+                    {
+                        <div class="mo-detail-item">
+                            <span class="mo-detail-label">Correo</span>
+                            <span class="mo-detail-value mo-detail-muted">@Model.Motor.Usuario.Email</span>
+                        </div>
+                    }
+                    <div class="mo-detail-item">
+                        <span class="mo-detail-label">Registrado el</span>
+                        <span class="mo-detail-value">@Model.Motor.CreadoEn.ToString("dd/MM/yyyy")</span>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(Model.Motor.Modelo?.Especificaciones))
+                    {
+                        <div class="mo-detail-item mo-detail-full">
+                            <span class="mo-detail-label">Especificaciones</span>
+                            <span class="mo-detail-value mo-detail-muted">@Model.Motor.Modelo.Especificaciones</span>
+                        </div>
+                    }
+                </div>
+
+                <form method="post">
+                    <input type="hidden" name="id" value="@Model.Motor.Id" />
+                    <div class="mo-form-actions">
+                        <button type="submit" asp-page-handler="Eliminar" class="mo-btn mo-btn-danger">
+                            <i class="bi bi-trash-fill"></i> Confirmar Eliminación
+                        </button>
+                        <a asp-page="Listado" class="mo-btn mo-btn-ghost">Cancelar</a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="mo-toast mo-toast-warning">
+            <i class="bi bi-search"></i> No se encontró el motor solicitado.
+        </div>
+        <a asp-page="Listado" class="mo-btn mo-btn-ghost">Volver al Listado</a>
+    }
+</div>
+
+<style>
+    :root {
+        --mo-dark: #0f1923;
+        --mo-surface: #17232f;
+        --mo-card: #1a2b3c;
+        --mo-border: #253444;
+        --mo-amber: #f59e0b;
+        --mo-amber2: #fbbf24;
+        --mo-text: #e2e8f0;
+        --mo-muted: #64748b;
+        --mo-radius: 12px;
+        --mo-ff-display: 'Barlow Condensed',sans-serif;
+        --mo-ff-body: 'Barlow',sans-serif
+    }
+
+    .mo-page {
+        font-family: var(--mo-ff-body)
+    }
+
+    .mo-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+        gap: 16px;
+        flex-wrap: wrap
+    }
+
+    .mo-header-left {
+        display: flex;
+        align-items: center;
+        gap: 16px
+    }
+
+    .mo-header-icon {
+        font-size: 44px
+    }
+
+    .mo-title {
+        font-family: var(--mo-ff-display);
+        font-size: 38px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        color: var(--mo-text);
+        margin: 0;
+        line-height: 1
+    }
+
+    .mo-subtitle {
+        font-size: 12px;
+        color: var(--mo-muted);
+        margin: 5px 0 0;
+        letter-spacing: .08em;
+        text-transform: uppercase
+    }
+
+    .mo-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 22px;
+        border-radius: 8px;
+        font-family: var(--mo-ff-display);
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+        transition: all .2s ease;
+        white-space: nowrap
+    }
+
+    .mo-btn-ghost {
+        background: transparent;
+        border: 1px solid var(--mo-border);
+        color: var(--mo-muted)
+    }
+
+        .mo-btn-ghost:hover {
+            border-color: var(--mo-amber);
+            color: var(--mo-amber);
+            text-decoration: none
+        }
+
+    .mo-btn-danger {
+        background: #ef4444;
+        color: white
+    }
+
+        .mo-btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239,68,68,.35);
+            color: white;
+            text-decoration: none
+        }
+
+    .mo-toast {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px 20px;
+        border-radius: var(--mo-radius);
+        font-size: 14px;
+        margin-bottom: 24px
+    }
+
+    .mo-toast-warning {
+        background: rgba(245,158,11,.1);
+        border: 1px solid rgba(245,158,11,.3);
+        color: #fcd34d
+    }
+
+    .mo-form-wrap {
+        max-width: 640px
+    }
+
+    .mo-form-card {
+        background: var(--mo-card);
+        border-radius: var(--mo-radius);
+        border: 1px solid var(--mo-border);
+        padding: 36px
+    }
+
+    .mo-delete-warning {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 20px;
+        background: rgba(239,68,68,.08);
+        border: 1px solid rgba(239,68,68,.25);
+        border-radius: 10px;
+        color: #fca5a5;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 28px
+    }
+
+        .mo-delete-warning i {
+            font-size: 20px;
+            color: #ef4444;
+            flex-shrink: 0
+        }
+
+    .mo-detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill,minmax(200px,1fr));
+        gap: 14px;
+        margin-bottom: 8px
+    }
+
+    .mo-detail-full {
+        grid-column: 1/-1
+    }
+
+    .mo-detail-item {
+        background: var(--mo-surface);
+        border: 1px solid var(--mo-border);
+        border-radius: 8px;
+        padding: 14px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px
+    }
+
+    .mo-detail-label {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--mo-muted);
+        text-transform: uppercase;
+        letter-spacing: .08em
+    }
+
+    .mo-detail-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--mo-text)
+    }
+
+    .mo-detail-amber {
+        color: var(--mo-amber);
+        font-family: var(--mo-ff-display);
+        font-size: 17px;
+        letter-spacing: 1px
+    }
+
+    .mo-detail-muted {
+        font-size: 13px;
+        font-weight: 400;
+        color: #94a3b8
+    }
+
+    .mo-form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 28px;
+        padding-top: 24px;
+        border-top: 1px solid var(--mo-border)
+    }
+
+    @@media(max-width:768px) {
+        .mo-header {
+            flex-direction: column;
+            align-items: flex-start
+        }
+
+        .mo-title {
+            font-size: 28px
+        }
+
+        .mo-form-card {
+            padding: 24px
+        }
+    }
+</style>

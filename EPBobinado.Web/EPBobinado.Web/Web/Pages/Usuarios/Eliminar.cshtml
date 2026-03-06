@@ -1,69 +1,373 @@
 ﻿@page "{id:int}"
 @model Web.Pages.Usuarios.EliminarModel
 @{
-    ViewData["Title"] = "Eliminar Usuario";
-}
-@{
     Layout = "_LayoutUser";
+    ViewData["Title"] = "Eliminar Usuario";
+    var u = Model.Usuario;
+    var rolSlug = u?.RolId == 1 ? "admin" : u?.RolId == 2 ? "cliente" : "tecnico";
+    var rolLabel = u?.RolId == 1 ? "Administrador" : u?.RolId == 2 ? "Cliente" : "Técnico";
+    var initial = string.IsNullOrWhiteSpace(u?.Nombre) ? "?" : u.Nombre[0].ToString().ToUpper();
 }
-<h2 class="mb-4">¿Desea eliminar este usuario?</h2>
 
-@if (Model.Usuario != null)
-{
-    <dl class="row">
-        <dt class="col-sm-3">Nombre</dt>
-        <dd class="col-sm-9">@Model.Usuario.Nombre</dd>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-        <dt class="col-sm-3">Cédula</dt>
-        <dd class="col-sm-9">@Model.Usuario.Cedula</dd>
+<div class="us-page">
 
-        <dt class="col-sm-3">Email</dt>
-        <dd class="col-sm-9">@Model.Usuario.Email</dd>
-
-        <dt class="col-sm-3">Teléfono</dt>
-        <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Usuario.Telefono) ? "—" : Model.Usuario.Telefono)</dd>
-
-        <dt class="col-sm-3">Rol</dt>
-        <dd class="col-sm-9">
-            @switch (Model.Usuario.RolId)
-            {
-                case 1:
-                    <span class="badge bg-danger">Administrador</span>
-                    break;
-                case 2:
-
-                    <span class="badge bg-primary">Cliente</span>
-                    break;
-                case 3:
-
-                    <span class="badge bg-warning text-dark">Técnico</span>
-                    break;
-                default:
-
-                    <span class="badge bg-secondary">Rol @Model.Usuario.RolId</span>
-                    break;
-            }
-        </dd>
-
-        <dt class="col-sm-3">Activo</dt>
-        <dd class="col-sm-9">@(Model.Usuario.Activo ? "Sí" : "No")</dd>
-
-        <dt class="col-sm-3">Registrado el</dt>
-        <dd class="col-sm-9">@Model.Usuario.CreadoEn.ToString("dd/MM/yyyy")</dd>
-    </dl>
-
-    <form method="post">
-        <input type="hidden" name="id" value="@Model.Usuario.Id" />
-        <button type="submit" asp-page-handler="Eliminar" class="btn btn-danger">
-            <i class="bi bi-trash"></i> Eliminar
-        </button>
-        <a asp-page="Listado" class="btn btn-secondary ms-2">
-            <i class="bi bi-arrow-left"></i> Cancelar
+    <div class="us-header">
+        <div>
+            <h1 class="us-title">Eliminar Usuario</h1>
+            <p class="us-subtitle">Esta acción no se puede deshacer</p>
+        </div>
+        <a asp-page="Listado" class="us-btn us-btn-ghost">
+            <i class="bi bi-arrow-left"></i> Volver
         </a>
-    </form>
-}
-else
-{
-    <div class="alert alert-warning">No se encontró el usuario a eliminar.</div>
-    <a asp-page="Listado" class="btn btn-secondary">Volver al Listado</a>
-}
+    </div>
+
+    @if (u != null)
+    {
+        <div class="us-form-card" style="max-width:640px">
+
+            <div class="us-delete-warning">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>¿Confirmar la eliminación del usuario <strong>@u.Nombre</strong>?</span>
+            </div>
+
+            <!-- Avatar + nombre centrado -->
+            <div class="us-del-profile">
+                <div class="us-avatar us-avatar-@rolSlug us-avatar-lg">@initial</div>
+                <div>
+                    <p class="us-del-name">@u.Nombre</p>
+                    <span class="us-rol-badge us-rol-@rolSlug">@rolLabel</span>
+                </div>
+            </div>
+
+            <div class="us-detail-grid">
+                <div class="us-detail-item">
+                    <span class="us-detail-label">Cédula</span>
+                    <span class="us-detail-value">@(string.IsNullOrWhiteSpace(u.Cedula) ? "—" : u.Cedula)</span>
+                </div>
+                <div class="us-detail-item">
+                    <span class="us-detail-label">Correo</span>
+                    <span class="us-detail-value" style="font-size:13px;word-break:break-all">@u.Email</span>
+                </div>
+                <div class="us-detail-item">
+                    <span class="us-detail-label">Teléfono</span>
+                    <span class="us-detail-value">@(string.IsNullOrWhiteSpace(u.Telefono) ? "—" : u.Telefono)</span>
+                </div>
+                <div class="us-detail-item">
+                    <span class="us-detail-label">Estado</span>
+                    <span class="us-detail-value">
+                        @if (u.Activo)
+                        {
+                            <span class="us-status us-status-active"><span class="us-status-dot"></span> Activo</span>
+                        }
+                        else
+                        {
+                            <span class="us-status us-status-inactive"><span class="us-status-dot"></span> Inactivo</span>
+                        }
+                    </span>
+                </div>
+                <div class="us-detail-item">
+                    <span class="us-detail-label">Registrado el</span>
+                    <span class="us-detail-value">@u.CreadoEn.ToString("dd/MM/yyyy")</span>
+                </div>
+            </div>
+
+            <form method="post">
+                <input type="hidden" name="id" value="@u.Id" />
+                <div class="us-form-actions">
+                    <button type="submit" asp-page-handler="Eliminar" class="us-btn us-btn-danger">
+                        <i class="bi bi-trash-fill"></i> Confirmar Eliminación
+                    </button>
+                    <a asp-page="Listado" class="us-btn us-btn-ghost">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    }
+    else
+    {
+        <div class="us-toast us-toast-danger">
+            <i class="bi bi-search"></i> No se encontró el usuario solicitado.
+        </div>
+        <a asp-page="Listado" class="us-btn us-btn-ghost">Volver al listado</a>
+    }
+</div>
+
+<style>
+    :root {
+        --us-surface: #ffffff;
+        --us-border: #e2e8f0;
+        --us-text: #0f172a;
+        --us-muted: #64748b;
+        --us-radius: 14px;
+        --us-shadow: 0 4px 24px rgba(0,0,0,.06);
+        --us-ff: 'DM Sans',sans-serif
+    }
+
+    .us-page {
+        font-family: var(--us-ff)
+    }
+
+    .us-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 28px;
+        gap: 16px;
+        flex-wrap: wrap
+    }
+
+    .us-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--us-text);
+        margin: 0;
+        letter-spacing: -.5px
+    }
+
+    .us-subtitle {
+        font-size: 14px;
+        color: var(--us-muted);
+        margin: 4px 0 0
+    }
+
+    .us-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 11px 22px;
+        border-radius: 10px;
+        font-family: var(--us-ff);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+        transition: all .2s ease;
+        white-space: nowrap
+    }
+
+    .us-btn-ghost {
+        background: var(--us-surface);
+        border: 1px solid var(--us-border);
+        color: var(--us-muted)
+    }
+
+        .us-btn-ghost:hover {
+            color: var(--us-text);
+            border-color: #94a3b8;
+            text-decoration: none
+        }
+
+    .us-btn-danger {
+        background: linear-gradient(135deg,#ef4444,#dc2626);
+        color: white
+    }
+
+        .us-btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239,68,68,.35);
+            color: white;
+            text-decoration: none
+        }
+
+    .us-toast {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px 18px;
+        border-radius: var(--us-radius);
+        font-size: 14px;
+        margin-bottom: 20px
+    }
+
+    .us-toast-danger {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #991b1b
+    }
+
+    .us-form-card {
+        background: var(--us-surface);
+        border-radius: var(--us-radius);
+        box-shadow: var(--us-shadow);
+        border: 1px solid var(--us-border);
+        padding: 36px
+    }
+
+    .us-form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 28px;
+        padding-top: 24px;
+        border-top: 1px solid var(--us-border)
+    }
+
+    .us-avatar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: white;
+        border-radius: 50%
+    }
+
+    .us-avatar-lg {
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+        flex-shrink: 0
+    }
+
+    .us-avatar-admin {
+        background: linear-gradient(135deg,#ef4444,#dc2626)
+    }
+
+    .us-avatar-cliente {
+        background: linear-gradient(135deg,#6366f1,#4f46e5)
+    }
+
+    .us-avatar-tecnico {
+        background: linear-gradient(135deg,#f59e0b,#d97706);
+        color: #0f172a
+    }
+
+    .us-rol-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 100px;
+        font-size: 12px;
+        font-weight: 700
+    }
+
+    .us-rol-admin {
+        background: #fee2e2;
+        color: #991b1b
+    }
+
+    .us-rol-cliente {
+        background: #e0e7ff;
+        color: #3730a3
+    }
+
+    .us-rol-tecnico {
+        background: #fef3c7;
+        color: #92400e
+    }
+
+    .us-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 600
+    }
+
+    .us-status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        flex-shrink: 0
+    }
+
+    .us-status-active .us-status-dot {
+        background: #10b981;
+        box-shadow: 0 0 0 2px rgba(16,185,129,.25)
+    }
+
+    .us-status-active {
+        color: #065f46
+    }
+
+    .us-status-inactive .us-status-dot {
+        background: #94a3b8
+    }
+
+    .us-status-inactive {
+        color: var(--us-muted)
+    }
+
+    .us-del-profile {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 20px;
+        background: #f8fafc;
+        border-radius: 12px;
+        border: 1px solid var(--us-border);
+        margin-bottom: 24px
+    }
+
+    .us-del-name {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--us-text);
+        margin: 0 0 6px
+    }
+
+    .us-detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill,minmax(180px,1fr));
+        gap: 14px;
+        margin-bottom: 28px
+    }
+
+    .us-detail-full {
+        grid-column: 1/-1
+    }
+
+    .us-detail-item {
+        background: #f8fafc;
+        border: 1px solid var(--us-border);
+        border-radius: 10px;
+        padding: 14px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px
+    }
+
+    .us-detail-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--us-muted);
+        text-transform: uppercase;
+        letter-spacing: .07em
+    }
+
+    .us-detail-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--us-text)
+    }
+
+    .us-delete-warning {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 20px;
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        border-radius: 10px;
+        color: #9a3412;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 24px
+    }
+
+        .us-delete-warning i {
+            font-size: 22px;
+            color: #f97316;
+            flex-shrink: 0
+        }
+
+    @@media(max-width:768px) {
+        .us-header {
+            flex-direction: column;
+            align-items: flex-start
+        }
+
+        .us-form-card {
+            padding: 24px
+        }
+    }
+</style>

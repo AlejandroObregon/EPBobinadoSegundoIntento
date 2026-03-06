@@ -1,68 +1,303 @@
 ﻿@page
 @model Web.Pages.Motores.AgregarModel
 @{
-    ViewData["Title"] = "Agregar Motor";
-}
-@{
     Layout = "_LayoutUser";
+    ViewData["Title"] = "Registrar Motor";
 }
 
-<h2 class="mb-4">Agregar Motor</h2>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 
-@if (!ViewData.ModelState.IsValid)
-{
-    <div class="alert alert-danger">
-        <ul class="mb-0">
-            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-            {
-                <li>@error.ErrorMessage</li>
-            }
-        </ul>
-    </div>
-}
+<div class="mo-page">
 
-<form method="post">
-
-    <div class="mb-3">
-        <label asp-for="Motor.UsuarioId" class="form-label"></label>
-        <select asp-for="Motor.UsuarioId" class="form-select">
-            <option value="">-- Seleccione un usuario --</option>
-            @foreach (var u in Model.Usuarios)
-            {
-                <option value="@u.Id">@u.Nombre (@u.Email)</option>
-            }
-        </select>
-        <span asp-validation-for="Motor.UsuarioId" class="text-danger small"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Motor.ModeloId" class="form-label"></label>
-        <select asp-for="Motor.ModeloId" class="form-select">
-            <option value="">-- Seleccione un modelo --</option>
-            @foreach (var m in Model.Modelos)
-            {
-                <option value="@m.Id">@m.Nombre</option>
-            }
-        </select>
-        <span asp-validation-for="Motor.ModeloId" class="text-danger small"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Motor.NumeroSerie" class="form-label"></label>
-        <input asp-for="Motor.NumeroSerie" class="form-control" placeholder="Ej: JYA1234567890" />
-        <span asp-validation-for="Motor.NumeroSerie" class="text-danger small"></span>
-    </div>
-
-    <div class="d-flex gap-2 mt-3">
-        <button type="submit" class="btn btn-primary">
-            <i class="bi bi-save"></i> Guardar
-        </button>
-        <a asp-page="Listado" class="btn btn-secondary">
-            <i class="bi bi-arrow-left"></i> Cancelar
+    <div class="mo-header">
+        <div class="mo-header-left">
+            <div class="mo-header-icon">🔧</div>
+            <div>
+                <h1 class="mo-title">REGISTRAR MOTOR</h1>
+                <p class="mo-subtitle">Ingresa los datos del nuevo motor</p>
+            </div>
+        </div>
+        <a asp-page="Listado" class="mo-btn mo-btn-ghost">
+            <i class="bi bi-arrow-left"></i> Volver
         </a>
     </div>
 
-</form>
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="mo-toast mo-toast-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <ul class="mb-0">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@error.ErrorMessage</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <div class="mo-form-wrap">
+        <div class="mo-form-card">
+
+            <form method="post">
+
+                <p class="mo-form-section-title">
+                    <i class="bi bi-person-fill"></i> Propietario
+                </p>
+
+                <div class="mo-field">
+                    <label class="mo-label">Usuario / Propietario</label>
+                    <select asp-for="Motor.UsuarioId" class="mo-select">
+                        <option value="">— Seleccione un usuario —</option>
+                        @foreach (var u in Model.Usuarios)
+                        {
+                            <option value="@u.Id">@u.Nombre (@u.Email)</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Motor.UsuarioId" class="mo-error"></span>
+                </div>
+
+                <p class="mo-form-section-title">
+                    <i class="bi bi-gear-wide-connected"></i> Datos del Motor
+                </p>
+
+                <div class="mo-field">
+                    <label class="mo-label">Modelo</label>
+                    <select asp-for="Motor.ModeloId" class="mo-select">
+                        <option value="">— Seleccione un modelo —</option>
+                        @foreach (var m in Model.Modelos)
+                        {
+                            <option value="@m.Id">@m.Nombre</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Motor.ModeloId" class="mo-error"></span>
+                </div>
+
+                <div class="mo-field">
+                    <label class="mo-label">Número de Serie <span style="color:var(--mo-muted);font-weight:400">(opcional)</span></label>
+                    <input asp-for="Motor.NumeroSerie" class="mo-input"
+                           placeholder="Ej: JYA1234567890" />
+                    <span asp-validation-for="Motor.NumeroSerie" class="mo-error"></span>
+                </div>
+
+                <div class="mo-form-actions">
+                    <button type="submit" class="mo-btn mo-btn-primary">
+                        <i class="bi bi-save-fill"></i> Guardar Motor
+                    </button>
+                    <a asp-page="Listado" class="mo-btn mo-btn-ghost">Cancelar</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --mo-dark: #0f1923;
+        --mo-surface: #17232f;
+        --mo-card: #1a2b3c;
+        --mo-border: #253444;
+        --mo-amber: #f59e0b;
+        --mo-amber2: #fbbf24;
+        --mo-text: #e2e8f0;
+        --mo-muted: #64748b;
+        --mo-radius: 12px;
+        --mo-ff-display: 'Barlow Condensed',sans-serif;
+        --mo-ff-body: 'Barlow',sans-serif
+    }
+
+    .mo-page {
+        font-family: var(--mo-ff-body)
+    }
+
+    .mo-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+        gap: 16px;
+        flex-wrap: wrap
+    }
+
+    .mo-header-left {
+        display: flex;
+        align-items: center;
+        gap: 16px
+    }
+
+    .mo-header-icon {
+        font-size: 44px;
+        filter: drop-shadow(0 0 14px rgba(245,158,11,.45))
+    }
+
+    .mo-title {
+        font-family: var(--mo-ff-display);
+        font-size: 38px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        color: var(--mo-text);
+        margin: 0;
+        line-height: 1
+    }
+
+    .mo-subtitle {
+        font-size: 12px;
+        color: var(--mo-muted);
+        margin: 5px 0 0;
+        letter-spacing: .08em;
+        text-transform: uppercase
+    }
+
+    .mo-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 22px;
+        border-radius: 8px;
+        font-family: var(--mo-ff-display);
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+        transition: all .2s ease;
+        white-space: nowrap
+    }
+
+    .mo-btn-primary {
+        background: var(--mo-amber);
+        color: #0f1923
+    }
+
+        .mo-btn-primary:hover {
+            background: var(--mo-amber2);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245,158,11,.4);
+            color: #0f1923;
+            text-decoration: none
+        }
+
+    .mo-btn-ghost {
+        background: transparent;
+        border: 1px solid var(--mo-border);
+        color: var(--mo-muted)
+    }
+
+        .mo-btn-ghost:hover {
+            border-color: var(--mo-amber);
+            color: var(--mo-amber);
+            text-decoration: none
+        }
+
+    .mo-toast {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px 20px;
+        border-radius: var(--mo-radius);
+        font-size: 14px;
+        margin-bottom: 24px
+    }
+
+    .mo-toast-danger {
+        background: rgba(239,68,68,.1);
+        border: 1px solid rgba(239,68,68,.3);
+        color: #fca5a5
+    }
+
+    .mo-form-wrap {
+        max-width: 580px
+    }
+
+    .mo-form-card {
+        background: var(--mo-card);
+        border-radius: var(--mo-radius);
+        border: 1px solid var(--mo-border);
+        padding: 36px
+    }
+
+    .mo-form-section-title {
+        font-family: var(--mo-ff-display);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        color: var(--mo-amber);
+        margin-bottom: 22px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--mo-border);
+        display: flex;
+        align-items: center;
+        gap: 8px
+    }
+
+    .mo-field {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        margin-bottom: 22px
+    }
+
+    .mo-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--mo-muted);
+        letter-spacing: .08em;
+        text-transform: uppercase
+    }
+
+    .mo-select, .mo-input {
+        background: var(--mo-surface);
+        border: 1px solid var(--mo-border);
+        border-radius: 8px;
+        padding: 12px 14px;
+        font-size: 14px;
+        color: var(--mo-text);
+        font-family: var(--mo-ff-body);
+        outline: none;
+        transition: all .2s ease;
+        width: 100%
+    }
+
+        .mo-select:focus, .mo-input:focus {
+            border-color: var(--mo-amber);
+            box-shadow: 0 0 0 3px rgba(245,158,11,.12)
+        }
+
+        .mo-select option {
+            background: var(--mo-surface)
+        }
+
+    .mo-error {
+        font-size: 12px;
+        color: #f87171
+    }
+
+    .mo-form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 28px;
+        padding-top: 24px;
+        border-top: 1px solid var(--mo-border)
+    }
+
+    @@media(max-width:768px) {
+        .mo-header {
+            flex-direction: column;
+            align-items: flex-start
+        }
+
+        .mo-title {
+            font-size: 30px
+        }
+
+        .mo-form-card {
+            padding: 24px
+        }
+    }
+</style>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

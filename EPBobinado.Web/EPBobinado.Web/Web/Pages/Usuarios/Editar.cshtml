@@ -1,80 +1,389 @@
 ﻿@page "{id:int}"
 @model Web.Pages.Usuarios.EditarModel
 @{
+    Layout = "_LayoutUser";
     ViewData["Title"] = "Editar Usuario";
 }
-@{
-    Layout = "_LayoutUser";
-}
-<h2 class="mb-4">Editar Usuario</h2>
 
-<form method="post" asp-route-id="@ViewData["UsuarioId"]">
-    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <label asp-for="Usuario.Nombre" class="form-label"></label>
-            <input asp-for="Usuario.Nombre" class="form-control" placeholder="Nombre completo" />
-            <span asp-validation-for="Usuario.Nombre" class="text-danger small"></span>
+<div class="us-page">
+
+    <div class="us-header">
+        <div>
+            <h1 class="us-title">Editar Usuario <span class="us-title-id">#@ViewData["UsuarioId"]</span></h1>
+            <p class="us-subtitle">Registrado el @ViewData["CreadoEn"]</p>
         </div>
-
-        <div class="col-md-6 mb-3">
-            <label asp-for="Usuario.Cedula" class="form-label"></label>
-            <input asp-for="Usuario.Cedula" class="form-control" placeholder="Ej: 1-1234-5678" />
-            <span asp-validation-for="Usuario.Cedula" class="text-danger small"></span>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <label asp-for="Usuario.Email" class="form-label"></label>
-            <input asp-for="Usuario.Email" class="form-control" type="email" placeholder="correo@ejemplo.com" />
-            <span asp-validation-for="Usuario.Email" class="text-danger small"></span>
-        </div>
-
-        <div class="col-md-6 mb-3">
-            <label asp-for="Usuario.Telefono" class="form-label"></label>
-            <input asp-for="Usuario.Telefono" class="form-control" placeholder="Ej: 8888-8888" />
-            <span asp-validation-for="Usuario.Telefono" class="text-danger small"></span>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <label asp-for="Usuario.PasswordHash" class="form-label"></label>
-            <input asp-for="Usuario.PasswordHash" class="form-control" type="password"
-                   placeholder="Dejar en blanco para no cambiar" />
-            <span asp-validation-for="Usuario.PasswordHash" class="text-danger small"></span>
-        </div>
-
-        <div class="col-md-6 mb-3">
-            <label asp-for="Usuario.RolId" class="form-label"></label>
-            <select asp-for="Usuario.RolId" class="form-select">
-                <option value="">-- Seleccione un rol --</option>
-                <option value="1">Administrador</option>
-                <option value="2">Cliente</option>
-                <option value="3">Técnico</option>
-            </select>
-            <span asp-validation-for="Usuario.RolId" class="text-danger small"></span>
-        </div>
-    </div>
-
-    <div class="mb-3 form-check">
-        <input asp-for="Usuario.Activo" class="form-check-input" type="checkbox" />
-        <label asp-for="Usuario.Activo" class="form-check-label"></label>
-        <span asp-validation-for="Usuario.Activo" class="text-danger small d-block"></span>
-    </div>
-
-    <div class="d-flex gap-2 mt-3">
-        <button type="submit" class="btn btn-primary">
-            <i class="bi bi-save"></i> Guardar Cambios
-        </button>
-        <a asp-page="Listado" class="btn btn-secondary">
-            <i class="bi bi-arrow-left"></i> Cancelar
+        <a asp-page="Listado" class="us-btn us-btn-ghost">
+            <i class="bi bi-arrow-left"></i> Volver
         </a>
     </div>
-</form>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="us-toast us-toast-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <ul class="mb-0">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@error.ErrorMessage</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <div class="us-form-card">
+        <form method="post" asp-route-id="@ViewData["UsuarioId"]">
+            <div asp-validation-summary="ModelOnly" class="us-toast us-toast-danger"></div>
+
+            <!-- DATOS PERSONALES -->
+            <div class="us-form-section">
+                <p class="us-form-section-title">
+                    <i class="bi bi-person-fill"></i> Datos Personales
+                </p>
+                <div class="us-form-grid">
+                    <div class="us-field">
+                        <label class="us-label">Nombre completo *</label>
+                        <input asp-for="Usuario.Nombre" class="us-input" placeholder="Ej: Juan Pérez" />
+                        <span asp-validation-for="Usuario.Nombre" class="us-error"></span>
+                    </div>
+                    <div class="us-field">
+                        <label class="us-label">Cédula *</label>
+                        <input asp-for="Usuario.Cedula" class="us-input" placeholder="Ej: 1-1234-5678" />
+                        <span asp-validation-for="Usuario.Cedula" class="us-error"></span>
+                    </div>
+                    <div class="us-field">
+                        <label class="us-label">Correo electrónico *</label>
+                        <input asp-for="Usuario.Email" class="us-input" type="email" placeholder="correo@ejemplo.com" />
+                        <span asp-validation-for="Usuario.Email" class="us-error"></span>
+                    </div>
+                    <div class="us-field">
+                        <label class="us-label">Teléfono <span style="font-weight:400;color:#94a3b8">(opcional)</span></label>
+                        <input asp-for="Usuario.Telefono" class="us-input" placeholder="Ej: 8888-8888" />
+                        <span asp-validation-for="Usuario.Telefono" class="us-error"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACCESO Y ROL -->
+            <div class="us-form-section">
+                <p class="us-form-section-title">
+                    <i class="bi bi-shield-lock-fill"></i> Acceso y Rol
+                </p>
+                <div class="us-form-grid">
+                    <div class="us-field">
+                        <label class="us-label">Contraseña</label>
+                        <div class="us-input-wrap">
+                            <input asp-for="Usuario.PasswordHash" class="us-input" type="password" id="pwd-input"
+                                   placeholder="Dejar en blanco para no cambiar" />
+                            <button type="button" class="us-eye-btn" onclick="togglePwd('pwd-input', this)" tabindex="-1">
+                                <i class="bi bi-eye-fill"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Usuario.PasswordHash" class="us-error"></span>
+                    </div>
+                    <div class="us-field">
+                        <label class="us-label">Rol *</label>
+                        <select asp-for="Usuario.RolId" class="us-select">
+                            <option value="">— Seleccione un rol —</option>
+                            <option value="1">👑 Administrador</option>
+                            <option value="2">👤 Cliente</option>
+                            <option value="3">🔧 Técnico</option>
+                        </select>
+                        <span asp-validation-for="Usuario.RolId" class="us-error"></span>
+                    </div>
+                    <div class="us-form-grid-full">
+                        <label class="us-checkbox-wrap">
+                            <input asp-for="Usuario.Activo" type="checkbox" class="us-checkbox" />
+                            <span class="us-checkbox-label">Usuario activo en el sistema</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="us-form-actions">
+                <button type="submit" class="us-btn us-btn-primary">
+                    <i class="bi bi-save-fill"></i> Guardar Cambios
+                </button>
+                <a asp-page="Listado" class="us-btn us-btn-ghost">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    :root {
+        --us-surface: #ffffff;
+        --us-border: #e2e8f0;
+        --us-text: #0f172a;
+        --us-muted: #64748b;
+        --us-radius: 14px;
+        --us-shadow: 0 4px 24px rgba(0,0,0,.06);
+        --us-ff: 'DM Sans',sans-serif
+    }
+
+    .us-page {
+        font-family: var(--us-ff)
+    }
+
+    .us-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 28px;
+        gap: 16px;
+        flex-wrap: wrap
+    }
+
+    .us-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--us-text);
+        margin: 0;
+        letter-spacing: -.5px
+    }
+
+    .us-title-id {
+        font-size: 22px;
+        color: #6366f1;
+        font-weight: 600
+    }
+
+    .us-subtitle {
+        font-size: 14px;
+        color: var(--us-muted);
+        margin: 4px 0 0
+    }
+
+    .us-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 11px 22px;
+        border-radius: 10px;
+        font-family: var(--us-ff);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+        transition: all .2s ease;
+        white-space: nowrap
+    }
+
+    .us-btn-primary {
+        background: linear-gradient(135deg,#6366f1,#4f46e5);
+        color: white
+    }
+
+        .us-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99,102,241,.4);
+            color: white;
+            text-decoration: none
+        }
+
+    .us-btn-ghost {
+        background: var(--us-surface);
+        border: 1px solid var(--us-border);
+        color: var(--us-muted)
+    }
+
+        .us-btn-ghost:hover {
+            color: var(--us-text);
+            border-color: #94a3b8;
+            text-decoration: none
+        }
+
+    .us-toast {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px 18px;
+        border-radius: var(--us-radius);
+        font-size: 14px;
+        margin-bottom: 20px
+    }
+
+    .us-toast-danger {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #991b1b
+    }
+
+    .us-form-card {
+        background: var(--us-surface);
+        border-radius: var(--us-radius);
+        box-shadow: var(--us-shadow);
+        border: 1px solid var(--us-border);
+        padding: 36px;
+        max-width: 680px
+    }
+
+    .us-form-section {
+        margin-bottom: 28px
+    }
+
+    .us-form-section-title {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: #6366f1;
+        margin-bottom: 18px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--us-border);
+        display: flex;
+        align-items: center;
+        gap: 8px
+    }
+
+    .us-form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px
+    }
+
+    .us-form-grid-full {
+        grid-column: 1/-1
+    }
+
+    .us-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px
+    }
+
+    .us-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--us-muted);
+        letter-spacing: .04em
+    }
+
+    .us-input, .us-select {
+        padding: 11px 14px;
+        border: 1.5px solid var(--us-border);
+        border-radius: 10px;
+        font-family: var(--us-ff);
+        font-size: 14px;
+        color: var(--us-text);
+        background: var(--us-surface);
+        outline: none;
+        transition: all .2s ease;
+        width: 100%
+    }
+
+        .us-input:focus, .us-select:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,.12)
+        }
+
+        .us-input::placeholder {
+            color: #94a3b8
+        }
+
+        .us-select option {
+            background: white
+        }
+
+    .us-error {
+        font-size: 12px;
+        color: #ef4444
+    }
+
+    .us-input-wrap {
+        position: relative
+    }
+
+        .us-input-wrap .us-input {
+            padding-right: 44px
+        }
+
+    .us-eye-btn {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--us-muted);
+        display: flex;
+        align-items: center;
+        padding: 4px;
+        border-radius: 6px;
+        transition: color .15s
+    }
+
+        .us-eye-btn:hover {
+            color: var(--us-text)
+        }
+
+    .us-checkbox-wrap {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 14px;
+        background: #f8fafc;
+        border: 1.5px solid var(--us-border);
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all .2s ease
+    }
+
+        .us-checkbox-wrap:hover {
+            border-color: #6366f1
+        }
+
+    .us-checkbox {
+        width: 18px;
+        height: 18px;
+        accent-color: #6366f1;
+        cursor: pointer
+    }
+
+    .us-checkbox-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--us-text);
+        cursor: pointer
+    }
+
+    .us-form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 28px;
+        padding-top: 24px;
+        border-top: 1px solid var(--us-border)
+    }
+
+    @@media(max-width:900px) {
+        .us-form-grid {
+            grid-template-columns: 1fr
+        }
+    }
+
+    @@media(max-width:768px) {
+        .us-header {
+            flex-direction: column;
+            align-items: flex-start
+        }
+
+        .us-form-card {
+            padding: 24px
+        }
+    }
+</style>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePwd(id, btn) {
+            const inp = document.getElementById(id);
+            const isText = inp.type === 'text';
+            inp.type = isText ? 'password' : 'text';
+            btn.innerHTML = isText ? '<i class="bi bi-eye-fill"></i>' : '<i class="bi bi-eye-slash-fill"></i>';
+        }
+    </script>
 }

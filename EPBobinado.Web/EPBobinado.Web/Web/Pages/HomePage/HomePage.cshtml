@@ -1,654 +1,732 @@
 ﻿@page
-@model Web.Pages.HomePageModel
+@model Web.Pages.HomePage.HomePageModel
 @{
     Layout = "_LayoutUser";
-    ViewData["Title"] = "Mi Taller - Dashboard";
-    var userName = HttpContext.Session.GetString("UsuarioNombre") ?? "Juan Pérez";
+    ViewData["Title"] = "Dashboard";
+    var userName = HttpContext.Session.GetString("UsuarioNombre") ?? "Usuario";
+    var userInitial = userName.Length > 0 ? userName[0].ToString().ToUpper() : "U";
+    int.TryParse(HttpContext.Session.GetString("UsuarioNivel"), out int rol);
+    var rolLabel = rol == 1 ? "Administrador" : rol == 3 ? "Técnico" : "Cliente";
 }
 
-<div class="dashboard-page">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- ── WELCOME ── -->
-    <div class="welcome-section">
-        <div class="welcome-text">
-            <h1>¡Bienvenido, @userName! 👋</h1>
-            <p>Aquí está el resumen de tus motores y servicios</p>
+<div class="hp-page">
+
+    <!-- ── WELCOME BANNER ── -->
+    <div class="hp-welcome">
+        <div class="hp-welcome-left">
+            <div class="hp-avatar">@userInitial</div>
+            <div>
+                <p class="hp-welcome-greeting">Buenos días 👋</p>
+                <h1 class="hp-welcome-name">@userName</h1>
+                <span class="hp-rol-badge">@rolLabel</span>
+            </div>
         </div>
-        <button class="btn-primary">
-            🏍️ Registrar Nuevo Motor
-        </button>
+        <a asp-page="/Motores/Agregar" class="hp-btn hp-btn-white">
+            <i class="bi bi-plus-lg"></i> Registrar Motor
+        </a>
     </div>
 
     <!-- ── STATS ── -->
-    <div class="stats-grid">
-        <div class="stat-card card-blue">
-            <div class="stat-icon-wrapper">🏍️</div>
-            <div class="stat-details">
-                <h3 class="stat-number">3</h3>
-                <p class="stat-label">Motores Registrados</p>
-                <a href="/cliente-mis-motores" class="stat-link">Ver todos →</a>
+    <div class="hp-stats-grid">
+
+        <div class="hp-stat hp-stat-blue">
+            <div class="hp-stat-icon">🏍️</div>
+            <div class="hp-stat-body">
+                <span class="hp-stat-num">@Model.TotalMotores</span>
+                <span class="hp-stat-label">Motores</span>
             </div>
+            <a asp-page="/Motores/Listado" class="hp-stat-link">Ver →</a>
         </div>
 
-        <div class="stat-card card-orange">
-            <div class="stat-icon-wrapper">⏳</div>
-            <div class="stat-details">
-                <h3 class="stat-number">2</h3>
-                <p class="stat-label">Órdenes Activas</p>
-                <a href="/cliente-mis-ordenes" class="stat-link">Ver todas →</a>
+        <div class="hp-stat hp-stat-amber">
+            <div class="hp-stat-icon">⏳</div>
+            <div class="hp-stat-body">
+                <span class="hp-stat-num">@Model.OrdenesActivas</span>
+                <span class="hp-stat-label">Órdenes Activas</span>
             </div>
+            <a asp-page="/Ordenes/Listado" class="hp-stat-link">Ver →</a>
         </div>
 
-        <div class="stat-card card-green">
-            <div class="stat-icon-wrapper">✅</div>
-            <div class="stat-details">
-                <h3 class="stat-number">15</h3>
-                <p class="stat-label">Servicios Completados</p>
-                <a href="/cliente-historial" class="stat-link">Ver historial →</a>
+        <div class="hp-stat hp-stat-green">
+            <div class="hp-stat-icon">✅</div>
+            <div class="hp-stat-body">
+                <span class="hp-stat-num">@Model.OrdenesCompletadas</span>
+                <span class="hp-stat-label">Completadas</span>
             </div>
+            <a asp-page="/Ordenes/Listado" class="hp-stat-link">Ver →</a>
         </div>
 
-        <div class="stat-card card-purple">
-            <div class="stat-icon-wrapper">🕐</div>
-            <div class="stat-details">
-                <h3 class="stat-number">1</h3>
-                <p class="stat-label">Próximos Mantenimientos</p>
-                <a href="/cliente-mis-ordenes" class="stat-link">Ver detalles →</a>
+        <div class="hp-stat hp-stat-red">
+            <div class="hp-stat-icon">🔴</div>
+            <div class="hp-stat-body">
+                <span class="hp-stat-num">@Model.OrdenesPendientes</span>
+                <span class="hp-stat-label">Pendientes</span>
             </div>
+            <a asp-page="/Ordenes/Listado" class="hp-stat-link">Ver →</a>
         </div>
+
     </div>
 
-    <!-- ── ÓRDENES ACTIVAS ── -->
-    <div class="dashboard-section">
-        <div class="section-header">
-            <h2>📋 Órdenes Activas</h2>
-            <a href="/cliente-mis-ordenes" class="view-all-link">Ver todas →</a>
+    <div class="hp-main-grid">
+
+        <!-- ── ÓRDENES ACTIVAS ── -->
+        <div class="hp-section">
+            <div class="hp-section-header">
+                <h2 class="hp-section-title">📋 Órdenes Activas</h2>
+                <a asp-page="/Ordenes/Listado" class="hp-link">Ver todas →</a>
+            </div>
+
+            @if (!Model.UltimasOrdenes.Any())
+            {
+                <div class="hp-empty">
+                    <span>🎉</span>
+                    <p>No hay órdenes activas en este momento</p>
+                </div>
+            }
+            else
+            {
+                <div class="hp-orders-list">
+                    @foreach (var o in Model.UltimasOrdenes)
+                    {
+                        var slug = o.Estado.ToLower().Replace(" ", "-").Replace("ó", "o").Replace("é", "e");
+                        <div class="hp-order-card">
+                            <div class="hp-order-left">
+                                <div class="hp-order-moto-icon">🏍️</div>
+                                <div>
+                                    <p class="hp-order-serie">
+                                        @(o.Motor?.NumeroSerie ?? $"Motor #{o.MotorId}")
+                                        <span class="hp-order-modelo">— @(o.Motor?.Modelo?.Nombre ?? "—")</span>
+                                    </p>
+                                    <p class="hp-order-meta">
+                                        @if (o.Tecnico != null)
+                                        {
+                                            <span><i class="bi bi-person-gear"></i> @o.Tecnico.Nombre</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="hp-no-tecnico">Sin técnico asignado</span>
+                                        }
+                                        &nbsp;·&nbsp;
+                                        <span><i class="bi bi-calendar3"></i> @o.CreadoEn.ToString("dd MMM yyyy")</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="hp-order-right">
+                                <span class="hp-badge hp-badge-@slug">@o.Estado</span>
+                                <a asp-page="/Ordenes/Editar" asp-route-id="@o.Id" class="hp-icon-btn" title="Editar">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
         </div>
 
-        <div class="orders-grid">
-
-            <!-- Orden 1 -->
-            <div class="order-card">
-                <div class="order-header">
-                    <div class="order-motor">
-                        <div class="motor-icon">🏍️</div>
-                        <div>
-                            <h3>Yamaha YZF-R1 2020</h3>
-                            <p>Mantenimiento General</p>
-                        </div>
-                    </div>
-                    <span class="status-badge status-progress">⏳ En progreso</span>
-                </div>
-                <div class="order-body">
-                    <div class="order-info-row">
-                        <span class="info-label">Técnico:</span>
-                        <span class="info-value">Carlos Méndez</span>
-                    </div>
-                    <div class="order-info-row">
-                        <span class="info-label">Fecha estimada:</span>
-                        <span class="info-value">15 Feb 2026</span>
-                    </div>
-                    <div class="progress-section">
-                        <div class="progress-header">
-                            <span>Progreso</span>
-                            <span class="progress-percentage">65%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 65%"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="order-footer">
-                    <button class="btn-secondary btn-sm">Ver Detalles</button>
-                    <button class="btn-outline btn-sm">Contactar Técnico</button>
-                </div>
+        <!-- ── MIS MOTORES ── -->
+        <div class="hp-section">
+            <div class="hp-section-header">
+                <h2 class="hp-section-title">🏍️ Motores Registrados</h2>
+                <a asp-page="/Motores/Listado" class="hp-link">Ver todos →</a>
             </div>
 
-            <!-- Orden 2 -->
-            <div class="order-card">
-                <div class="order-header">
-                    <div class="order-motor">
-                        <div class="motor-icon">🏍️</div>
-                        <div>
-                            <h3>Honda CBR 600RR 2019</h3>
-                            <p>Cambio de aceite</p>
-                        </div>
-                    </div>
-                    <span class="status-badge status-pending">⚠️ Pendiente</span>
+            @if (!Model.MisMotores.Any())
+            {
+                <div class="hp-empty">
+                    <span>🔩</span>
+                    <p>No hay motores registrados</p>
+                    <a asp-page="/Motores/Agregar" class="hp-btn hp-btn-sm hp-btn-primary">
+                        <i class="bi bi-plus-lg"></i> Agregar
+                    </a>
                 </div>
-                <div class="order-body">
-                    <div class="order-info-row">
-                        <span class="info-label">Técnico:</span>
-                        <span class="info-value">Ana García</span>
-                    </div>
-                    <div class="order-info-row">
-                        <span class="info-label">Fecha estimada:</span>
-                        <span class="info-value">14 Feb 2026</span>
-                    </div>
-                    <div class="progress-section">
-                        <div class="progress-header">
-                            <span>Progreso</span>
-                            <span class="progress-percentage">30%</span>
+            }
+            else
+            {
+                <div class="hp-motors-list">
+                    @foreach (var m in Model.MisMotores.OrderByDescending(x => x.CreadoEn).Take(5))
+                    {
+                        var ordenes = Model.TodasLasOrdenes.Count(o => o.MotorId == m.Id);
+                        <div class="hp-motor-item">
+                            <div class="hp-motor-dot"></div>
+                            <div class="hp-motor-info">
+                                <p class="hp-motor-serie">
+                                    @(string.IsNullOrWhiteSpace(m.NumeroSerie) ? "Sin número de serie" : m.NumeroSerie)
+                                </p>
+                                <p class="hp-motor-meta">
+                                    @(m.Modelo?.Nombre ?? "—")
+                                    @if (m.Usuario != null)
+                                    {
+                                        <span> · @m.Usuario.Nombre</span>
+                                    }
+                                </p>
+                            </div>
+                            <div class="hp-motor-right">
+                                <span class="hp-motor-badge">@ordenes orden(es)</span>
+                                <span class="hp-motor-date">@m.CreadoEn.ToString("dd/MM/yy")</span>
+                            </div>
                         </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 30%"></div>
+                    }
+                    @if (Model.MisMotores.Count > 5)
+                    {
+                        <div class="hp-more-hint">
+                            + @(Model.MisMotores.Count - 5) motor(es) más —
+                            <a asp-page="/Motores/Listado">Ver todos</a>
                         </div>
-                    </div>
+                    }
                 </div>
-                <div class="order-footer">
-                    <button class="btn-secondary btn-sm">Ver Detalles</button>
-                    <button class="btn-outline btn-sm">Contactar Técnico</button>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- ── ACTIVIDAD RECIENTE ── -->
-    <div class="dashboard-section">
-        <div class="section-header">
-            <h2>🕐 Actividad Reciente</h2>
+            }
         </div>
 
-        <div class="activity-list">
-            <div class="activity-item">
-                <div class="activity-date">10 Feb</div>
-                <div class="activity-content">
-                    <p class="activity-action">Servicio completado</p>
-                    <p class="activity-motor">Kawasaki Ninja 650</p>
-                </div>
-            </div>
-            <div class="activity-item">
-                <div class="activity-date">05 Feb</div>
-                <div class="activity-content">
-                    <p class="activity-action">Nueva orden creada</p>
-                    <p class="activity-motor">Yamaha YZF-R1</p>
-                </div>
-            </div>
-            <div class="activity-item">
-                <div class="activity-date">28 Ene</div>
-                <div class="activity-content">
-                    <p class="activity-action">Motor registrado</p>
-                    <p class="activity-motor">Honda CBR 600RR</p>
-                </div>
-            </div>
-        </div>
     </div>
 
 </div>
 
 <style>
-    @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
     :root {
-        --primary-color: #667eea;
-        --primary-dark: #5568d3;
-        --secondary-color: #764ba2;
-        --success-color: #10b981;
-        --warning-color: #f59e0b;
-        --danger-color: #ef4444;
-        --bg-primary: #f8fafc;
-        --bg-secondary: #ffffff;
-        --text-primary: #1e293b;
-        --text-secondary: #64748b;
-        --border-color: #e2e8f0;
-        --shadow-sm: 0 1px 2px 0 rgba(0,0,0,.05);
-        --shadow-md: 0 4px 6px -1px rgba(0,0,0,.1);
-        --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.1);
-        --shadow-xl: 0 20px 25px -5px rgba(0,0,0,.1);
-        --radius-md: 12px;
-        --radius-lg: 16px;
-        --transition: all 0.3s ease;
+        --hp-bg: #f1f5f9;
+        --hp-surface: #ffffff;
+        --hp-border: #e2e8f0;
+        --hp-text: #1e293b;
+        --hp-muted: #64748b;
+        --hp-radius: 14px;
+        --hp-shadow: 0 4px 20px rgba(0,0,0,.07);
+        --hp-ff: 'Plus Jakarta Sans', sans-serif;
     }
 
-    .dashboard-page {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        background-color: var(--bg-primary);
-        color: var(--text-primary);
-        padding: 32px 24px;
-        max-width: 1400px;
-        margin: 0 auto;
+    .hp-page {
+        font-family: var(--hp-ff);
+        padding: 0;
     }
 
-    /* WELCOME */
-    .welcome-section {
+    /* ── WELCOME ── */
+    .hp-welcome {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 32px;
-        padding: 24px;
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        border-radius: var(--radius-lg);
+        gap: 20px;
+        flex-wrap: wrap;
+        background: linear-gradient(135deg, #0f1923 0%, #1e3a5f 60%, #1e4d8c 100%);
+        border-radius: var(--hp-radius);
+        padding: 28px 32px;
+        margin-bottom: 28px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .hp-welcome::before {
+            content: '🏍️';
+            position: absolute;
+            right: 160px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 90px;
+            opacity: .06;
+            pointer-events: none;
+        }
+
+    .hp-welcome-left {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .hp-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        color: #0f1923;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+        font-weight: 800;
+        flex-shrink: 0;
+        box-shadow: 0 4px 16px rgba(245,158,11,.35);
+    }
+
+    .hp-welcome-greeting {
+        font-size: 13px;
+        color: #94a3b8;
+        margin: 0 0 2px;
+    }
+
+    .hp-welcome-name {
+        font-size: 26px;
+        font-weight: 800;
         color: white;
+        margin: 0 0 6px;
     }
 
-    .welcome-text h1 {
-        font-size: 32px;
-        font-weight: 700;
-        margin-bottom: 8px;
+    .hp-rol-badge {
+        display: inline-block;
+        padding: 3px 12px;
+        background: rgba(245,158,11,.2);
+        border: 1px solid rgba(245,158,11,.4);
+        color: #fcd34d;
+        border-radius: 100px;
+        font-size: 12px;
+        font-weight: 600;
     }
 
-    .welcome-text p {
-        opacity: .9;
-        font-size: 16px;
-    }
-
-    .btn-primary {
+    .hp-btn {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 12px 24px;
-        background: white;
-        color: var(--primary-color);
-        border: none;
-        border-radius: var(--radius-md);
-        font-weight: 600;
+        gap: 7px;
+        padding: 11px 22px;
+        border-radius: 10px;
+        font-weight: 700;
         font-size: 14px;
         cursor: pointer;
         text-decoration: none;
+        border: none;
+        transition: all .2s ease;
         white-space: nowrap;
-        transition: var(--transition);
     }
 
-        .btn-primary:hover {
+    .hp-btn-white {
+        background: white;
+        color: #1e293b;
+        box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    }
+
+        .hp-btn-white:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-
-    /* STATS */
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 24px;
-        margin-bottom: 40px;
-    }
-
-    .stat-card {
-        background: white;
-        padding: 24px;
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-md);
-        display: flex;
-        gap: 20px;
-        align-items: flex-start;
-        transition: var(--transition);
-        border: 2px solid transparent;
-    }
-
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-xl);
-        }
-
-        .stat-card.card-blue {
-            border-color: #dbeafe;
-        }
-
-            .stat-card.card-blue .stat-icon-wrapper {
-                background: linear-gradient(135deg, #3b82f6, #2563eb);
-            }
-
-        .stat-card.card-orange {
-            border-color: #fed7aa;
-        }
-
-            .stat-card.card-orange .stat-icon-wrapper {
-                background: linear-gradient(135deg, #f59e0b, #d97706);
-            }
-
-        .stat-card.card-green {
-            border-color: #d1fae5;
-        }
-
-            .stat-card.card-green .stat-icon-wrapper {
-                background: linear-gradient(135deg, #10b981, #059669);
-            }
-
-        .stat-card.card-purple {
-            border-color: #e9d5ff;
-        }
-
-            .stat-card.card-purple .stat-icon-wrapper {
-                background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-            }
-
-    .stat-icon-wrapper {
-        width: 56px;
-        height: 56px;
-        border-radius: var(--radius-md);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        font-size: 24px;
-    }
-
-    .stat-number {
-        font-size: 36px;
-        font-weight: 700;
-        color: var(--text-primary);
-        line-height: 1;
-        margin-bottom: 4px;
-    }
-
-    .stat-label {
-        color: var(--text-secondary);
-        font-size: 14px;
-        margin-bottom: 12px;
-    }
-
-    .stat-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        color: var(--primary-color);
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 14px;
-        transition: var(--transition);
-    }
-
-        .stat-link:hover {
-            gap: 10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,.2);
+            color: #1e293b;
             text-decoration: none;
         }
 
-    /* SECTIONS */
-    .dashboard-section {
-        margin-bottom: 40px;
+    .hp-btn-primary {
+        background: linear-gradient(135deg,#3b82f6,#2563eb);
+        color: white;
     }
 
-    .section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-
-        .section-header h2 {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-    .view-all-link {
-        color: var(--primary-color);
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 14px;
-        transition: var(--transition);
-    }
-
-        .view-all-link:hover {
+        .hp-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(59,130,246,.4);
+            color: white;
             text-decoration: none;
-            opacity: .8;
         }
 
-    /* ORDER CARDS */
-    .orders-grid {
+    .hp-btn-sm {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+
+    /* ── STATS ── */
+    .hp-stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-        gap: 24px;
-    }
-
-    .order-card {
-        background: white;
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-md);
-        overflow: hidden;
-        transition: var(--transition);
-        border: 1px solid var(--border-color);
-    }
-
-        .order-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-xl);
-        }
-
-    .order-header {
-        padding: 20px;
-        border-bottom: 1px solid var(--border-color);
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
+        grid-template-columns: repeat(4, 1fr);
         gap: 16px;
+        margin-bottom: 28px;
     }
 
-    .order-motor {
+    .hp-stat {
+        background: var(--hp-surface);
+        border-radius: var(--hp-radius);
+        padding: 20px;
         display: flex;
-        gap: 12px;
+        align-items: center;
+        gap: 14px;
+        border: 1px solid var(--hp-border);
+        box-shadow: var(--hp-shadow);
+        transition: all .2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .hp-stat:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,.1);
+        }
+
+        .hp-stat::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            border-radius: 14px 0 0 14px;
+        }
+
+    .hp-stat-blue::after {
+        background: #3b82f6;
+    }
+
+    .hp-stat-amber::after {
+        background: #f59e0b;
+    }
+
+    .hp-stat-green::after {
+        background: #10b981;
+    }
+
+    .hp-stat-red::after {
+        background: #ef4444;
+    }
+
+    .hp-stat-icon {
+        font-size: 28px;
+        flex-shrink: 0;
+    }
+
+    .hp-stat-body {
         flex: 1;
     }
 
-    .motor-icon {
-        width: 44px;
-        height: 44px;
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        border-radius: var(--radius-md);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-        flex-shrink: 0;
+    .hp-stat-num {
+        display: block;
+        font-size: 32px;
+        font-weight: 800;
+        color: var(--hp-text);
+        line-height: 1;
     }
 
-    .order-motor h3 {
-        font-size: 16px;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin-bottom: 4px;
+    .hp-stat-label {
+        display: block;
+        font-size: 12px;
+        color: var(--hp-muted);
+        margin-top: 3px;
+        font-weight: 500;
     }
 
-    .order-motor p {
-        font-size: 14px;
-        color: var(--text-secondary);
-    }
-
-    .status-badge {
+    .hp-stat-link {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--hp-muted);
+        text-decoration: none;
         padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
+        border-radius: 8px;
+        background: var(--hp-bg);
+        transition: all .2s ease;
         white-space: nowrap;
     }
 
-    .status-progress {
+        .hp-stat-link:hover {
+            color: var(--hp-text);
+            background: var(--hp-border);
+            text-decoration: none;
+        }
+
+    /* ── MAIN GRID ── */
+    .hp-main-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    /* ── SECTION ── */
+    .hp-section {
+        background: var(--hp-surface);
+        border-radius: var(--hp-radius);
+        border: 1px solid var(--hp-border);
+        box-shadow: var(--hp-shadow);
+        overflow: hidden;
+    }
+
+    .hp-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 22px;
+        border-bottom: 1px solid var(--hp-border);
+    }
+
+    .hp-section-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--hp-text);
+        margin: 0;
+    }
+
+    .hp-link {
+        font-size: 13px;
+        font-weight: 600;
+        color: #3b82f6;
+        text-decoration: none;
+    }
+
+        .hp-link:hover {
+            text-decoration: underline;
+        }
+
+    /* ── ORDERS LIST ── */
+    .hp-orders-list {
+        padding: 8px 0;
+    }
+
+    .hp-order-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 22px;
+        gap: 12px;
+        transition: background .15s ease;
+        border-bottom: 1px solid var(--hp-border);
+    }
+
+        .hp-order-card:last-child {
+            border-bottom: none;
+        }
+
+        .hp-order-card:hover {
+            background: #f8fafc;
+        }
+
+    .hp-order-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .hp-order-moto-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: linear-gradient(135deg,#1e293b,#334155);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    .hp-order-serie {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--hp-text);
+        margin: 0 0 3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .hp-order-modelo {
+        font-weight: 400;
+        color: var(--hp-muted);
+        font-size: 13px;
+    }
+
+    .hp-order-meta {
+        font-size: 12px;
+        color: var(--hp-muted);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        flex-wrap: wrap;
+    }
+
+    .hp-no-tecnico {
+        font-style: italic;
+    }
+
+    .hp-order-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    .hp-badge {
+        display: inline-block;
+        padding: 4px 11px;
+        border-radius: 100px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .hp-badge-pendiente {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .hp-badge-en-diagnostico {
         background: #dbeafe;
         color: #1e40af;
     }
 
-    .status-pending {
-        background: #fed7aa;
-        color: #c2410c;
+    .hp-badge-en-reparacion {
+        background: #ede9fe;
+        color: #5b21b6;
     }
 
-    .order-body {
-        padding: 20px;
+    .hp-badge-completado {
+        background: #d1fae5;
+        color: #065f46;
     }
 
-    .order-info-row {
-        display: flex;
-        justify-content: space-between;
+    .hp-badge-cancelado {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .hp-icon-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 7px;
+        display: inline-flex;
         align-items: center;
-        padding: 8px 0;
-        font-size: 14px;
+        justify-content: center;
+        font-size: 12px;
+        border: 1px solid var(--hp-border);
+        background: white;
+        color: #3b82f6;
+        text-decoration: none;
+        transition: all .15s ease;
     }
 
-    .info-label {
-        color: var(--text-secondary);
-        font-weight: 500;
+        .hp-icon-btn:hover {
+            background: #dbeafe;
+            border-color: #3b82f6;
+            color: #1e40af;
+            text-decoration: none;
+        }
+
+    /* ── MOTORS LIST ── */
+    .hp-motors-list {
+        padding: 4px 0;
     }
 
-    .info-value {
-        color: var(--text-primary);
-        font-weight: 600;
-    }
-
-    .progress-section {
-        margin-top: 20px;
-    }
-
-    .progress-header {
+    .hp-motor-item {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        margin-bottom: 8px;
-        font-size: 14px;
-        font-weight: 600;
-    }
-
-    .progress-percentage {
-        color: var(--primary-color);
-    }
-
-    .progress-bar {
-        height: 8px;
-        background: var(--bg-primary);
-        border-radius: 20px;
-        overflow: hidden;
-    }
-
-    .progress-fill {
-        height: 100%;
-        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-        border-radius: 20px;
-        transition: width 0.6s ease;
-    }
-
-    .order-footer {
-        padding: 16px 20px;
-        background: var(--bg-primary);
-        display: flex;
         gap: 12px;
+        padding: 14px 22px;
+        border-bottom: 1px solid var(--hp-border);
+        transition: background .15s ease;
     }
 
-    .btn-secondary {
-        flex: 1;
-        padding: 10px 16px;
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        color: white;
-        border: none;
-        border-radius: var(--radius-md);
-        font-weight: 600;
-        font-size: 14px;
-        cursor: pointer;
-        transition: var(--transition);
-    }
-
-        .btn-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-    .btn-outline {
-        flex: 1;
-        padding: 10px 16px;
-        background: white;
-        color: var(--primary-color);
-        border: 2px solid var(--primary-color);
-        border-radius: var(--radius-md);
-        font-weight: 600;
-        font-size: 14px;
-        cursor: pointer;
-        transition: var(--transition);
-    }
-
-        .btn-outline:hover {
-            background: var(--primary-color);
-            color: white;
-        }
-
-    .btn-sm {
-        font-size: 13px;
-        padding: 8px 14px;
-    }
-
-    /* ACTIVITY */
-    .activity-list {
-        background: white;
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-md);
-        overflow: hidden;
-    }
-
-    .activity-item {
-        display: flex;
-        gap: 20px;
-        padding: 20px;
-        border-bottom: 1px solid var(--border-color);
-        transition: var(--transition);
-    }
-
-        .activity-item:last-child {
+        .hp-motor-item:last-child {
             border-bottom: none;
         }
 
-        .activity-item:hover {
-            background: var(--bg-primary);
+        .hp-motor-item:hover {
+            background: #f8fafc;
         }
 
-    .activity-date {
+    .hp-motor-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        flex-shrink: 0;
+    }
+
+    .hp-motor-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .hp-motor-serie {
+        font-size: 14px;
         font-weight: 700;
-        color: var(--primary-color);
-        font-size: 14px;
-        min-width: 60px;
+        color: var(--hp-text);
+        margin: 0 0 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    .activity-action {
-        font-weight: 600;
-        color: var(--text-primary);
-        margin-bottom: 4px;
-        font-size: 14px;
+    .hp-motor-meta {
+        font-size: 12px;
+        color: var(--hp-muted);
+        margin: 0;
     }
 
-    .activity-motor {
-        color: var(--text-secondary);
-        font-size: 14px;
+    .hp-motor-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 3px;
+        flex-shrink: 0;
     }
 
-    /* RESPONSIVE */
-    @@media (max-width: 992px) {
-        .welcome-section {
-            flex-direction: column;
-            gap: 20px;
-            text-align: center;
+    .hp-motor-badge {
+        font-size: 11px;
+        font-weight: 700;
+        background: #f1f5f9;
+        color: var(--hp-muted);
+        padding: 2px 8px;
+        border-radius: 100px;
+    }
+
+    .hp-motor-date {
+        font-size: 11px;
+        color: var(--hp-muted);
+    }
+
+    .hp-more-hint {
+        font-size: 13px;
+        color: var(--hp-muted);
+        padding: 12px 22px;
+        text-align: center;
+    }
+
+        .hp-more-hint a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 600;
         }
 
-        .orders-grid {
+    /* ── EMPTY ── */
+    .hp-empty {
+        padding: 40px 22px;
+        text-align: center;
+        color: var(--hp-muted);
+        font-size: 14px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .hp-empty span {
+            font-size: 36px;
+        }
+
+    /* ── RESPONSIVE ── */
+    @@media (max-width: 1100px) {
+        .hp-stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .hp-main-grid {
             grid-template-columns: 1fr;
         }
     }
 
-    @@media (max-width: 768px) {
-        .dashboard-page {
-            padding: 20px 16px;
+    @@media (max-width: 640px) {
+        .hp-welcome {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 22px;
         }
 
-        .welcome-text h1 {
-            font-size: 24px;
-        }
+            .hp-welcome::before {
+                display: none;
+            }
 
-        .stats-grid {
+        .hp-stats-grid {
             grid-template-columns: 1fr 1fr;
-            gap: 16px;
         }
 
-        .order-footer {
-            flex-direction: column;
+        .hp-welcome-name {
+            font-size: 22px;
         }
     }
 
-    @@media (max-width: 480px) {
-        .stats-grid {
+    @@media (max-width: 400px) {
+        .hp-stats-grid {
             grid-template-columns: 1fr;
-        }
-
-        .stat-number {
-            font-size: 28px;
         }
     }
 </style>
-
