@@ -1,0 +1,670 @@
+﻿@page "/Reportes"
+@model Web.Pages.Reportes.ReportesModel
+@{
+    Layout = "_LayoutUser";
+    ViewData["Title"] = "Reportes";
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<div class="rp-page">
+
+    <!-- HEADER -->
+    <div class="rp-header">
+        <div class="rp-header-left">
+            <div class="rp-header-icon">📊</div>
+            <div>
+                <h1 class="rp-title">REPORTES</h1>
+                <p class="rp-subtitle">Métricas generales del taller</p>
+            </div>
+        </div>
+        <span class="rp-date"><i class="bi bi-calendar3"></i> @DateTime.Now.ToString("dd 'de' MMMM, yyyy")</span>
+    </div>
+
+    <!-- KPIs -->
+    <div class="rp-kpis">
+        <div class="rp-kpi rp-kpi-blue">
+            <div class="rp-kpi-icon"><i class="bi bi-clipboard-check-fill"></i></div>
+            <div>
+                <span class="rp-kpi-num">@Model.TotalOrdenes</span>
+                <span class="rp-kpi-lbl">Total órdenes</span>
+            </div>
+        </div>
+        <div class="rp-kpi rp-kpi-amber">
+            <div class="rp-kpi-icon"><i class="bi bi-clock-fill"></i></div>
+            <div>
+                <span class="rp-kpi-num">@Model.OrdenesActivas</span>
+                <span class="rp-kpi-lbl">Órdenes activas</span>
+            </div>
+        </div>
+        <div class="rp-kpi rp-kpi-green">
+            <div class="rp-kpi-icon"><i class="bi bi-check-circle-fill"></i></div>
+            <div>
+                <span class="rp-kpi-num">@Model.OrdenesCompletadas</span>
+                <span class="rp-kpi-lbl">Completadas</span>
+            </div>
+        </div>
+        <div class="rp-kpi rp-kpi-purple">
+            <div class="rp-kpi-icon"><i class="bi bi-people-fill"></i></div>
+            <div>
+                <span class="rp-kpi-num">@Model.TotalClientes</span>
+                <span class="rp-kpi-lbl">Clientes</span>
+            </div>
+        </div>
+        <div class="rp-kpi rp-kpi-dark">
+            <div class="rp-kpi-icon"><i class="bi bi-motorcycle"></i></div>
+            <div>
+                <span class="rp-kpi-num">@Model.TotalMotores</span>
+                <span class="rp-kpi-lbl">Motores</span>
+            </div>
+        </div>
+        <div class="rp-kpi rp-kpi-red">
+            <div class="rp-kpi-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+            <div>
+                <span class="rp-kpi-num">@Model.ProductosBajoStock</span>
+                <span class="rp-kpi-lbl">Stock bajo</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── SECCIÓN ÓRDENES ──────────────────────────────── -->
+    <div class="rp-section-title">
+        <i class="bi bi-clipboard-data-fill"></i> ÓRDENES DE SERVICIO
+    </div>
+
+    <div class="rp-grid-2">
+        <!-- Dona: órdenes por estado -->
+        <div class="rp-card">
+            <div class="rp-card-header">
+                <h3 class="rp-card-title">Distribución por estado</h3>
+            </div>
+            <div class="rp-chart-wrap rp-chart-sm">
+                <canvas id="chartEstados"></canvas>
+            </div>
+        </div>
+
+        <!-- Línea: órdenes por mes -->
+        <div class="rp-card">
+            <div class="rp-card-header">
+                <h3 class="rp-card-title">Órdenes últimos 6 meses</h3>
+            </div>
+            <div class="rp-chart-wrap">
+                <canvas id="chartMeses"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barras: órdenes por técnico -->
+    <div class="rp-card">
+        <div class="rp-card-header">
+            <h3 class="rp-card-title">Órdenes por técnico</h3>
+            <span class="rp-card-sub">Top 8</span>
+        </div>
+        <div class="rp-chart-wrap rp-chart-md">
+            <canvas id="chartTecnicos"></canvas>
+        </div>
+    </div>
+
+    <!-- ── SECCIÓN MOTORES ──────────────────────────────── -->
+    <div class="rp-section-title">
+        <i class="bi bi-gear-wide-connected"></i> MOTORES
+    </div>
+
+    <div class="rp-card">
+        <div class="rp-card-header">
+            <h3 class="rp-card-title">Motores por modelo</h3>
+            <span class="rp-card-sub">Top 8</span>
+        </div>
+        <div class="rp-chart-wrap rp-chart-md">
+            <canvas id="chartModelos"></canvas>
+        </div>
+    </div>
+
+    <!-- ── SECCIÓN INVENTARIO ───────────────────────────── -->
+    <div class="rp-section-title">
+        <i class="bi bi-box-seam-fill"></i> INVENTARIO
+    </div>
+
+    <div class="rp-grid-2">
+        <!-- Barras: stock por categoría -->
+        <div class="rp-card">
+            <div class="rp-card-header">
+                <h3 class="rp-card-title">Stock por categoría</h3>
+                <span class="rp-card-sub">Unidades disponibles</span>
+            </div>
+            <div class="rp-chart-wrap">
+                <canvas id="chartStock"></canvas>
+            </div>
+        </div>
+
+        <!-- Barras: productos con menos stock -->
+        <div class="rp-card">
+            <div class="rp-card-header">
+                <h3 class="rp-card-title">Productos con menos stock</h3>
+                <span class="rp-card-sub rp-sub-red">⚠ Top 6 más bajos</span>
+            </div>
+            <div class="rp-chart-wrap">
+                <canvas id="chartBajos"></canvas>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    :root {
+        --rp-surface: #fff;
+        --rp-border: #e2e8f0;
+        --rp-bg: #f8fafc;
+        --rp-text: #0f172a;
+        --rp-muted: #64748b;
+        --rp-radius: 14px;
+        --rp-shadow: 0 4px 20px rgba(0,0,0,.07);
+        --rp-ff: 'Barlow Condensed',sans-serif;
+        --rp-ff-body: 'Barlow',sans-serif;
+    }
+
+    .rp-page {
+        font-family: var(--rp-ff-body);
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    /* HEADER */
+    .rp-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .rp-header-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .rp-header-icon {
+        font-size: 44px;
+    }
+
+    .rp-title {
+        font-family: var(--rp-ff);
+        font-size: 40px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        color: var(--rp-text);
+        margin: 0;
+    }
+
+    .rp-subtitle {
+        font-size: 12px;
+        color: var(--rp-muted);
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        margin: 4px 0 0;
+    }
+
+    .rp-date {
+        font-size: 13px;
+        color: var(--rp-muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    /* KPIs */
+    .rp-kpis {
+        display: grid;
+        grid-template-columns: repeat(6,1fr);
+        gap: 14px;
+    }
+
+    .rp-kpi {
+        background: var(--rp-surface);
+        border: 1.5px solid var(--rp-border);
+        border-radius: 12px;
+        padding: 16px 18px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        position: relative;
+        overflow: hidden;
+        transition: transform .2s;
+    }
+
+        .rp-kpi:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--rp-shadow);
+        }
+
+        .rp-kpi::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            border-radius: 12px 0 0 12px;
+        }
+
+    .rp-kpi-blue::before {
+        background: #3b82f6;
+    }
+
+    .rp-kpi-amber::before {
+        background: #f59e0b;
+    }
+
+    .rp-kpi-green::before {
+        background: #10b981;
+    }
+
+    .rp-kpi-purple::before {
+        background: #8b5cf6;
+    }
+
+    .rp-kpi-dark::before {
+        background: #334155;
+    }
+
+    .rp-kpi-red::before {
+        background: #ef4444;
+    }
+
+    .rp-kpi-icon {
+        font-size: 22px;
+        flex-shrink: 0;
+    }
+
+    .rp-kpi-blue .rp-kpi-icon {
+        color: #3b82f6;
+    }
+
+    .rp-kpi-amber .rp-kpi-icon {
+        color: #f59e0b;
+    }
+
+    .rp-kpi-green .rp-kpi-icon {
+        color: #10b981;
+    }
+
+    .rp-kpi-purple .rp-kpi-icon {
+        color: #8b5cf6;
+    }
+
+    .rp-kpi-dark .rp-kpi-icon {
+        color: #334155;
+    }
+
+    .rp-kpi-red .rp-kpi-icon {
+        color: #ef4444;
+    }
+
+    .rp-kpi-num {
+        display: block;
+        font-family: var(--rp-ff);
+        font-size: 30px;
+        font-weight: 800;
+        color: var(--rp-text);
+        line-height: 1.1;
+    }
+
+    .rp-kpi-lbl {
+        display: block;
+        font-size: 11px;
+        color: var(--rp-muted);
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        margin-top: 2px;
+    }
+
+    /* SECTION TITLE */
+    .rp-section-title {
+        font-family: var(--rp-ff);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        color: #475569;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--rp-border);
+    }
+
+        .rp-section-title i {
+            color: #f59e0b;
+        }
+
+    /* GRID */
+    .rp-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    /* CARD */
+    .rp-card {
+        background: var(--rp-surface);
+        border: 1.5px solid var(--rp-border);
+        border-radius: var(--rp-radius);
+        box-shadow: var(--rp-shadow);
+        padding: 24px;
+    }
+
+    .rp-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .rp-card-title {
+        font-family: var(--rp-ff);
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--rp-text);
+        margin: 0;
+        letter-spacing: .04em;
+    }
+
+    .rp-card-sub {
+        font-size: 12px;
+        color: var(--rp-muted);
+    }
+
+    .rp-sub-red {
+        color: #ef4444;
+        font-weight: 600;
+    }
+
+    /* CHART WRAPPERS */
+    .rp-chart-wrap {
+        position: relative;
+        width: 100%;
+    }
+
+        .rp-chart-wrap canvas {
+            width: 100% !important;
+        }
+
+    .rp-chart-sm {
+        max-height: 260px;
+    }
+
+    .rp-chart-md {
+        max-height: 280px;
+    }
+
+    @@media(max-width:1200px) {
+        .rp-kpis {
+            grid-template-columns: repeat(3,1fr)
+        }
+    }
+
+    @@media(max-width:900px) {
+        .rp-grid-2 {
+            grid-template-columns: 1fr
+        }
+
+        .rp-kpis {
+            grid-template-columns: repeat(2,1fr)
+        }
+    }
+
+    @@media(max-width:600px) {
+        .rp-title {
+            font-size: 30px
+        }
+
+        .rp-kpis {
+            grid-template-columns: 1fr 1fr
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        (function(){
+            // ── Datos del servidor ───────────────────────────────────────────
+            const estadosData   = @Html.Raw(Model.OrdenesEstadoJson);
+            const mesesData     = @Html.Raw(Model.OrdenesPorMesJson);
+            const tecnicosData  = @Html.Raw(Model.OrdenesPorTecnicoJson);
+            const modelosData   = @Html.Raw(Model.MotoresPorModeloJson);
+            const stockData     = @Html.Raw(Model.ProductosStockJson);
+            const bajosData     = @Html.Raw(Model.ProductosBajosJson);
+
+            // ── Paletas de colores ───────────────────────────────────────────
+            const coloresEstado = {
+                'Pendiente':       '#f59e0b',
+                'En diagnóstico':  '#3b82f6',
+                'En reparación':   '#8b5cf6',
+                'Completado':      '#10b981',
+                'Cancelado':       '#ef4444'
+            };
+            const paleta = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ef4444','#06b6d4','#f97316','#84cc16'];
+
+            const defaults = {
+                font: { family: "'Barlow', sans-serif", size: 12 },
+                color: '#64748b'
+            };
+            Chart.defaults.font    = defaults.font;
+            Chart.defaults.color   = defaults.color;
+            Chart.defaults.plugins.legend.labels.boxWidth = 14;
+            Chart.defaults.plugins.legend.labels.padding  = 16;
+
+            // ── Helper ───────────────────────────────────────────────────────
+            function labels(d)  { return d.map(x => x.label); }
+            function values(d)  { return d.map(x => x.value); }
+            function noData(id) {
+                const ctx = document.getElementById(id);
+                if(!ctx) return;
+                ctx.parentElement.innerHTML =
+                    '<div style="display:flex;align-items:center;justify-content:center;height:100%;min-height:160px;color:#94a3b8;font-size:14px;gap:8px"><i class="bi bi-inbox"></i> Sin datos aún</div>';
+            }
+
+            // ── 1. Dona: estados ─────────────────────────────────────────────
+            if (estadosData.length) {
+                new Chart(document.getElementById('chartEstados'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels(estadosData),
+                        datasets: [{
+                            data: values(estadosData),
+                            backgroundColor: labels(estadosData).map(l => coloresEstado[l] || '#94a3b8'),
+                            borderWidth: 2,
+                            borderColor: '#fff',
+                            hoverOffset: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        cutout: '62%',
+                        plugins: {
+                            legend: { position: 'right' },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => ` ${ctx.label}: ${ctx.raw} órdenes`
+                                }
+                            }
+                        }
+                    }
+                });
+            } else noData('chartEstados');
+
+            // ── 2. Línea: órdenes por mes ────────────────────────────────────
+            if (mesesData.length) {
+                new Chart(document.getElementById('chartMeses'), {
+                    type: 'line',
+                    data: {
+                        labels: labels(mesesData),
+                        datasets: [{
+                            label: 'Órdenes',
+                            data: values(mesesData),
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59,130,246,.1)',
+                            pointBackgroundColor: '#3b82f6',
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            borderWidth: 2.5,
+                            fill: true,
+                            tension: 0.35
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { precision: 0 },
+                                grid: { color: '#f1f5f9' }
+                            },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            } else noData('chartMeses');
+
+            // ── 3. Barras: órdenes por técnico ───────────────────────────────
+            if (tecnicosData.length) {
+                new Chart(document.getElementById('chartTecnicos'), {
+                    type: 'bar',
+                    data: {
+                        labels: labels(tecnicosData),
+                        datasets: [{
+                            label: 'Órdenes asignadas',
+                            data: values(tecnicosData),
+                            backgroundColor: paleta,
+                            borderRadius: 7,
+                            borderSkipped: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { precision: 0 },
+                                grid: { color: '#f1f5f9' }
+                            },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            } else noData('chartTecnicos');
+
+            // ── 4. Barras horizontales: motores por modelo ───────────────────
+            if (modelosData.length) {
+                new Chart(document.getElementById('chartModelos'), {
+                    type: 'bar',
+                    data: {
+                        labels: labels(modelosData),
+                        datasets: [{
+                            label: 'Motores registrados',
+                            data: values(modelosData),
+                            backgroundColor: paleta,
+                            borderRadius: 6,
+                            borderSkipped: false
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: { precision: 0 },
+                                grid: { color: '#f1f5f9' }
+                            },
+                            y: { grid: { display: false } }
+                        }
+                    }
+                });
+            } else noData('chartModelos');
+
+            // ── 5. Barras: stock por categoría ───────────────────────────────
+            if (stockData.length) {
+                new Chart(document.getElementById('chartStock'), {
+                    type: 'bar',
+                    data: {
+                        labels: labels(stockData),
+                        datasets: [{
+                            label: 'Unidades en stock',
+                            data: values(stockData),
+                            backgroundColor: paleta.map(c => c + 'cc'),
+                            borderColor: paleta,
+                            borderWidth: 1.5,
+                            borderRadius: 7,
+                            borderSkipped: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { precision: 0 },
+                                grid: { color: '#f1f5f9' }
+                            },
+                            x: { grid: { display: false }, ticks: { maxRotation: 35 } }
+                        }
+                    }
+                });
+            } else noData('chartStock');
+
+            // ── 6. Barras: productos con menos stock ─────────────────────────
+            if (bajosData.length) {
+                new Chart(document.getElementById('chartBajos'), {
+                    type: 'bar',
+                    data: {
+                        labels: labels(bajosData),
+                        datasets: [{
+                            label: 'Stock actual',
+                            data: values(bajosData),
+                            backgroundColor: values(bajosData).map(v =>
+                                v <= 5 ? '#fecaca' : v <= 15 ? '#fef3c7' : '#d1fae5'),
+                            borderColor: values(bajosData).map(v =>
+                                v <= 5 ? '#ef4444' : v <= 15 ? '#f59e0b' : '#10b981'),
+                            borderWidth: 1.5,
+                            borderRadius: 7,
+                            borderSkipped: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: { label: ctx => ` Stock: ${ctx.raw} unidades` }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { precision: 0 },
+                                grid: { color: '#f1f5f9' }
+                            },
+                            x: { grid: { display: false }, ticks: { maxRotation: 35 } }
+                        }
+                    }
+                });
+            } else noData('chartBajos');
+
+        })();
+    </script>
+}
