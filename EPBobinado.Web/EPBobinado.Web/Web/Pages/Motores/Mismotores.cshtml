@@ -2,7 +2,7 @@
 @model Web.Pages.Cliente.MisMotoresModel
 @{
     Layout = "_LayoutUser";
-    ViewData["Title"] = "Mis Motos";
+    ViewData["Title"] = "Mis Motores";
 }
 
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
@@ -14,12 +14,12 @@
         <div class="mo-header-left">
             <div class="mo-header-icon">🏍️</div>
             <div>
-                <h1 class="mo-title">MIS MOTOS</h1>
-                <p class="mo-subtitle">@Model.Motores.Count moto(s) registrada(s) en tu cuenta</p>
+                <h1 class="mo-title">MIS MOTORES</h1>
+                <p class="mo-subtitle">@Model.Motores.Count motor(es) registrado(s) en tu cuenta</p>
             </div>
         </div>
         <a asp-page="/Motores/Agregar" class="mo-btn mo-btn-primary">
-            <i class="bi bi-plus-lg"></i> Registrar Moto
+            <i class="bi bi-plus-lg"></i> Registrar Motor
         </a>
     </div>
 
@@ -42,10 +42,10 @@
     {
         <div class="mo-empty">
             <span class="mo-empty-icon">🏍️</span>
-            <h3>SIN MOTOS REGISTRADAS</h3>
-            <p>Registra tu primera moto para poder crear órdenes de servicio</p>
+            <h3>SIN MOTORES REGISTRADOS</h3>
+            <p>Registra tu primer motor para poder crear órdenes de servicio</p>
             <a asp-page="/Motores/Agregar" class="mo-btn mo-btn-primary">
-                <i class="bi bi-plus-lg"></i> Registrar mi primera moto
+                <i class="bi bi-plus-lg"></i> Registrar mi primer motor
             </a>
         </div>
     }

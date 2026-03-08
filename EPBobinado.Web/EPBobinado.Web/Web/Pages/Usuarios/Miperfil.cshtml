@@ -1,0 +1,504 @@
+﻿@page "/Cliente/MiPerfil"
+@model Web.Pages.Cliente.MiPerfilModel
+@{
+    Layout = "_LayoutUser";
+    ViewData["Title"] = "Mi Perfil";
+    var initial = Model.UsuarioNombre.Length > 0 ? Model.UsuarioNombre[0].ToString().ToUpper() : "C";
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+
+<div class="mp-page">
+
+    <!-- HEADER -->
+    <div class="mp-header">
+        <div class="mp-header-left">
+            <div class="mp-avatar">@initial</div>
+            <div>
+                <h1 class="mp-title">MI PERFIL</h1>
+                <p class="mp-subtitle">Actualiza tu información personal</p>
+            </div>
+        </div>
+        <a href="/ClienteHome" class="mp-btn mp-btn-ghost">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="mp-toast mp-toast-success">
+            <i class="bi bi-check-circle-fill"></i> @TempData["Success"]
+        </div>
+    }
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="mp-toast mp-toast-error">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <div>
+                @foreach (var e in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <div>@e.ErrorMessage</div>
+                }
+            </div>
+        </div>
+    }
+
+    <div class="mp-layout">
+
+        <!-- TARJETA IDENTIDAD -->
+        <div class="mp-id-card">
+            <div class="mp-id-avatar">@initial</div>
+            <p class="mp-id-name">@Model.UsuarioNombre</p>
+            <p class="mp-id-email">@HttpContext.Session.GetString("UsuarioEmail")</p>
+            <span class="mp-id-rol">
+                <i class="bi bi-person-check-fill"></i>
+                @HttpContext.Session.GetString("UsuarioRolNombre")
+            </span>
+
+            <div class="mp-id-divider"></div>
+
+            <div class="mp-id-stats">
+                <div class="mp-id-stat">
+                    <i class="bi bi-shield-check"></i>
+                    <span>Cuenta activa</span>
+                </div>
+                <div class="mp-id-stat">
+                    <i class="bi bi-calendar3"></i>
+                    <span>ID #@HttpContext.Session.GetString("UsuarioId")</span>
+                </div>
+            </div>
+
+            <a asp-page="MiHistorial" class="mp-id-link">
+                <i class="bi bi-clock-history"></i> Ver mi historial
+            </a>
+        </div>
+
+        <!-- FORMULARIO -->
+        <div class="mp-form-card">
+            <form method="post">
+
+                <p class="mp-section-title"><i class="bi bi-person-fill"></i> Datos Personales</p>
+
+                <div class="mp-form-grid">
+                    <div class="mp-field mp-field-full">
+                        <label class="mp-label">Nombre completo *</label>
+                        <input asp-for="Perfil.Nombre" class="mp-input" placeholder="Tu nombre completo" />
+                        <span asp-validation-for="Perfil.Nombre" class="mp-error"></span>
+                    </div>
+                    <div class="mp-field">
+                        <label class="mp-label">Cédula *</label>
+                        <input asp-for="Perfil.Cedula" class="mp-input" placeholder="Número de cédula" />
+                        <span asp-validation-for="Perfil.Cedula" class="mp-error"></span>
+                    </div>
+                    <div class="mp-field">
+                        <label class="mp-label">Teléfono</label>
+                        <input asp-for="Perfil.Telefono" class="mp-input" placeholder="Ej: 8888-7777 (opcional)" />
+                        <span asp-validation-for="Perfil.Telefono" class="mp-error"></span>
+                    </div>
+                </div>
+
+                <p class="mp-section-title"><i class="bi bi-envelope-fill"></i> Acceso</p>
+
+                <div class="mp-form-grid">
+                    <div class="mp-field mp-field-full">
+                        <label class="mp-label">Correo electrónico *</label>
+                        <input asp-for="Perfil.Email" class="mp-input" type="email" placeholder="tu@correo.com" />
+                        <span asp-validation-for="Perfil.Email" class="mp-error"></span>
+                    </div>
+                </div>
+
+                <div class="mp-password-note">
+                    <i class="bi bi-lock-fill"></i>
+                    <span>Para cambiar tu contraseña, contacta al administrador del taller.</span>
+                </div>
+
+                <div class="mp-form-actions">
+                    <button type="submit" class="mp-btn mp-btn-primary">
+                        <i class="bi bi-save-fill"></i> Guardar Cambios
+                    </button>
+                    <a href="/ClienteHome" class="mp-btn mp-btn-ghost">Cancelar</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --mp-surface: #fff;
+        --mp-border: #e2e8f0;
+        --mp-bg: #f8fafc;
+        --mp-text: #0f172a;
+        --mp-muted: #64748b;
+        --mp-radius: 14px;
+        --mp-shadow: 0 4px 20px rgba(0,0,0,.07);
+        --mp-amber: #f59e0b;
+        --mp-amber2: #d97706;
+        --mp-ff: 'Barlow Condensed',sans-serif;
+        --mp-ff-body: 'Barlow',sans-serif;
+    }
+
+    .mp-page {
+        font-family: var(--mp-ff-body);
+    }
+
+    /* HEADER */
+    .mp-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 28px;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .mp-header-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .mp-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg,var(--mp-amber),var(--mp-amber2));
+        color: #0f1923;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--mp-ff);
+        font-size: 26px;
+        font-weight: 800;
+        flex-shrink: 0;
+        box-shadow: 0 4px 16px rgba(245,158,11,.35);
+    }
+
+    .mp-title {
+        font-family: var(--mp-ff);
+        font-size: 34px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        color: var(--mp-text);
+        margin: 0;
+    }
+
+    .mp-subtitle {
+        font-size: 13px;
+        color: var(--mp-muted);
+        margin: 4px 0 0;
+    }
+
+    /* TOAST */
+    .mp-toast {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 18px;
+        border-radius: var(--mp-radius);
+        font-size: 14px;
+        margin-bottom: 22px;
+    }
+
+    .mp-toast-success {
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        color: #065f46;
+    }
+
+    .mp-toast-error {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #991b1b;
+    }
+
+    /* LAYOUT */
+    .mp-layout {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 24px;
+        align-items: start;
+    }
+
+    /* ID CARD */
+    .mp-id-card {
+        background: linear-gradient(160deg,#0f1923 0%,#1e3a5f 100%);
+        border-radius: var(--mp-radius);
+        padding: 28px 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        position: sticky;
+        top: 20px;
+    }
+
+    .mp-id-avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: linear-gradient(135deg,var(--mp-amber),var(--mp-amber2));
+        color: #0f1923;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--mp-ff);
+        font-size: 34px;
+        font-weight: 800;
+        margin-bottom: 14px;
+        box-shadow: 0 6px 20px rgba(245,158,11,.4);
+    }
+
+    .mp-id-name {
+        font-family: var(--mp-ff);
+        font-size: 18px;
+        font-weight: 800;
+        color: white;
+        margin: 0 0 4px;
+        letter-spacing: .3px;
+    }
+
+    .mp-id-email {
+        font-size: 12px;
+        color: #94a3b8;
+        margin: 0 0 12px;
+        word-break: break-all;
+    }
+
+    .mp-id-rol {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 14px;
+        background: rgba(245,158,11,.15);
+        border: 1px solid rgba(245,158,11,.3);
+        border-radius: 100px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--mp-amber);
+    }
+
+    .mp-id-divider {
+        width: 100%;
+        height: 1px;
+        background: rgba(255,255,255,.1);
+        margin: 20px 0;
+    }
+
+    .mp-id-stats {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .mp-id-stat {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+        color: #94a3b8;
+    }
+
+        .mp-id-stat i {
+            color: var(--mp-amber);
+            width: 16px;
+        }
+
+    .mp-id-link {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 18px;
+        background: rgba(255,255,255,.07);
+        border: 1px solid rgba(255,255,255,.12);
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #cbd5e1;
+        text-decoration: none;
+        transition: all .2s;
+        width: 100%;
+        justify-content: center;
+    }
+
+        .mp-id-link:hover {
+            background: rgba(255,255,255,.12);
+            color: white;
+            text-decoration: none;
+        }
+
+    /* FORM CARD */
+    .mp-form-card {
+        background: var(--mp-surface);
+        border-radius: var(--mp-radius);
+        box-shadow: var(--mp-shadow);
+        border: 1.5px solid var(--mp-border);
+        padding: 32px 36px;
+    }
+
+    .mp-section-title {
+        font-family: var(--mp-ff);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        color: var(--mp-amber2);
+        margin-bottom: 20px;
+        margin-top: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1.5px solid var(--mp-border);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .mp-form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-bottom: 24px;
+    }
+
+    .mp-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .mp-field-full {
+        grid-column: 1/-1;
+    }
+
+    .mp-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--mp-muted);
+        letter-spacing: .05em;
+        text-transform: uppercase;
+    }
+
+    .mp-input {
+        padding: 11px 14px;
+        border: 1.5px solid var(--mp-border);
+        border-radius: 9px;
+        font-family: var(--mp-ff-body);
+        font-size: 14px;
+        color: var(--mp-text);
+        outline: none;
+        transition: all .2s;
+        width: 100%;
+    }
+
+        .mp-input:focus {
+            border-color: var(--mp-amber);
+            box-shadow: 0 0 0 3px rgba(245,158,11,.12);
+        }
+
+        .mp-input::placeholder {
+            color: #9ca3af;
+        }
+
+    .mp-error {
+        font-size: 12px;
+        color: #ef4444;
+    }
+
+    .mp-password-note {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        background: #fefce8;
+        border: 1px solid #fde68a;
+        border-radius: 9px;
+        font-size: 13px;
+        color: #92400e;
+        margin-bottom: 24px;
+    }
+
+        .mp-password-note i {
+            color: var(--mp-amber2);
+            flex-shrink: 0;
+        }
+
+    .mp-form-actions {
+        display: flex;
+        gap: 12px;
+        padding-top: 20px;
+        border-top: 1.5px solid var(--mp-border);
+    }
+
+    /* BUTTONS */
+    .mp-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 11px 22px;
+        border-radius: 9px;
+        font-family: var(--mp-ff-body);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+        transition: all .2s;
+        white-space: nowrap;
+    }
+
+    .mp-btn-primary {
+        background: linear-gradient(135deg,var(--mp-amber),var(--mp-amber2));
+        color: #0f1923;
+    }
+
+        .mp-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245,158,11,.4);
+            color: #0f1923;
+            text-decoration: none;
+        }
+
+    .mp-btn-ghost {
+        background: var(--mp-surface);
+        border: 1.5px solid var(--mp-border);
+        color: var(--mp-muted);
+    }
+
+        .mp-btn-ghost:hover {
+            border-color: var(--mp-amber);
+            color: var(--mp-amber2);
+            text-decoration: none;
+        }
+
+    @@media(max-width:900px) {
+        .mp-layout {
+            grid-template-columns: 1fr
+        }
+
+        .mp-id-card {
+            position: static
+        }
+    }
+
+    @@media(max-width:600px) {
+        .mp-form-grid {
+            grid-template-columns: 1fr
+        }
+
+        .mp-form-card {
+            padding: 24px
+        }
+
+        .mp-header {
+            flex-direction: column;
+            align-items: flex-start
+        }
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

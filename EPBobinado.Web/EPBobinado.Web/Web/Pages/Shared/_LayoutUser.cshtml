@@ -313,7 +313,7 @@
         <div class="sidebar-header">
             <a class="sidebar-brand" href="/HomePage/HomePage">
                 <i class="bi bi-tools brand-icon"></i>
-                <span class="brand-text">Mi Taller</span>
+                <span class="brand-text">EP Bobinado</span>
             </a>
         </div>
 
@@ -336,7 +336,7 @@
                 <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Cliente/MisMotores") ? "active" : "")">
                     <a href="/Cliente/MisMotores">
                         <span class="menu-icon"><i class="bi bi-motorcycle"></i></span>
-                        <span class="menu-label">Mis Motos</span>
+                        <span class="menu-label">Mis Motores</span>
                     </a>
                 </li>
                 <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Cliente/MisOrdenes") ? "active" : "")">
@@ -351,10 +351,22 @@
                         <span class="menu-label">Catálogo</span>
                     </a>
                 </li>
-                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/ModeloMotor") ? "active" : "")">
-                    <a href="/ModeloMotor/Listado">
+                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Modelos_Motores") ? "active" : "")">
+                    <a href="/Modelos_Motores/Listado">
                         <span class="menu-icon"><i class="bi bi-gear-wide-connected"></i></span>
                         <span class="menu-label">Modelos de Motor</span>
+                    </a>
+                </li>
+                <li class="menu-item @(Context.Request.Path == "/Cliente/MiHistorial" ? "active" : "")">
+                    <a href="/Cliente/MiHistorial">
+                        <span class="menu-icon"><i class="bi bi-clock-history"></i></span>
+                        <span class="menu-label">Mi Historial</span>
+                    </a>
+                </li>
+                <li class="menu-item @(Context.Request.Path == "/Cliente/MiPerfil" ? "active" : "")">
+                    <a href="/Cliente/MiPerfil">
+                        <span class="menu-icon"><i class="bi bi-person-circle"></i></span>
+                        <span class="menu-label">Mi Perfil</span>
                     </a>
                 </li>
             </ul>
@@ -375,8 +387,8 @@
                         <span class="menu-label">Motores</span>
                     </a>
                 </li>
-                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/ModeloMotor") ? "active" : "")">
-                    <a href="/ModeloMotor/Listado">
+                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Modelos_Motores") ? "active" : "")">
+                    <a href="/Modelos_Motores/Listado">
                         <span class="menu-icon"><i class="bi bi-gear-wide-connected"></i></span>
                         <span class="menu-label">Modelos de Motor</span>
                     </a>
@@ -393,14 +405,14 @@
                         <span class="menu-label">Productos</span>
                     </a>
                 </li>
-                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/DiagnosticoTecnico") ? "active" : "")">
-                    <a href="/DiagnosticoTecnico/Listado">
+                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Diagnosticos_Tecnicos") ? "active" : "")">
+                    <a href="/Diagnosticos_Tecnicos/Listado">
                         <span class="menu-icon"><i class="bi bi-tools"></i></span>
                         <span class="menu-label">Diagnósticos</span>
                     </a>
                 </li>
-                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/DiagnosticoInicial") ? "active" : "")">
-                    <a href="/DiagnosticoInicial/Listado">
+                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Diagnosticos_Iniciales") ? "active" : "")">
+                    <a href="/Diagnosticos_Iniciales/Listado">
                         <span class="menu-icon"><i class="bi bi-search-heart"></i></span>
                         <span class="menu-label">Diag. Inicial</span>
                     </a>
@@ -438,7 +450,7 @@
                         <span class="user-role">@(Context.Session.GetString("UsuarioRolNombre") ?? Context.Session.GetString("UsuarioNivel") ?? "")</span>
                     </div>
                 </div>
-                <a href="../auth/Login" class="btn-logout" title="Cerrar sesión"
+                <a href="/Login" class="btn-logout" title="Cerrar sesión"
                    onclick="return confirm('¿Está seguro de cerrar sesión?')">
                     <i class="bi bi-box-arrow-right"></i>
                 </a>
@@ -456,6 +468,71 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    @* ── TIMEOUT DE SESIÓN (RQNF-07-001: 20 min de inactividad) ── *@
+    @if (Context.Session.GetString("UsuarioId") != null)
+    {
+        <div id="st-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center">
+            <div style="background:#fff;border-radius:16px;padding:36px 32px;max-width:400px;width:90%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.25)">
+                <div style="font-size:48px;margin-bottom:12px">&#x23F0;</div>
+                <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:#0f172a;margin:0 0 8px">Sesión a punto de expirar</h3>
+                <p style="font-size:14px;color:#64748b;margin:0 0 6px">Tu sesión cerrará en <strong id="st-countdown" style="color:#f59e0b">2:00</strong> por inactividad.</p>
+                <p style="font-size:13px;color:#94a3b8;margin:0 0 24px">Haz clic en Continuar para seguir trabajando.</p>
+                <div style="display:flex;gap:12px;justify-content:center">
+                    <button onclick="stReset()" style="padding:11px 28px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0f172a;border:none;border-radius:9px;font-weight:700;font-size:14px;cursor:pointer">
+                        Continuar
+                    </button>
+                    <a href="/Auth/Login" style="padding:11px 22px;background:#f1f5f9;border:1.5px solid #e2e8f0;border-radius:9px;font-weight:600;font-size:14px;color:#64748b;text-decoration:none">
+                        Cerrar sesion
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            (function(){
+                const WARN_MS   = 18 * 60 * 1000;
+                const LOGOUT_MS = 20 * 60 * 1000;
+                const modal     = document.getElementById('st-modal');
+                const countdown = document.getElementById('st-countdown');
+                let warnTimer, logoutTimer, cdInterval;
+
+                function stReset(){
+                    clearTimeout(warnTimer);
+                    clearTimeout(logoutTimer);
+                    clearInterval(cdInterval);
+                    modal.style.display = 'none';
+                    warnTimer   = setTimeout(showWarn, WARN_MS);
+                    logoutTimer = setTimeout(doLogout, LOGOUT_MS);
+                }
+
+                function showWarn(){
+                    modal.style.display = 'flex';
+                    let secs = 120;
+                    countdown.textContent = '2:00';
+                    cdInterval = setInterval(function(){
+                        secs--;
+                        const m = Math.floor(secs / 60);
+                        const s = secs % 60;
+                        countdown.textContent = m + ':' + String(s).padStart(2, '0');
+                        if (secs <= 0) { clearInterval(cdInterval); doLogout(); }
+                    }, 1000);
+                }
+
+                function doLogout(){ window.location.href = '/Auth/Login'; }
+
+                window.stReset = stReset;
+
+                ['mousemove','keydown','click','scroll','touchstart'].forEach(function(ev){
+                    document.addEventListener(ev, function(){
+                        if (modal.style.display === 'none') stReset();
+                    }, { passive: true });
+                });
+
+                stReset();
+            })();
+        </script>
+    }
 
 </body>
 </html>

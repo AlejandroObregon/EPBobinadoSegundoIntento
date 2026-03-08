@@ -1,0 +1,712 @@
+﻿@page "/Cliente/MiHistorial"
+@model Web.Pages.Cliente.MiHistorialModel
+@{
+    Layout = "_LayoutUser";
+    ViewData["Title"] = "Mi Historial";
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+
+<div class="mh-page">
+
+    <!-- HEADER -->
+    <div class="mh-header">
+        <div class="mh-header-left">
+            <div class="mh-header-icon">📜</div>
+            <div>
+                <h1 class="mh-title">MI HISTORIAL</h1>
+                <p class="mh-subtitle">Registro completo de servicios por moto</p>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-page="MiPerfil" class="mh-btn mh-btn-ghost">
+                <i class="bi bi-person-fill"></i> Mi Perfil
+            </a>
+            <a href="/ClienteHome" class="mh-btn mh-btn-ghost">
+                <i class="bi bi-house-fill"></i> Inicio
+            </a>
+        </div>
+    </div>
+
+    <!-- MÉTRICAS GLOBALES -->
+    <div class="mh-stats">
+        <div class="mh-stat">
+            <span class="mh-stat-num">@Model.TotalMotores</span>
+            <span class="mh-stat-lbl">🏍️ Motos</span>
+        </div>
+        <div class="mh-stat">
+            <span class="mh-stat-num">@Model.TotalOrdenes</span>
+            <span class="mh-stat-lbl">📋 Órdenes totales</span>
+        </div>
+        <div class="mh-stat mh-stat-green">
+            <span class="mh-stat-num">@Model.TotalCompletadas</span>
+            <span class="mh-stat-lbl">✅ Completadas</span>
+        </div>
+        <div class="mh-stat mh-stat-amber">
+            <span class="mh-stat-num">@(Model.TotalOrdenes - Model.TotalCompletadas)</span>
+            <span class="mh-stat-lbl">⏳ En proceso</span>
+        </div>
+    </div>
+
+    @if (!Model.Historial.Any())
+    {
+        <div class="mh-empty">
+            <span style="font-size:60px">🏍️</span>
+            <h3>SIN HISTORIAL AÚN</h3>
+            <p>Registra tu primera moto y crea una orden de servicio para ver tu historial aquí</p>
+            <a asp-page="/Motores/Agregar" class="mh-btn mh-btn-primary">
+                <i class="bi bi-plus-lg"></i> Registrar moto
+            </a>
+        </div>
+    }
+    else
+    {
+        @foreach (var item in Model.Historial)
+        {
+            var m = item.Motor;
+
+            <div class="mh-motor-section">
+
+                <!-- CABECERA DE MOTO -->
+                <div class="mh-motor-header">
+                    <div class="mh-motor-left">
+                        <div class="mh-motor-badge">🏍️</div>
+                        <div>
+                            <h2 class="mh-motor-serie">
+                                @(string.IsNullOrWhiteSpace(m.NumeroSerie) ? "SIN SERIE" : m.NumeroSerie.ToUpper())
+                            </h2>
+                            <p class="mh-motor-meta">
+                                <span><i class="bi bi-gear-wide-connected"></i> @(m.Modelo?.Nombre ?? "Modelo desconocido")</span>
+                                @if (!string.IsNullOrWhiteSpace(m.Modelo?.Especificaciones))
+                                {
+                                    <span class="mh-motor-specs">@(m.Modelo.Especificaciones.Length > 50 ? m.Modelo.Especificaciones[..50] + "…" : m.Modelo.Especificaciones)</span>
+                                }
+                                <span><i class="bi bi-calendar3"></i> Registrada @m.CreadoEn.ToString("dd MMM yyyy")</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mh-motor-chips">
+                        <span class="mh-chip mh-chip-total">@item.TotalOrdenes órdenes</span>
+                        <span class="mh-chip mh-chip-ok">@item.Completadas completadas</span>
+                    </div>
+                </div>
+
+                @if (!item.Ordenes.Any())
+                {
+                    <div class="mh-no-ordenes">
+                        <i class="bi bi-clipboard-x"></i>
+                        <span>Esta moto aún no tiene órdenes de servicio</span>
+                        <a asp-page="/Ordenes/Agregar" class="mh-link">Crear orden →</a>
+                    </div>
+                }
+                else
+                {
+                    <!-- TIMELINE DE ÓRDENES -->
+                    <div class="mh-timeline">
+                        @foreach (var o in item.Ordenes)
+                        {
+                            var slug = o.Estado.ToLower()
+                            .Replace(" ", "").Replace("ó", "o").Replace("é", "e")
+                            .Replace("ú", "u").Replace("í", "i");
+                            var completada = o.Estado == "Completado";
+                            var cancelada = o.Estado == "Cancelado";
+
+                            <div class="mh-tl-item">
+                                <!-- Dot de la línea de tiempo -->
+                                <div class="mh-tl-dot mh-dot-@slug">
+                                    @if (completada)
+                                    {
+                                        <i class="bi bi-check-lg"></i>
+                                    }
+                                    else if (cancelada)
+                                    {
+
+                                        <i class="bi bi-x-lg"></i>
+                                    }
+                                    else
+                                    {
+
+                                        <i class="bi bi-clock-fill"></i>
+                                    }
+                                </div>
+
+                                <!-- Contenido de la orden -->
+                                <div class="mh-tl-card">
+                                    <div class="mh-tl-card-top">
+                                        <div>
+                                            <span class="mh-tl-date">
+                                                <i class="bi bi-calendar3"></i>
+                                                @o.CreadoEn.ToString("dd 'de' MMMM, yyyy")
+                                            </span>
+                                            <span class="mh-tl-id">Orden #@o.Id</span>
+                                        </div>
+                                        <span class="mh-badge mh-badge-@slug">@o.Estado</span>
+                                    </div>
+
+                                    <div class="mh-tl-details">
+                                        @if (o.Tecnico != null)
+                                        {
+                                            <div class="mh-tl-detail">
+                                                <i class="bi bi-person-gear"></i>
+                                                <div>
+                                                    <span class="mh-detail-lbl">Técnico</span>
+                                                    <span class="mh-detail-val">@o.Tecnico.Nombre</span>
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="mh-tl-detail">
+                                                <i class="bi bi-person-dash"></i>
+                                                <div>
+                                                    <span class="mh-detail-lbl">Técnico</span>
+                                                    <span class="mh-detail-val mh-muted">Sin asignar</span>
+                                                </div>
+                                            </div>
+                                        }
+
+                                    
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+<style>
+    :root {
+        --mh-surface: #fff;
+        --mh-border: #e2e8f0;
+        --mh-bg: #f8fafc;
+        --mh-text: #0f172a;
+        --mh-muted: #64748b;
+        --mh-radius: 14px;
+        --mh-shadow: 0 4px 20px rgba(0,0,0,.07);
+        --mh-amber: #f59e0b;
+        --mh-amber2: #d97706;
+        --mh-ff: 'Barlow Condensed',sans-serif;
+        --mh-ff-body: 'Barlow',sans-serif;
+        --c-pendiente: #f59e0b;
+        --c-diagnostico: #3b82f6;
+        --c-reparacion: #8b5cf6;
+        --c-completado: #10b981;
+        --c-cancelado: #ef4444;
+    }
+
+    .mh-page {
+        font-family: var(--mh-ff-body);
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    /* HEADER */
+    .mh-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .mh-header-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .mh-header-icon {
+        font-size: 44px;
+    }
+
+    .mh-title {
+        font-family: var(--mh-ff);
+        font-size: 38px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        color: var(--mh-text);
+        margin: 0;
+    }
+
+    .mh-subtitle {
+        font-size: 13px;
+        color: var(--mh-muted);
+        margin: 4px 0 0;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+    }
+
+    /* STATS */
+    .mh-stats {
+        display: grid;
+        grid-template-columns: repeat(4,1fr);
+        gap: 14px;
+    }
+
+    .mh-stat {
+        background: var(--mh-surface);
+        border: 1.5px solid var(--mh-border);
+        border-radius: 12px;
+        padding: 16px 20px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .mh-stat::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #94a3b8;
+            border-radius: 12px 0 0 12px;
+        }
+
+    .mh-stat-green::before {
+        background: var(--c-completado);
+    }
+
+    .mh-stat-amber::before {
+        background: var(--mh-amber);
+    }
+
+    .mh-stat-num {
+        display: block;
+        font-family: var(--mh-ff);
+        font-size: 32px;
+        font-weight: 800;
+        color: var(--mh-text);
+        line-height: 1.1;
+    }
+
+    .mh-stat-lbl {
+        display: block;
+        font-size: 12px;
+        color: var(--mh-muted);
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        margin-top: 3px;
+    }
+
+    /* MOTOR SECTION */
+    .mh-motor-section {
+        background: var(--mh-surface);
+        border-radius: var(--mh-radius);
+        border: 1.5px solid var(--mh-border);
+        box-shadow: var(--mh-shadow);
+        overflow: hidden;
+    }
+
+    .mh-motor-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding: 20px 24px;
+        background: linear-gradient(135deg,#0f1923 0%,#1e3a5f 100%);
+    }
+
+    .mh-motor-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .mh-motor-badge {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: rgba(245,158,11,.15);
+        border: 1px solid rgba(245,158,11,.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+    }
+
+    .mh-motor-serie {
+        font-family: var(--mh-ff);
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        color: var(--mh-amber);
+        margin: 0 0 4px;
+    }
+
+    .mh-motor-meta {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin: 0;
+        font-size: 12px;
+        color: #94a3b8;
+    }
+
+        .mh-motor-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .mh-motor-meta i {
+            color: var(--mh-amber);
+        }
+
+    .mh-motor-specs {
+        font-style: italic;
+        opacity: .75;
+    }
+
+    .mh-motor-chips {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        flex-shrink: 0;
+    }
+
+    .mh-chip {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 100px;
+        font-size: 12px;
+        font-weight: 700;
+        font-family: var(--mh-ff);
+    }
+
+    .mh-chip-total {
+        background: rgba(255,255,255,.1);
+        color: #cbd5e1;
+    }
+
+    .mh-chip-ok {
+        background: rgba(16,185,129,.2);
+        color: #6ee7b7;
+        border: 1px solid rgba(16,185,129,.3);
+    }
+
+    /* NO ORDERS */
+    .mh-no-ordenes {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 20px 24px;
+        font-size: 14px;
+        color: var(--mh-muted);
+        border-top: 1px solid var(--mh-border);
+    }
+
+        .mh-no-ordenes i {
+            font-size: 20px;
+        }
+
+    .mh-link {
+        color: var(--mh-amber2);
+        font-weight: 600;
+        text-decoration: none;
+        margin-left: 8px;
+    }
+
+        .mh-link:hover {
+            text-decoration: underline;
+        }
+
+    /* TIMELINE */
+    .mh-timeline {
+        padding: 24px 24px 24px 32px;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        border-top: 1px solid var(--mh-border);
+    }
+
+    .mh-tl-item {
+        display: flex;
+        gap: 16px;
+        position: relative;
+        padding-bottom: 24px;
+    }
+
+        .mh-tl-item:last-child {
+            padding-bottom: 0;
+        }
+
+        .mh-tl-item:not(:last-child)::before {
+            content: '';
+            position: absolute;
+            left: 17px;
+            top: 36px;
+            bottom: 0;
+            width: 2px;
+            background: var(--mh-border);
+        }
+
+    .mh-tl-dot {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        border: 2px solid;
+        z-index: 1;
+        background: white;
+    }
+
+    .mh-dot-pendiente {
+        border-color: var(--c-pendiente);
+        color: var(--c-pendiente);
+        background: #fef3c7;
+    }
+
+    .mh-dot-endiagnostico {
+        border-color: var(--c-diagnostico);
+        color: var(--c-diagnostico);
+        background: #dbeafe;
+    }
+
+    .mh-dot-enreparacion {
+        border-color: var(--c-reparacion);
+        color: var(--c-reparacion);
+        background: #ede9fe;
+    }
+
+    .mh-dot-completado {
+        border-color: var(--c-completado);
+        color: var(--c-completado);
+        background: #d1fae5;
+    }
+
+    .mh-dot-cancelado {
+        border-color: var(--c-cancelado);
+        color: var(--c-cancelado);
+        background: #fee2e2;
+    }
+
+    .mh-tl-card {
+        flex: 1;
+        background: #f8fafc;
+        border: 1.5px solid var(--mh-border);
+        border-radius: 12px;
+        padding: 16px 18px;
+        transition: all .2s;
+    }
+
+        .mh-tl-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 14px rgba(0,0,0,.06);
+        }
+
+    .mh-tl-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .mh-tl-date {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--mh-text);
+    }
+
+        .mh-tl-date i {
+            color: var(--mh-muted);
+        }
+
+    .mh-tl-id {
+        display: block;
+        font-size: 11px;
+        color: var(--mh-muted);
+        margin-top: 2px;
+    }
+
+    .mh-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 100px;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .mh-badge-pendiente {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .mh-badge-endiagnostico {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .mh-badge-enreparacion {
+        background: #ede9fe;
+        color: #5b21b6;
+    }
+
+    .mh-badge-completado {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .mh-badge-cancelado {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .mh-tl-details {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .mh-tl-detail {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        font-size: 13px;
+    }
+
+        .mh-tl-detail > i {
+            color: var(--mh-muted);
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+    .mh-detail-lbl {
+        display: block;
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--mh-muted);
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        margin-bottom: 1px;
+    }
+
+    .mh-detail-val {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--mh-text);
+    }
+
+    .mh-muted {
+        font-style: italic;
+        font-weight: 400;
+        color: var(--mh-muted) !important;
+    }
+
+    /* EMPTY */
+    .mh-empty {
+        text-align: center;
+        padding: 80px 24px;
+        background: var(--mh-surface);
+        border-radius: var(--mh-radius);
+        border: 1.5px dashed var(--mh-border);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+
+        .mh-empty h3 {
+            font-family: var(--mh-ff);
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: var(--mh-text);
+            margin: 0;
+        }
+
+        .mh-empty p {
+            font-size: 14px;
+            color: var(--mh-muted);
+            margin: 0;
+            max-width: 400px;
+        }
+
+    /* BUTTONS */
+    .mh-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 20px;
+        border-radius: 9px;
+        font-family: var(--mh-ff-body);
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all .2s;
+        white-space: nowrap;
+    }
+
+    .mh-btn-primary {
+        background: linear-gradient(135deg,var(--mh-amber),var(--mh-amber2));
+        color: #0f1923;
+    }
+
+        .mh-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245,158,11,.4);
+            color: #0f1923;
+            text-decoration: none;
+        }
+
+    .mh-btn-ghost {
+        background: var(--mh-surface);
+        border: 1.5px solid var(--mh-border);
+        color: var(--mh-muted);
+    }
+
+        .mh-btn-ghost:hover {
+            border-color: var(--mh-amber);
+            color: var(--mh-amber2);
+            text-decoration: none;
+        }
+
+    @@media(max-width:900px) {
+        .mh-stats {
+            grid-template-columns: 1fr 1fr
+        }
+    }
+
+    @@media(max-width:600px) {
+        .mh-header {
+            flex-direction: column;
+            align-items: flex-start
+        }
+
+        .mh-title {
+            font-size: 28px
+        }
+
+        .mh-stats {
+            grid-template-columns: 1fr 1fr
+        }
+
+        .mh-motor-header {
+            flex-direction: column;
+            align-items: flex-start
+        }
+
+        .mh-tl-details {
+            flex-direction: column;
+            gap: 10px
+        }
+    }
+</style>
