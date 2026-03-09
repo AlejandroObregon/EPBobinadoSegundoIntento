@@ -1,0 +1,2 @@
+New-Item -ItemType Directory -Path "C:\EPBobinadoBackups" -Force 
+icacls "C:\EPBobinadoDBBackups" /grant "NT SERVICE\MSSQL`$SQLEXPRESS01:(OI)(CI)F"

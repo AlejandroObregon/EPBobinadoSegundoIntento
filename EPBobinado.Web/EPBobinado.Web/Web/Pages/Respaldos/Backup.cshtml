@@ -1,0 +1,532 @@
+﻿@page "/Respaldos/Backup"
+@model Web.Pages.Backup.BackupModel
+@{
+    Layout = "_LayoutUser";
+    ViewData["Title"] = "Respaldo de Base de Datos";
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+
+<div class="bk-page">
+
+    <!-- HEADER -->
+    <div class="bk-header">
+        <div class="bk-header-left">
+            <div class="bk-header-icon">🛡️</div>
+            <div>
+                <h1 class="bk-title">RESPALDO DE DATOS</h1>
+                <p class="bk-subtitle">Genera y descarga un backup de la base de datos</p>
+            </div>
+        </div>
+        <span class="bk-date"><i class="bi bi-calendar3"></i> @DateTime.Now.ToString("dd 'de' MMMM, yyyy — HH:mm")</span>
+    </div>
+
+    <!-- ALERTA DE ERROR -->
+    @if (TempData["Error"] != null)
+    {
+        <div class="bk-alert bk-alert-err">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <div>
+                <strong>Error al generar el backup</strong>
+                <p>@TempData["Error"]</p>
+            </div>
+        </div>
+    }
+
+    <!-- AVISO IMPORTANTE -->
+    <div class="bk-alert bk-alert-info">
+        <i class="bi bi-info-circle-fill"></i>
+        <div>
+            <strong>¿Cuándo usar cada tipo?</strong>
+            <p>Usá <strong>.BAK</strong> para restaurar en SQL Server (más rápido, completo). Usá <strong>.SQL</strong> si necesitás un script portable o migrás a otro servidor.</p>
+        </div>
+    </div>
+
+    <!-- CARDS DE BACKUP -->
+    <div class="bk-grid">
+
+        <!-- .BAK -->
+        <div class="bk-card bk-card-bak">
+            <div class="bk-card-icon">💾</div>
+            <div class="bk-card-body">
+                <h2 class="bk-card-title">Backup nativo SQL Server</h2>
+                <p class="bk-card-desc">
+                    Genera un archivo <code>.bak</code> usando el comando
+                    <code>BACKUP DATABASE</code> de SQL Server.<br>
+                    Ideal para restauraciones rápidas y completas.
+                </p>
+                <ul class="bk-features">
+                    <li><i class="bi bi-check-circle-fill"></i> Incluye estructura + datos</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Compatible con SSMS y Azure</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Restauración en 1 paso</li>
+                    <li><i class="bi bi-clock"></i> Puede tardar 1-2 minutos</li>
+                </ul>
+                <a href="/Respaldos/Backup?handler=Bak" class="bk-btn bk-btn-bak" id="btn-bak" onclick="mostrarCarga(this)">
+                    <span class="bk-btn-text"><i class="bi bi-download"></i> Descargar .BAK</span>
+                    <span class="bk-btn-loading" style="display:none"><span class="bk-spinner"></span> Generando...</span>
+                </a>
+            </div>
+            <div class="bk-card-badge">SQL Server</div>
+        </div>
+
+        <!-- .SQL -->
+        <div class="bk-card bk-card-sql">
+            <div class="bk-card-icon">📄</div>
+            <div class="bk-card-body">
+                <h2 class="bk-card-title">Script SQL portable</h2>
+                <p class="bk-card-desc">
+                    Genera un archivo <code>.sql</code> con todos los <code>INSERT</code>
+                    de cada tabla en orden de dependencia.<br>
+                    Ideal para migraciones o revisión manual.
+                </p>
+                <ul class="bk-features">
+                    <li><i class="bi bi-check-circle-fill"></i> Legible y editable</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Compatible con cualquier SQL Server</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Respeta claves foráneas</li>
+                    <li><i class="bi bi-clock"></i> Depende del volumen de datos</li>
+                </ul>
+                <a href="/Respaldos/Backup?handler=Sql" class="bk-btn bk-btn-sql" id="btn-sql" onclick="mostrarCarga(this)">
+                    <span class="bk-btn-text"><i class="bi bi-file-code"></i> Descargar .SQL</span>
+                    <span class="bk-btn-loading" style="display:none"><span class="bk-spinner"></span> Generando...</span>
+                </a>
+            </div>
+            <div class="bk-card-badge bk-badge-sql">Portable</div>
+        </div>
+
+    </div>
+
+    <!-- HISTORIAL (informativo, no persiste) -->
+    <div class="bk-section">
+        <div class="bk-section-title">
+            <i class="bi bi-clock-history"></i> RECOMENDACIONES
+        </div>
+        <div class="bk-recs">
+            <div class="bk-rec">
+                <div class="bk-rec-icon bk-rec-blue"><i class="bi bi-calendar-week"></i></div>
+                <div>
+                    <strong>Frecuencia sugerida</strong>
+                    <p>Realizá un backup al menos <strong>una vez por semana</strong>, y siempre antes de hacer cambios importantes.</p>
+                </div>
+            </div>
+            <div class="bk-rec">
+                <div class="bk-rec-icon bk-rec-amber"><i class="bi bi-folder2-open"></i></div>
+                <div>
+                    <strong>Dónde guardar</strong>
+                    <p>Guardá los archivos en una ubicación <strong>fuera del servidor</strong> (nube, disco externo o red local).</p>
+                </div>
+            </div>
+            <div class="bk-rec">
+                <div class="bk-rec-icon bk-rec-green"><i class="bi bi-shield-check"></i></div>
+                <div>
+                    <strong>Verificar el backup</strong>
+                    <p>Periódicamente, abrí el <code>.sql</code> en un editor o restaurá el <code>.bak</code> en un ambiente de pruebas.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    :root {
+        --bk-surface: #fff;
+        --bk-border: #e2e8f0;
+        --bk-bg: #f8fafc;
+        --bk-text: #0f172a;
+        --bk-muted: #64748b;
+        --bk-radius: 16px;
+        --bk-shadow: 0 4px 24px rgba(0,0,0,.08);
+        --bk-ff: 'Barlow Condensed',sans-serif;
+        --bk-ff-body: 'Barlow',sans-serif;
+        --bk-amber: #f59e0b;
+        --bk-amber2: #d97706;
+        --bk-blue: #3b82f6;
+        --bk-green: #10b981;
+    }
+
+    .bk-page {
+        font-family: var(--bk-ff-body);
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        max-width: 900px;
+    }
+
+    /* HEADER */
+    .bk-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .bk-header-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .bk-header-icon {
+        font-size: 44px;
+    }
+
+    .bk-title {
+        font-family: var(--bk-ff);
+        font-size: 36px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        color: var(--bk-text);
+        margin: 0;
+    }
+
+    .bk-subtitle {
+        font-size: 12px;
+        color: var(--bk-muted);
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        margin: 4px 0 0;
+    }
+
+    .bk-date {
+        font-size: 13px;
+        color: var(--bk-muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    /* ALERTS */
+    .bk-alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 16px 20px;
+        border-radius: 12px;
+        font-size: 14px;
+    }
+
+        .bk-alert i {
+            font-size: 20px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .bk-alert strong {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .bk-alert p {
+            margin: 0;
+            color: var(--bk-muted);
+        }
+
+    .bk-alert-info {
+        background: #eff6ff;
+        border: 1.5px solid #bfdbfe;
+        color: #1e40af;
+    }
+
+        .bk-alert-info i {
+            color: #3b82f6;
+        }
+
+    .bk-alert-err {
+        background: #fef2f2;
+        border: 1.5px solid #fecaca;
+        color: #991b1b;
+    }
+
+        .bk-alert-err i {
+            color: #ef4444;
+        }
+
+    /* GRID */
+    .bk-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    /* CARDS */
+    .bk-card {
+        background: var(--bk-surface);
+        border: 1.5px solid var(--bk-border);
+        border-radius: var(--bk-radius);
+        box-shadow: var(--bk-shadow);
+        padding: 28px;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        transition: transform .2s,box-shadow .2s;
+    }
+
+        .bk-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 32px rgba(0,0,0,.12);
+        }
+
+        .bk-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+    .bk-card-bak::before {
+        background: linear-gradient(90deg,#f59e0b,#d97706);
+    }
+
+    .bk-card-sql::before {
+        background: linear-gradient(90deg,#3b82f6,#1d4ed8);
+    }
+
+    .bk-card-icon {
+        font-size: 48px;
+        line-height: 1;
+    }
+
+    .bk-card-title {
+        font-family: var(--bk-ff);
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--bk-text);
+        margin: 0 0 8px;
+    }
+
+    .bk-card-desc {
+        font-size: 14px;
+        color: var(--bk-muted);
+        line-height: 1.6;
+        margin: 0;
+    }
+
+        .bk-card-desc code {
+            background: #f1f5f9;
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #0f172a;
+        }
+
+    .bk-card-body {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .bk-card-badge {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        padding: 4px 10px;
+        border-radius: 100px;
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .bk-badge-sql {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    /* FEATURES */
+    .bk-features {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+        .bk-features li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--bk-muted);
+        }
+
+        .bk-features .bi-check-circle-fill {
+            color: #10b981;
+        }
+
+        .bk-features .bi-clock {
+            color: #f59e0b;
+        }
+
+    /* BUTTONS */
+    .bk-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 13px 20px;
+        border-radius: 10px;
+        font-family: var(--bk-ff-body);
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        border: none;
+        transition: all .2s;
+    }
+
+    .bk-btn-bak {
+        background: linear-gradient(135deg,#f59e0b,#d97706);
+        color: #0f1923;
+    }
+
+        .bk-btn-bak:hover {
+            box-shadow: 0 6px 20px rgba(245,158,11,.4);
+            transform: translateY(-1px);
+        }
+
+    .bk-btn-sql {
+        background: linear-gradient(135deg,#3b82f6,#1d4ed8);
+        color: #fff;
+    }
+
+        .bk-btn-sql:hover {
+            box-shadow: 0 6px 20px rgba(59,130,246,.4);
+            transform: translateY(-1px);
+        }
+
+    /* SPINNER */
+    .bk-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255,255,255,.3);
+        border-top-color: currentColor;
+        border-radius: 50%;
+        animation: bk-spin .7s linear infinite;
+    }
+
+    @@keyframes bk-spin {
+        to {
+            transform: rotate(360deg)
+        }
+    }
+
+    /* SECCIÓN RECOMENDACIONES */
+    .bk-section-title {
+        font-family: var(--bk-ff);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        color: #475569;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--bk-border);
+    }
+
+        .bk-section-title i {
+            color: var(--bk-amber);
+        }
+
+    .bk-recs {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        margin-top: 16px;
+    }
+
+    .bk-rec {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 16px 18px;
+        background: var(--bk-surface);
+        border: 1.5px solid var(--bk-border);
+        border-radius: 12px;
+        font-size: 14px;
+    }
+
+        .bk-rec strong {
+            display: block;
+            font-weight: 700;
+            color: var(--bk-text);
+            margin-bottom: 3px;
+        }
+
+        .bk-rec p {
+            margin: 0;
+            color: var(--bk-muted);
+        }
+
+        .bk-rec code {
+            background: #f1f5f9;
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #0f172a;
+        }
+
+    .bk-rec-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    .bk-rec-blue {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .bk-rec-amber {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .bk-rec-green {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    @@media(max-width:700px) {
+        .bk-grid {
+            grid-template-columns: 1fr
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        function mostrarCarga(btn) {
+            const text = btn.querySelector('.bk-btn-text');
+            const load = btn.querySelector('.bk-btn-loading');
+            text.style.display = 'none';
+            load.style.display = 'inline-flex';
+            btn.style.pointerEvents = 'none';
+            btn.style.opacity = '0.75';
+            // Reactivar después de 2 min
+            setTimeout(() => {
+                text.style.display = 'inline-flex';
+                load.style.display = 'none';
+                btn.style.pointerEvents = '';
+                btn.style.opacity = '';
+            }, 120000);
+        }
+    </script>
+}
