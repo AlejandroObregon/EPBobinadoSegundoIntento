@@ -44,7 +44,10 @@ namespace Web.Pages.DiagnosticoTecnico
                 return Page();
             }
 
-            TempData["Success"] = "Diagnóstico técnico registrado correctamente.";
+            // ── Cambio automático de estado: En diagnóstico → En reparación ──
+            await ActualizarEstadoOrdenAsync(client, Diagnostico.OrdenId, "En reparación");
+
+            TempData["Success"] = "Diagnóstico técnico registrado. La orden pasó a \"En reparación\" automáticamente.";
             return RedirectToPage("Listado");
         }
 
@@ -61,5 +64,36 @@ namespace Web.Pages.DiagnosticoTecnico
             }
             catch { Ordenes = new(); }
         }
+
+        private async Task ActualizarEstadoOrdenAsync(HttpClient client, int ordenId, string nuevoEstado)
+        {
+            try
+            {
+                var opciones = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+
+                var getUrl = string.Format(_config.ObtenerMetodo("ApiEndPointsOrdenServicio", "ObtenerPorId"), ordenId);
+                var getResp = await client.GetAsync(getUrl);
+                if (!getResp.IsSuccessStatusCode) return;
+
+                var orden = System.Text.Json.JsonSerializer.Deserialize<OrdenServicioResponse>(
+                    await getResp.Content.ReadAsStringAsync(), opciones);
+                if (orden == null) return;
+
+                // Solo avanzar si la orden está en un estado anterior
+                var estadosAnteriores = new[] { "Pendiente", "En diagnóstico" };
+                if (!estadosAnteriores.Contains(orden.Estado)) return;
+
+                var request = new OrdenServicioRequest
+                {
+                    MotorId = orden.MotorId,
+                    TecnicoId = orden.TecnicoId,
+                    Estado = nuevoEstado
+                };
+                var putUrl = string.Format(_config.ObtenerMetodo("ApiEndPointsOrdenServicio", "Editar"), ordenId);
+                await client.PutAsJsonAsync(putUrl, request);
+            }
+            catch { }
+        }
+
     }
 }

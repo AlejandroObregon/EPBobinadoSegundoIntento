@@ -44,7 +44,10 @@ namespace Web.Pages.DiagnosticoInicial
                 return Page();
             }
 
-            TempData["Success"] = "Diagnóstico inicial registrado correctamente.";
+            // ── Cambio automático de estado: Pendiente → En diagnóstico ──────
+            await ActualizarEstadoOrdenAsync(client, Diagnostico.OrdenId, "En diagnóstico");
+
+            TempData["Success"] = "Diagnóstico inicial registrado. La orden pasó a \"En diagnóstico\" automáticamente.";
             return RedirectToPage("Listado");
         }
 
@@ -61,5 +64,38 @@ namespace Web.Pages.DiagnosticoInicial
             }
             catch { Ordenes = new(); }
         }
+
+        private async Task ActualizarEstadoOrdenAsync(HttpClient client, int ordenId, string nuevoEstado)
+        {
+            try
+            {
+                var opciones = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+
+                // 1. Obtener la orden actual para preservar MotorId y TecnicoId
+                var getUrl = string.Format(_config.ObtenerMetodo("ApiEndPointsOrdenServicio", "ObtenerPorId"), ordenId);
+                var getResp = await client.GetAsync(getUrl);
+                if (!getResp.IsSuccessStatusCode) return;
+
+                var orden = System.Text.Json.JsonSerializer.Deserialize<OrdenServicioResponse>(
+                    await getResp.Content.ReadAsStringAsync(), opciones);
+                if (orden == null) return;
+
+                // Solo actualizar si el estado actual es anterior (no sobreescribir estados avanzados)
+                var estadosAnteriores = new[] { "Pendiente" };
+                if (!estadosAnteriores.Contains(orden.Estado)) return;
+
+                // 2. PUT con el nuevo estado
+                var request = new OrdenServicioRequest
+                {
+                    MotorId = orden.MotorId,
+                    TecnicoId = orden.TecnicoId,
+                    Estado = nuevoEstado
+                };
+                var putUrl = string.Format(_config.ObtenerMetodo("ApiEndPointsOrdenServicio", "Editar"), ordenId);
+                await client.PutAsJsonAsync(putUrl, request);
+            }
+            catch { /* No bloquear el flujo principal si falla el cambio de estado */ }
+        }
+
     }
 }
