@@ -7,25 +7,24 @@
     // Mapa de imágenes por categoría (Google Images vía Unsplash proxy estático)
     var imgMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
     {
-        { "lubricantes",     "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop" },
-        { "aceites",         "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop" },
-        { "frenos",          "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=400&h=300&fit=crop" },
-        { "llantas",         "https://images.unsplash.com/photo-1546614042-7df3c24c9e5d?w=400&h=300&fit=crop" },
-        { "neumáticos",      "https://images.unsplash.com/photo-1546614042-7df3c24c9e5d?w=400&h=300&fit=crop" },
-        { "neumaticos",      "https://images.unsplash.com/photo-1546614042-7df3c24c9e5d?w=400&h=300&fit=crop" },
-        { "filtros",         "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=400&h=300&fit=crop" },
-        { "bujias",          "https://images.unsplash.com/photo-1580274455191-1c62238fa333?w=400&h=300&fit=crop" },
-        { "bujías",          "https://images.unsplash.com/photo-1580274455191-1c62238fa333?w=400&h=300&fit=crop" },
-        { "cadenas",         "https://images.unsplash.com/photo-1558981285-6f0c94958bb6?w=400&h=300&fit=crop" },
-        { "correas",         "https://images.unsplash.com/photo-1558981285-6f0c94958bb6?w=400&h=300&fit=crop" },
-        { "suspensión",      "https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?w=400&h=300&fit=crop" },
-        { "suspension",      "https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?w=400&h=300&fit=crop" },
-        { "electricidad",    "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=400&h=300&fit=crop" },
-        { "eléctrico",       "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=400&h=300&fit=crop" },
-        { "electrico",       "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=400&h=300&fit=crop" },
-        { "accesorios",      "https://images.unsplash.com/photo-1591637333184-19aa84b3e01f?w=400&h=300&fit=crop" },
-        { "cascos",          "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400&h=300&fit=crop" },
-        { "herramientas",    "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?w=400&h=300&fit=crop" },
+        // ── Categorías del catálogo de bobinado ──────────────────────
+        { "lubricantes",  "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=300&fit=crop" },
+        { "aceites",      "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=300&fit=crop" },
+        { "filtros",      "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=400&h=300&fit=crop" },
+        { "rodamientos",  "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=400&h=300&fit=crop" },
+        { "cojinetes",    "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=400&h=300&fit=crop" },
+        { "electricidad", "https://images.unsplash.com/photo-1509390144018-eeae026a73bf?w=400&h=300&fit=crop" },
+        { "electrico",    "https://images.unsplash.com/photo-1509390144018-eeae026a73bf?w=400&h=300&fit=crop" },
+        { "eléctrico",    "https://images.unsplash.com/photo-1509390144018-eeae026a73bf?w=400&h=300&fit=crop" },
+        { "materiales",   "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop" },
+        { "bobinado",     "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop" },
+        { "herramientas", "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?w=400&h=300&fit=crop" },
+        { "repuestos",    "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=400&h=300&fit=crop" },
+        { "mecanicos",    "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=400&h=300&fit=crop" },
+        { "mecánicos",    "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=400&h=300&fit=crop" },
+        // ── Fallbacks generales ──────────────────────────────────────
+        { "correas",      "https://images.unsplash.com/photo-1558981285-6f0c94958bb6?w=400&h=300&fit=crop" },
+        { "accesorios",   "https://images.unsplash.com/photo-1591637333184-19aa84b3e01f?w=400&h=300&fit=crop" },
     };
 
     string GetImg(string cat)

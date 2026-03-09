@@ -85,8 +85,8 @@
                 <tbody id="us-tbody">
                     @foreach (var u in Model.Usuarios.OrderBy(x => x.Nombre))
                     {
-                        var rolSlug = u.RolId == 1 ? "admin" : u.RolId == 2 ? "cliente" : "tecnico";
-                        var rolLabel = u.RolId == 1 ? "Administrador" : u.RolId == 2 ? "Cliente" : "Técnico";
+                        var rolSlug = u.RolId == 2 ? "admin" : u.RolId == 1 ? "cliente" : "tecnico";
+                        var rolLabel = u.RolId == 2 ? "Administrador" : u.RolId == 1 ? "Cliente" : "Técnico";
                         var initial = string.IsNullOrWhiteSpace(u.Nombre) ? "?" : u.Nombre[0].ToString().ToUpper();
 
                         <tr class="us-row"
