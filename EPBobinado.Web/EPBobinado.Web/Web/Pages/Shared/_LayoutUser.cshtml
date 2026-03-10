@@ -423,6 +423,12 @@
                         <span class="menu-label">Reportes</span>
                     </a>
                 </li>
+                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Proveedores") ? "active" : "")">
+                    <a href="/Proveedores/Listado">
+                        <span class="menu-icon"><i class="bi bi-truck"></i></span>
+                        <span class="menu-label">Proveedores</span>
+                    </a>
+                </li>
                 <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Respaldos") ? "active" : "")">
                     <a href="/Respaldos/Backup">
                         <span class="menu-icon"><i class="bi bi-shield-fill-check"></i></span>

@@ -1,0 +1,621 @@
+﻿@page
+@model Web.Pages.Proveedores.ListadoModel
+@{
+    Layout = "_LayoutUser";
+    ViewData["Title"] = "Proveedores";
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+
+<div class="mo-page">
+
+    <div class="mo-header">
+        <div class="mo-header-left">
+            <div class="mo-header-icon">🚚</div>
+            <div>
+                <h1 class="mo-title">Proveedores</h1>
+                <p class="mo-subtitle">@Model.Proveedores.Count proveedor(es) en el sistema</p>
+            </div>
+        </div>
+        <a asp-page="Agregar" class="mo-btn mo-btn-primary">
+            <i class="bi bi-plus-lg"></i> Registrar Proveedor
+        </a>
+    </div>
+
+    @if (TempData["MensajeExito"] != null)
+    {
+        <div class="mo-toast mo-toast-success">
+            <i class="bi bi-check-circle-fill"></i> @TempData["MensajeExito"]
+        </div>
+    }
+    @if (TempData["Success"] != null)
+    {
+        <div class="mo-toast mo-toast-success">
+            <i class="bi bi-check-circle-fill"></i> @TempData["Success"]
+        </div>
+    }
+
+    @if (Model.Proveedores == null || !Model.Proveedores.Any())
+    {
+        <div class="mo-empty">
+            <span class="mo-empty-icon">❌</span>
+            <h3>SIN PROVEEDORES REGISTRADOS</h3>
+            <p>Agrega el primer proveedor al sistema</p>
+            <a asp-page="Agregar" class="mo-btn mo-btn-primary">
+                <i class="bi bi-plus-lg"></i> Registrar Proveedor
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="mo-grid">
+            @{
+                int idx = 0;
+            }
+            @foreach (var m in Model.Proveedores.OrderByDescending(x => x.FechaCreacion))
+            {
+                <div class="mo-card" style="animation-delay:@(idx * 0.06)s">
+
+                    <div class="mo-card-top">
+                        <div>
+                            <span class="mo-card-label">Nombre</span>
+                            <span class="mo-card-value">@(m.Nombre)</span>
+                        </div>
+                        <span class="mo-card-id">#@m.Id</span>
+                    </div>
+
+                    <div class="mo-card-body">
+
+                        <div class="mo-card-row">
+                            <span class="mo-card-icon"><i class="bi bi-gear-wide-connected"></i></span>
+                            <div>
+                                <span class="mo-card-label">Contacto</span>
+                                <span class="mo-card-value">@(m.Contacto)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mo-card-footer">
+                        <span class="mo-card-date">
+                            <i class="bi bi-calendar3"></i>
+                            @m.FechaCreacion.ToString("dd MMM yyyy")
+                        </span>
+                        <div class="mo-card-actions">
+                            <a asp-page="Editar" asp-route-id="@m.Id" class="mo-action mo-action-edit" title="Editar">
+                                <i class="bi bi-pencil-fill"></i>
+                            </a>
+                            <a asp-page="Eliminar" asp-route-id="@m.Id" class="mo-action mo-action-delete" title="Eliminar">
+                                <i class="bi bi-trash-fill"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+                idx++;
+            }
+        </div>
+    }
+</div>
+
+<style>
+    :root {
+        --mo-dark: #0f1923;
+        --mo-surface: #17232f;
+        --mo-card: #1a2b3c;
+        --mo-border: #253444;
+        --mo-amber: #f59e0b;
+        --mo-amber2: #fbbf24;
+        --mo-text: #e2e8f0;
+        --mo-muted: #64748b;
+        --mo-radius: 12px;
+        --mo-ff-display: 'Barlow Condensed', sans-serif;
+        --mo-ff-body: 'Barlow', sans-serif;
+    }
+
+    .mo-page {
+        font-family: var(--mo-ff-body);
+    }
+
+    /* HEADER */
+    .mo-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .mo-header-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .mo-header-icon {
+        font-size: 44px;
+        filter: drop-shadow(0 0 14px rgba(245,158,11,.45));
+    }
+
+    .mo-title {
+        font-family: var(--mo-ff-display);
+        font-size: 44px;
+        font-weight: 800;
+        letter-spacing: 3px;
+        color: var(--mo-text);
+        margin: 0;
+        line-height: 1;
+    }
+
+    .mo-subtitle {
+        font-size: 12px;
+        color: var(--mo-muted);
+        margin: 5px 0 0;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    /* BUTTONS */
+    .mo-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 22px;
+        border-radius: 8px;
+        font-family: var(--mo-ff-display);
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+        transition: all .2s ease;
+        white-space: nowrap;
+    }
+
+    .mo-btn-primary {
+        background: var(--mo-amber);
+        color: #0f1923;
+    }
+
+        .mo-btn-primary:hover {
+            background: var(--mo-amber2);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245,158,11,.4);
+            color: #0f1923;
+            text-decoration: none;
+        }
+
+    .mo-btn-ghost {
+        background: transparent;
+        border: 1px solid var(--mo-border);
+        color: var(--mo-muted);
+    }
+
+        .mo-btn-ghost:hover {
+            border-color: var(--mo-amber);
+            color: var(--mo-amber);
+            text-decoration: none;
+        }
+
+    .mo-btn-danger {
+        background: #ef4444;
+        color: white;
+    }
+
+        .mo-btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239,68,68,.35);
+            color: white;
+            text-decoration: none;
+        }
+
+    /* TOAST */
+    .mo-toast {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 20px;
+        border-radius: var(--mo-radius);
+        font-size: 14px;
+        margin-bottom: 24px;
+    }
+
+    .mo-toast-success {
+        background: rgba(16,185,129,.1);
+        border: 1px solid rgba(16,185,129,.3);
+        color: #6ee7b7;
+    }
+
+    .mo-toast-danger {
+        background: rgba(239,68,68,.1);
+        border: 1px solid rgba(239,68,68,.3);
+        color: #fca5a5;
+    }
+
+    /* GRID */
+    .mo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px,1fr));
+        gap: 20px;
+    }
+
+    /* CARD */
+    .mo-card {
+        background: var(--mo-card);
+        border-radius: var(--mo-radius);
+        border: 1px solid var(--mo-border);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: all .25s ease;
+        animation: moSlideUp .5s ease both;
+        position: relative;
+    }
+
+        .mo-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--mo-amber), rgba(245,158,11,0));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform .3s ease;
+        }
+
+        .mo-card:hover {
+            border-color: rgba(245,158,11,.4);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 48px rgba(0,0,0,.5), 0 0 0 1px rgba(245,158,11,.08);
+        }
+
+            .mo-card:hover::after {
+                transform: scaleX(1);
+            }
+
+    @@keyframes moSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(18px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .mo-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 20px 14px;
+        border-bottom: 1px solid var(--mo-border);
+        background: rgba(245,158,11,.03);
+    }
+
+    .mo-card-num {
+        font-family: var(--mo-ff-display);
+        font-size: 20px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        color: var(--mo-amber);
+    }
+
+    .mo-card-id {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--mo-muted);
+        letter-spacing: .1em;
+        background: var(--mo-surface);
+        padding: 3px 10px;
+        border-radius: 100px;
+        border: 1px solid var(--mo-border);
+    }
+
+    .mo-card-body {
+        padding: 16px 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 11px;
+    }
+
+    .mo-card-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+    }
+
+    .mo-card-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 7px;
+        flex-shrink: 0;
+        background: var(--mo-surface);
+        border: 1px solid var(--mo-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        color: var(--mo-amber);
+        margin-top: 1px;
+    }
+
+    .mo-card-label {
+        display: block;
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--mo-muted);
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        margin-bottom: 2px;
+    }
+
+    .mo-card-value {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--mo-text);
+    }
+
+    .mo-card-muted {
+        font-size: 13px;
+        font-weight: 400;
+        color: #94a3b8;
+    }
+
+    .mo-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 11px 20px;
+        border-top: 1px solid var(--mo-border);
+        background: rgba(0,0,0,.18);
+    }
+
+    .mo-card-date {
+        font-size: 12px;
+        color: var(--mo-muted);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-family: var(--mo-ff-display);
+        letter-spacing: .04em;
+    }
+
+    .mo-card-actions {
+        display: flex;
+        gap: 6px;
+    }
+
+    .mo-action {
+        width: 32px;
+        height: 32px;
+        border-radius: 7px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        text-decoration: none;
+        transition: all .2s ease;
+        border: 1px solid var(--mo-border);
+        background: var(--mo-surface);
+    }
+
+    .mo-action-edit {
+        color: var(--mo-amber);
+    }
+
+        .mo-action-edit:hover {
+            background: rgba(245,158,11,.15);
+            border-color: var(--mo-amber);
+            color: var(--mo-amber2);
+            text-decoration: none;
+        }
+
+    .mo-action-delete {
+        color: #ef4444;
+    }
+
+        .mo-action-delete:hover {
+            background: rgba(239,68,68,.15);
+            border-color: #ef4444;
+            color: #fca5a5;
+            text-decoration: none;
+        }
+
+    /* EMPTY */
+    .mo-empty {
+        text-align: center;
+        padding: 90px 24px;
+        background: var(--mo-card);
+        border-radius: var(--mo-radius);
+        border: 1px dashed var(--mo-border);
+    }
+
+    .mo-empty-icon {
+        font-size: 60px;
+        display: block;
+        margin-bottom: 16px;
+    }
+
+    .mo-empty h3 {
+        font-family: var(--mo-ff-display);
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--mo-text);
+        letter-spacing: 2px;
+        margin-bottom: 8px;
+    }
+
+    .mo-empty p {
+        color: var(--mo-muted);
+        margin-bottom: 24px;
+    }
+
+    /* FORM SHARED */
+    .mo-form-wrap {
+        max-width: 580px;
+    }
+
+    .mo-form-card {
+        background: var(--mo-card);
+        border-radius: var(--mo-radius);
+        border: 1px solid var(--mo-border);
+        padding: 36px;
+    }
+
+    .mo-form-section-title {
+        font-family: var(--mo-ff-display);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        color: var(--mo-amber);
+        margin-bottom: 22px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--mo-border);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .mo-field {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        margin-bottom: 22px;
+    }
+
+    .mo-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--mo-muted);
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    .mo-select, .mo-input {
+        background: var(--mo-surface);
+        border: 1px solid var(--mo-border);
+        border-radius: 8px;
+        padding: 12px 14px;
+        font-size: 14px;
+        color: var(--mo-text);
+        font-family: var(--mo-ff-body);
+        outline: none;
+        transition: all .2s ease;
+        width: 100%;
+    }
+
+        .mo-select:focus, .mo-input:focus {
+            border-color: var(--mo-amber);
+            box-shadow: 0 0 0 3px rgba(245,158,11,.12);
+        }
+
+        .mo-select option {
+            background: var(--mo-surface);
+        }
+
+    .mo-error {
+        font-size: 12px;
+        color: #f87171;
+    }
+
+    .mo-form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 28px;
+        padding-top: 24px;
+        border-top: 1px solid var(--mo-border);
+    }
+
+    /* DELETE */
+    .mo-detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
+        gap: 14px;
+        margin-bottom: 28px;
+    }
+
+    .mo-detail-full {
+        grid-column: 1/-1;
+    }
+
+    .mo-detail-item {
+        background: var(--mo-surface);
+        border: 1px solid var(--mo-border);
+        border-radius: 8px;
+        padding: 14px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .mo-detail-label {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--mo-muted);
+        text-transform: uppercase;
+        letter-spacing: .08em;
+    }
+
+    .mo-detail-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--mo-text);
+    }
+
+    .mo-delete-warning {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 20px;
+        background: rgba(239,68,68,.08);
+        border: 1px solid rgba(239,68,68,.25);
+        border-radius: 10px;
+        color: #fca5a5;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 28px;
+    }
+
+        .mo-delete-warning i {
+            font-size: 20px;
+            color: #ef4444;
+            flex-shrink: 0;
+        }
+
+    @@media (max-width:768px) {
+        .mo-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .mo-title {
+            font-size: 32px;
+        }
+
+        .mo-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .mo-form-card {
+            padding: 24px;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.mo-card').forEach((card, i) => {
+            card.style.animationDelay = `${i * 0.06}s`;
+        });
+    </script>
+}
