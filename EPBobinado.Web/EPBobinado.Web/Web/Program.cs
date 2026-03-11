@@ -17,7 +17,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IConfiguracion, Configuracion>();
 builder.Services.AddSession();
-
+builder.Services.AddScoped<Web.Services.EmailService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("PermitirFront",
@@ -30,7 +30,6 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
-
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

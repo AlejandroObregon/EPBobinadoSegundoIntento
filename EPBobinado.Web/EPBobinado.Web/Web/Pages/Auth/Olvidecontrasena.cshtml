@@ -1,0 +1,64 @@
+﻿@page "/Auth/OlvideContrasena"
+@model Web.Pages.Auth.OlvideContrasenaModel
+@{
+    Layout = "_LayoutAuth";
+    ViewData["Title"] = "Recuperar contraseña";
+}
+
+<div class="auth-card">
+
+    <div class="auth-brand">
+        <div class="auth-brand-icon">🔑</div>
+        <h1>Recuperar contraseña</h1>
+        <p>Te enviaremos un enlace a tu correo</p>
+    </div>
+
+    @if (Model.Enviado)
+    {
+        <div class="auth-success" style="text-align:center;padding:20px 4px">
+            <div style="font-size:42px;margin-bottom:10px">📧</div>
+            <strong style="font-size:15px;display:block;margin-bottom:6px">¡Correo enviado!</strong>
+            <span style="font-size:13px">
+                Si existe una cuenta con ese correo, recibirás un enlace para restablecer tu contraseña en los próximos minutos.
+            </span>
+        </div>
+        <a href="/Auth/Login" class="btn-auth" style="display:block;text-align:center;text-decoration:none;margin-top:16px">
+            Volver al inicio de sesión
+        </a>
+    }
+    else
+    {
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="auth-alert">
+                <ul>
+                    @foreach (var e in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <li>@e.ErrorMessage</li>
+                    }
+                </ul>
+            </div>
+        }
+
+        <form method="post">
+            <div style="margin-bottom:20px">
+                <label class="auth-label">Correo electrónico</label>
+                <div class="input-group-auth">
+                    <i class="bi bi-envelope input-icon"></i>
+                    <input asp-for="Email" type="email" class="auth-input"
+                           placeholder="tucorreo@ejemplo.com" autocomplete="email" />
+                </div>
+                <span asp-validation-for="Email" class="field-error"></span>
+            </div>
+
+            <button type="submit" class="btn-auth">
+                <i class="bi bi-send-fill me-2"></i> Enviar enlace de recuperación
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <a href="/Auth/Login">← Volver al inicio de sesión</a>
+        </div>
+    }
+
+</div>

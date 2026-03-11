@@ -178,5 +178,9 @@
     <Build Include="dbo\Stored Procedures\AgregarBitacora.sql" />
     <Build Include="dbo\Stored Procedures\LoginUsuario.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerMotoresPorUsuario.sql" />
+    <Build Include="dbo\Tables\PasswordResetTokens.sql" />
+    <Build Include="dbo\Stored Procedures\ValidarTokenReset.sql" />
+    <Build Include="dbo\Stored Procedures\UsarTokenReset.sql" />
+    <Build Include="dbo\Stored Procedures\CrearTokenReset.sql" />
   </ItemGroup>
 </Project>

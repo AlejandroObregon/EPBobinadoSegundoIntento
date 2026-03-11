@@ -1,0 +1,108 @@
+﻿@page "/Auth/RestablecerContrasena"
+@model Web.Pages.Auth.RestablecerContrasenaModel
+@{
+    Layout = "_LayoutAuth";
+    ViewData["Title"] = "Nueva contraseña";
+}
+
+<div class="auth-card">
+
+    @if (Model.Completado)
+    {
+        <div class="auth-brand">
+            <div class="auth-brand-icon" style="background:linear-gradient(135deg,#10b981,#059669)">✅</div>
+            <h1>¡Contraseña actualizada!</h1>
+            <p>Ya podés iniciar sesión con tu nueva contraseña</p>
+        </div>
+        <a href="/Auth/Login" class="btn-auth" style="display:block;text-align:center;text-decoration:none">
+            <i class="bi bi-box-arrow-in-right me-2"></i> Ir al inicio de sesión
+        </a>
+    }
+    else if (!Model.TokenValido)
+    {
+        <div class="auth-brand">
+            <div class="auth-brand-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)">⚠️</div>
+            <h1>Enlace inválido</h1>
+            <p>Este enlace expiró o ya fue utilizado</p>
+        </div>
+        <a href="/Auth/OlvideContrasena" class="btn-auth" style="display:block;text-align:center;text-decoration:none">
+            <i class="bi bi-arrow-repeat me-2"></i> Solicitar nuevo enlace
+        </a>
+        <div class="auth-footer">
+            <a href="/Auth/Login">← Volver al inicio de sesión</a>
+        </div>
+    }
+    else
+    {
+        <div class="auth-brand">
+            <div class="auth-brand-icon" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)">🔒</div>
+            <h1>Nueva contraseña</h1>
+            <p>Creá una contraseña segura para tu cuenta</p>
+        </div>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="auth-alert">
+                <ul>
+                    @foreach (var e in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <li>@e.ErrorMessage</li>
+                    }
+                </ul>
+            </div>
+        }
+
+        <form method="post">
+            <input type="hidden" asp-for="Token" />
+
+            <div style="margin-bottom:20px">
+                <label class="auth-label">Nueva contraseña</label>
+                <div class="input-group-auth">
+                    <i class="bi bi-lock input-icon"></i>
+                    <input asp-for="NuevaContrasena" type="password" class="auth-input"
+                           placeholder="Mínimo 6 caracteres" id="input-pass"
+                           style="padding-right:44px" />
+                    <button type="button" class="toggle-password" onclick="togglePass('input-pass', this)" tabindex="-1">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+                <span asp-validation-for="NuevaContrasena" class="field-error"></span>
+            </div>
+
+            <div style="margin-bottom:24px">
+                <label class="auth-label">Confirmá la contraseña</label>
+                <div class="input-group-auth">
+                    <i class="bi bi-lock-fill input-icon"></i>
+                    <input asp-for="ConfirmarContrasena" type="password" class="auth-input"
+                           placeholder="Repetí tu nueva contraseña" id="input-confirm"
+                           style="padding-right:44px" />
+                    <button type="button" class="toggle-password" onclick="togglePass('input-confirm', this)" tabindex="-1">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+                <span asp-validation-for="ConfirmarContrasena" class="field-error"></span>
+            </div>
+
+            <button type="submit" class="btn-auth">
+                <i class="bi bi-shield-check me-2"></i> Guardar nueva contraseña
+            </button>
+        </form>
+    }
+
+</div>
+
+@section Scripts {
+    <script>
+        function togglePass(id, btn) {
+            const input = document.getElementById(id);
+            const icon  = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'bi bi-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'bi bi-eye';
+            }
+        }
+    </script>
+}
