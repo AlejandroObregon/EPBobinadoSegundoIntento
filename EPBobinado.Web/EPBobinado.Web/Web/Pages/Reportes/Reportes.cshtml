@@ -6,6 +6,7 @@
 }
 
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <div class="rp-page">
@@ -66,8 +67,10 @@
                 <span class="rp-kpi-lbl">Stock bajo</span>
             </div>
         </div>
+        <button onclick="exportPDF()" class="di-btn di-btn-primary">Generar Reporte</button>
     </div>
 
+   <div id="dashboard">
     <!-- ── SECCIÓN ÓRDENES ──────────────────────────────── -->
     <div class="rp-section-title">
         <i class="bi bi-clipboard-data-fill"></i> ÓRDENES DE SERVICIO
@@ -94,7 +97,7 @@
             </div>
         </div>
     </div>
-
+    <br />
     <!-- Barras: órdenes por técnico -->
     <div class="rp-card">
         <div class="rp-card-header">
@@ -149,8 +152,9 @@
             </div>
         </div>
     </div>
-
+   </div>
 </div>
+
 
 <style>
     :root {
@@ -215,6 +219,33 @@
         align-items: center;
         gap: 6px;
     }
+
+    .di-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+        transition: var(--di-transition);
+        white-space: nowrap;
+    }
+
+    .di-btn-primary {
+        background: linear-gradient(135deg,#3b82f6,#2563eb);
+        color: white;
+    }
+
+        .di-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59,130,246,.35);
+            color: white;
+            text-decoration: none;
+        }
 
     /* KPIs */
     .rp-kpis {
@@ -394,11 +425,14 @@
         }
 
     .rp-chart-sm {
-        max-height: 260px;
+        max-height: 100%;
+        max-width: 70%;
     }
 
     .rp-chart-md {
-        max-height: 280px;
+        margin: auto;
+        max-height: 85%;
+        max-width: 80%;
     }
 
     @@media(max-width:1200px) {
@@ -429,6 +463,7 @@
 </style>
 
 @section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         (function(){
             // ── Datos del servidor ───────────────────────────────────────────
@@ -666,5 +701,20 @@
             } else noData('chartBajos');
 
         })();
+    </script>
+    <script>
+        function exportPDF() {
+          const element = document.getElementById('dashboard');
+
+          const opt = {
+            margin:       0.5,
+            filename:     'reporte.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+          };
+
+          html2pdf().set(opt).from(element).save();
+        }
     </script>
 }

@@ -31,6 +31,19 @@ namespace Web.Pages.Reportes
         public int TotalClientes => Usuarios.Count(u => u.RolId == 1);
         public int TotalTecnicos => Usuarios.Count(u => u.RolId == 1002);
 
+        // ── Exporte de Reporte en PDF ────────────────
+
+        public IActionResult OnPostReporte()
+        {
+            var pdf = new NReco.PdfGenerator.HtmlToPdfConverter();
+            string url = "https://localhost:7225/Reportes";
+            System.Net.WebClient wc = new System.Net.WebClient();
+            string html = wc.DownloadString(url);
+
+            var pdfByte = pdf.GeneratePdf(html);
+            return File(pdfByte, "application/pdf", "reporteGeneral.pdf");
+        }
+
         // ── Series para gráficos (JSON para pasar a JS) ────────────────
 
         // Órdenes por estado → dona
