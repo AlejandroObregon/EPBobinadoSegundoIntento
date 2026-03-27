@@ -50,7 +50,6 @@ namespace Web.Pages.Cliente
                 Cedula = usuario.Cedula,
                 Telefono = usuario.Telefono ?? "",
                 // Guardamos los campos que NO debe poder editar el cliente
-                PasswordHash = usuario.PasswordHash,
                 RolId = usuario.RolId,
                 Activo = usuario.Activo
             };

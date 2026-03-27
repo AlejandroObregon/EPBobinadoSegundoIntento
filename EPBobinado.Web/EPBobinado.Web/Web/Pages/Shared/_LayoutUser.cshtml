@@ -321,6 +321,7 @@
             var _rolNivel = Context.Session.GetString("UsuarioNivel") ?? "";
             int.TryParse(_rolNivel, out int _rol);
             bool _esCliente = _rol == 1;
+            bool _esAdmin = _rol == 2;
         }
 
         @if (_esCliente)
@@ -333,12 +334,6 @@
                         <span class="menu-label">Inicio</span>
                     </a>
                 </li>
-                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Cliente/MisMotores") ? "active" : "")">
-                    <a href="/Cliente/MisMotores">
-                        <span class="menu-icon"><i class="bi bi-car-front-fill"></i></span>
-                        <span class="menu-label">Mis Motores</span>
-                    </a>
-                </li>
                 <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Cliente/MisOrdenes") ? "active" : "")">
                     <a href="/Cliente/MisOrdenes">
                         <span class="menu-icon"><i class="bi bi-clipboard-check-fill"></i></span>
@@ -349,12 +344,6 @@
                     <a href="/Productos/Catalogo">
                         <span class="menu-icon"><i class="bi bi-grid-3x3-gap-fill"></i></span>
                         <span class="menu-label">Catálogo</span>
-                    </a>
-                </li>
-                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Modelos_Motores") ? "active" : "")">
-                    <a href="/Modelos_Motores/Listado">
-                        <span class="menu-icon"><i class="bi bi-gear-wide-connected"></i></span>
-                        <span class="menu-label">Modelos de Motor</span>
                     </a>
                 </li>
                 <li class="menu-item @(Context.Request.Path == "/Cliente/MiHistorial" ? "active" : "")">
@@ -371,9 +360,9 @@
                 </li>
             </ul>
         }
-        else
+        else if (_esAdmin)
         {
-            <!-- ── MENÚ ADMIN / TÉCNICO ── -->
+            <!-- ── MENÚ ADMIN  ── -->
             <ul class="sidebar-menu">
                 <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Usuarios") ? "active" : "")">
                     <a href="/Usuarios/Listado">
@@ -433,6 +422,42 @@
                     <a href="/Respaldos/Backup">
                         <span class="menu-icon"><i class="bi bi-shield-fill-check"></i></span>
                         <span class="menu-label">Respaldo de Datos</span>
+                    </a>
+                </li>
+            </ul>
+        }
+        else
+        {
+            <!-- ── MENÚ TÉCNICO ── -->
+            <ul class="sidebar-menu">
+                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Motores") ? "active" : "")">
+                    <a href="/Motores/Listado">
+                        <span class="menu-icon"><i class="bi bi-car-front-fill"></i></span>
+                        <span class="menu-label">Motores</span>
+                    </a>
+                </li>
+                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Modelos_Motores") ? "active" : "")">
+                    <a href="/Modelos_Motores/Listado">
+                        <span class="menu-icon"><i class="bi bi-gear-wide-connected"></i></span>
+                        <span class="menu-label">Modelos de Motor</span>
+                    </a>
+                </li>
+                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Diagnosticos_Tecnicos") ? "active" : "")">
+                    <a href="/Diagnosticos_Tecnicos/Listado">
+                        <span class="menu-icon"><i class="bi bi-tools"></i></span>
+                        <span class="menu-label">Diagnósticos</span>
+                    </a>
+                </li>
+                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Diagnosticos_Iniciales") ? "active" : "")">
+                    <a href="/Diagnosticos_Iniciales/Listado">
+                        <span class="menu-icon"><i class="bi bi-search-heart"></i></span>
+                        <span class="menu-label">Diag. Inicial</span>
+                    </a>
+                </li>
+                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Ordenes") ? "active" : "")">
+                    <a href="/Ordenes/Listado">
+                        <span class="menu-icon"><i class="bi bi-clipboard-check-fill"></i></span>
+                        <span class="menu-label">Órdenes</span>
                     </a>
                 </li>
             </ul>

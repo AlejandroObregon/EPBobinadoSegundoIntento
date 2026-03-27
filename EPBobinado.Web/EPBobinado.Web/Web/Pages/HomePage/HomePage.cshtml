@@ -6,7 +6,10 @@
     var userName = HttpContext.Session.GetString("UsuarioNombre") ?? "Usuario";
     var userInitial = userName.Length > 0 ? userName[0].ToString().ToUpper() : "U";
     int.TryParse(HttpContext.Session.GetString("UsuarioNivel"), out int rol);
-    var rolLabel = rol == 2 ? "Administrador" : rol == 3 ? "Técnico" : "Cliente";
+    var rolLabel = rol == 1 ? "Cliente"
+             : rol == 2 ? "Administrador"
+             : rol == 3 ? "Técnico"
+             : "Desconocido";
 }
 
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -75,7 +78,7 @@
         <div class="hp-section">
             <div class="hp-section-header">
                 <h2 class="hp-section-title">📋 Órdenes Activas</h2>
-                <a asp-page="/Ordenes/Listado" class="hp-link">Ver todas →</a>
+                <a asp-page="/Ordenes/Misordenes" class="hp-link">Ver todas →</a>
             </div>
 
             @if (!Model.UltimasOrdenes.Any())

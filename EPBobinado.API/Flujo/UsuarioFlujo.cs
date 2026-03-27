@@ -25,8 +25,8 @@ namespace Flujo
         public Task<int> Editar(int Id, UsuarioRequest usuario)
         {
             // Solo hashear si viene una contraseña nueva
-            if (!string.IsNullOrWhiteSpace(usuario.PasswordHash))
-                usuario.PasswordHash = HashearPassword(usuario.PasswordHash);
+            //if (!string.IsNullOrWhiteSpace(usuario.PasswordHash))
+            //    usuario.PasswordHash = HashearPassword(usuario.PasswordHash);
             return _usuarioDA.Editar(Id, usuario);
         }
 

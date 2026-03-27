@@ -48,20 +48,7 @@
             </div>
         </div>
         <div class="ch-welcome-stats">
-            <div class="ch-wstat">
-                <span class="ch-wstat-num">@Model.TotalMotores</span>
-                <span class="ch-wstat-lbl">🏍️ Motos</span>
-            </div>
-            <div class="ch-wstat-div"></div>
-            <div class="ch-wstat">
-                <span class="ch-wstat-num">@Model.OrdenesActivas</span>
-                <span class="ch-wstat-lbl">⏳ Activas</span>
-            </div>
-            <div class="ch-wstat-div"></div>
-            <div class="ch-wstat">
-                <span class="ch-wstat-num">@Model.OrdenesCompletadas</span>
-                <span class="ch-wstat-lbl">✅ Completadas</span>
-            </div>
+           
         </div>
     </div>
 
@@ -78,7 +65,7 @@
                     <div class="ch-slide-content">
                         <h2 class="ch-slide-title">@slides[i].Titulo</h2>
                         <p class="ch-slide-sub">@slides[i].Sub</p>
-                        <a asp-page="/Motores/Agregar" class="ch-slide-btn">Registrar mi moto →</a>
+                        <a asp-page="/Ordenes/Agregar" class="ch-slide-btn">Realizar una orden →</a>
                     </div>
                 </div>
             }
@@ -102,14 +89,6 @@
         <h2 class="ch-section-title">⚡ ACCESOS RÁPIDOS</h2>
         <div class="ch-quick-grid">
 
-            <a asp-page="/Motores/Agregar" class="ch-quick-card ch-quick-amber">
-                <div class="ch-quick-icon">🏍️</div>
-                <div class="ch-quick-body">
-                    <span class="ch-quick-label">Registrar Motor</span>
-                    <span class="ch-quick-desc">Agrega una nueva moto a tu cuenta</span>
-                </div>
-                <i class="bi bi-arrow-right-circle-fill ch-quick-arrow"></i>
-            </a>
 
             <a asp-page="/Ordenes/Agregar" class="ch-quick-card ch-quick-blue">
                 <div class="ch-quick-icon">📋</div>
@@ -125,24 +104,6 @@
                 <div class="ch-quick-body">
                     <span class="ch-quick-label">Mis Órdenes</span>
                     <span class="ch-quick-desc">Seguimiento de tus servicios</span>
-                </div>
-                <i class="bi bi-arrow-right-circle-fill ch-quick-arrow"></i>
-            </a>
-
-            <a asp-page="/Motores/Listado" class="ch-quick-card ch-quick-purple">
-                <div class="ch-quick-icon">🔧</div>
-                <div class="ch-quick-body">
-                    <span class="ch-quick-label">Mis Motos</span>
-                    <span class="ch-quick-desc">Ver y gestionar tus motos</span>
-                </div>
-                <i class="bi bi-arrow-right-circle-fill ch-quick-arrow"></i>
-            </a>
-
-            <a asp-page="/Modelos_Motores/Listado" class="ch-quick-card ch-quick-slate">
-                <div class="ch-quick-icon">⚙️</div>
-                <div class="ch-quick-body">
-                    <span class="ch-quick-label">Modelos</span>
-                    <span class="ch-quick-desc">Consulta el catálogo de modelos</span>
                 </div>
                 <i class="bi bi-arrow-right-circle-fill ch-quick-arrow"></i>
             </a>

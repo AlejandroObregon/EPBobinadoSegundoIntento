@@ -22,16 +22,101 @@
             <i class="bi bi-plus-lg"></i> Nueva Orden
         </a>
     </div>
+    @if (TempData["MensajeExito"] != null)
+    {
+        <div class="os-alert os-alert-success">
+            <i class="bi bi-check-circle-fill"></i> @TempData["MensajeExito"]
+        </div>
+    }
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="os-alert os-alert-success">
+            <i class="bi bi-check-circle-fill"></i> @TempData["Success"]
+        </div>
+    }
 
     @if (!Model.Ordenes.Any())
     {
         <div class="mio-empty">
             <span style="font-size:64px">📋</span>
             <h3>SIN ÓRDENES DE SERVICIO</h3>
-            <p>Crea tu primera orden para llevar tu moto al taller</p>
+            <p>Crea tu primer orden</p>
             @if (!Model.MisMotores.Any())
             {
-                <p class="mio-empty-hint">⚠️ Primero debes <a asp-page="/Motores/Agregar">registrar una moto</a></p>
+                <div class="os-summary-strip">
+                    @{
+                        var estados = new[] { "Pendiente", "En diagnóstico", "En reparación", "Completado", "Cancelado" };
+                        foreach (var e in estados)
+                        {
+                            var count = Model.Ordenes.Count(o => o.Estado == e);
+                            var slug = e.ToLower().Replace(" ", "-").Replace("ó", "o").Replace("é", "e");
+                            <div class="os-summary-chip os-summary-@slug">
+                                <span class="os-summary-count">@count</span>
+                                <span class="os-summary-label">@e</span>
+                            </div>
+                        }
+                    }
+                </div>
+
+                <div class="os-table-card">
+                    <table class="os-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Motor</th>
+                                <th>Usuario</th>
+                                <th>Técnico</th>
+                                <th>Estado</th>
+                                <th>Creada el</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var o in Model.Ordenes.OrderByDescending(x => x.CreadoEn))
+                            {
+                                var slug = o.Estado.ToLower().Replace(" ", "-").Replace("ó", "o").Replace("é", "e");
+                                <tr class="os-table-row">
+                                    <td><span class="os-id">#@o.Id</span></td>
+                                    <td>
+                                        <div class="os-motor-cell">
+                                            <span class="os-motor-icon">🏍️</span>
+                                            <div>
+                                                <strong>@(o.Motor?.NumeroSerie ?? $"Motor #{o.MotorId}")</strong>
+                                                <small>@(o.Motor?.Modelo?.Nombre ?? "—")</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>@(o.Motor?.Usuario?.Nombre ?? "—")</td>
+                                    <td>
+                                        @if (o.Tecnico != null)
+                                        {
+                                            <span class="os-tecnico">
+                                                <i class="bi bi-person-gear"></i> @o.Tecnico.Nombre
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="os-unassigned">Sin asignar</span>
+                                        }
+                                    </td>
+                                    <td><span class="os-badge os-badge-@slug">@o.Estado</span></td>
+                                    <td>@o.CreadoEn.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <div class="os-actions">
+                                            <a asp-page="Editar" asp-route-id="@o.Id" class="os-action-btn os-action-edit" title="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a asp-page="Eliminar" asp-route-id="@o.Id" class="os-action-btn os-action-delete" title="Eliminar">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             }
             else
             {

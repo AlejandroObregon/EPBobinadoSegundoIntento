@@ -32,7 +32,7 @@
     <div class="mh-stats">
         <div class="mh-stat">
             <span class="mh-stat-num">@Model.TotalMotores</span>
-            <span class="mh-stat-lbl">🏍️ Motos</span>
+            <span class="mh-stat-lbl"> Motores</span>
         </div>
         <div class="mh-stat">
             <span class="mh-stat-num">@Model.TotalOrdenes</span>
@@ -51,11 +51,11 @@
     @if (!Model.Historial.Any())
     {
         <div class="mh-empty">
-            <span style="font-size:60px">🏍️</span>
+            <span style="font-size:60px"></span>
             <h3>SIN HISTORIAL AÚN</h3>
-            <p>Registra tu primera moto y crea una orden de servicio para ver tu historial aquí</p>
-            <a asp-page="/Motores/Agregar" class="mh-btn mh-btn-primary">
-                <i class="bi bi-plus-lg"></i> Registrar moto
+            <p>Registra tus ordenes para verlas aqui</p>
+            <a asp-page="/Ordenes/Misordenes" class="mh-btn mh-btn-primary">
+                <i class="bi bi-plus-lg"></i> Realizar orden
             </a>
         </div>
     }
