@@ -68,7 +68,7 @@
                     <tr>
                         <th>#</th>
                         <th>Motor</th>
-                        <th>Usuario</th>
+                        <th>Cliente</th>
                         <th>Técnico</th>
                         <th>Estado</th>
                         <th>Creada el</th>
@@ -85,17 +85,27 @@
                                 <div class="os-motor-cell">
                                     <span class="os-motor-icon">🏍️</span>
                                     <div>
-                                        <strong>@(o.Motor?.NumeroSerie ?? $"Motor #{o.MotorId}")</strong>
-                                        <small>@(o.Motor?.Modelo?.Nombre ?? "—")</small>
+                                        <strong>@($"Motor #{o.MotorId}")</strong>
                                     </div>
                                 </div>
                             </td>
-                            <td>@(o.Motor?.Usuario?.Nombre ?? "—")</td>
+                            <td>
+                                @if (o.Cliente != null)
+                                {
+                                    <span class="os-tecnico">
+                                        <i class="bi bi-person-gear"></i> @o.Cliente
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="os-unassigned">Sin asignar</span>
+                                }
+                            </td>
                             <td>
                                 @if (o.Tecnico != null)
                                 {
                                     <span class="os-tecnico">
-                                        <i class="bi bi-person-gear"></i> @o.Tecnico.Nombre
+                                        <i class="bi bi-person-gear"></i> @o.Tecnico
                                     </span>
                                 }
                                 else

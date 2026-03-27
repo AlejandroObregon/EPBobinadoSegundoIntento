@@ -36,15 +36,19 @@
                 </div>
                 <div class="dt-detail-item">
                     <span class="dt-detail-label">Motor</span>
-                    <span class="dt-detail-value">@(Model.Diagnostico.Orden?.Motor?.NumeroSerie ?? "—")</span>
+                    <span class="di-detail-value">
+                        Motor #@Model.Diagnostico.Orden?.MotorId
+                    </span>
                 </div>
                 <div class="dt-detail-item">
                     <span class="dt-detail-label">Usuario</span>
-                    <span class="dt-detail-value">@(Model.Diagnostico.Orden?.Motor?.Usuario?.Nombre ?? "—")</span>
+                    <span class="di-detail-value">
+                        @(Model.Diagnostico.Orden?.Cliente ?? "—")
+                    </span>
                 </div>
                 <div class="dt-detail-item">
                     <span class="dt-detail-label">Técnico asignado</span>
-                    <span class="dt-detail-value">@(Model.Diagnostico.Orden?.Tecnico?.Nombre ?? "Sin asignar")</span>
+                    <span class="dt-detail-value">@(Model.Diagnostico.Orden?.Tecnico ?? "Sin asignar")</span>
                 </div>
                 <div class="dt-detail-item">
                     <span class="dt-detail-label">Registrado el</span>

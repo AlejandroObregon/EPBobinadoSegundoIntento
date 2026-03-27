@@ -42,13 +42,13 @@
                     {
                         <option value="@o.Id" selected="@(Model.Diagnostico.OrdenId == o.Id)">
                             #@o.Id — @o.Estado
-                            @if (o.Motor != null)
+                            @if (o?.MotorId != null)
                             {
-                                <text> — @(o.Motor.NumeroSerie ?? $"Motor #{o.MotorId}")</text>
+                                <span><i class="bi bi-motorcycle"></i> Motor #@o.MotorId</span>
                             }
-                            @if (o.Motor?.Usuario != null)
+                            @if (o?.Cliente != null)
                             {
-                                <text> (@o.Motor.Usuario.Nombre)</text>
+                                <span><i class="bi bi-person"></i> Cliente: @o.Cliente</span>
                             }
                         </option>
                     }

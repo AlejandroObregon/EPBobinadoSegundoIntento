@@ -37,13 +37,13 @@
                 <div class="di-detail-item">
                     <span class="di-detail-label">Motor</span>
                     <span class="di-detail-value">
-                        @(Model.Diagnostico.Orden?.Motor?.NumeroSerie ?? "—")
+                        Motor #@Model.Diagnostico.Orden?.MotorId
                     </span>
                 </div>
                 <div class="di-detail-item">
                     <span class="di-detail-label">Usuario</span>
                     <span class="di-detail-value">
-                        @(Model.Diagnostico.Orden?.Motor?.Usuario?.Nombre ?? "—")
+                        Motor #@Model.Diagnostico.Orden?.Cliente
                     </span>
                 </div>
                 <div class="di-detail-item di-detail-full">

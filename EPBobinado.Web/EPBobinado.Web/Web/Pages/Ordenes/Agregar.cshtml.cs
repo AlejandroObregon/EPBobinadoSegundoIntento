@@ -23,6 +23,7 @@ namespace Web.Pages.Ordenes
 
         public List<MotorResponse> Motores { get; set; } = new();
         public List<UsuarioResponse> Tecnicos { get; set; } = new();
+        public List<UsuarioResponse> Clientes { get; set; } = new();
 
         public async Task OnGetAsync() => await CargarSelectsAsync();
 
@@ -71,6 +72,15 @@ namespace Web.Pages.Ordenes
                         await resp.Content.ReadAsStringAsync(), opciones) ?? new();
             }
             catch { Tecnicos = new(); }
+
+            try
+            {
+                var resp = await client.GetAsync(_config.ObtenerMetodo("ApiEndPointsUsuario", "Obtener"));
+                if (resp.IsSuccessStatusCode)
+                    Clientes = JsonSerializer.Deserialize<List<UsuarioResponse>>(
+                        await resp.Content.ReadAsStringAsync(), opciones) ?? new();
+            }
+            catch { Clientes = new(); }
         }
     }
 }

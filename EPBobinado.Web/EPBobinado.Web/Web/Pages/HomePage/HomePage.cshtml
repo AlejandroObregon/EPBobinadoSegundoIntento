@@ -99,13 +99,13 @@
                                 <div class="hp-order-moto-icon">🏍️</div>
                                 <div>
                                     <p class="hp-order-serie">
-                                        @(o.Motor?.NumeroSerie ?? $"Motor #{o.MotorId}")
-                                        <span class="hp-order-modelo">— @(o.Motor?.Modelo?.Nombre ?? "—")</span>
+                                        @($"Motor #{o.MotorId}")
+                                        <span class="hp-order-modelo">— @(o.MotorId)</span>
                                     </p>
                                     <p class="hp-order-meta">
                                         @if (o.Tecnico != null)
                                         {
-                                            <span><i class="bi bi-person-gear"></i> @o.Tecnico.Nombre</span>
+                                            <span><i class="bi bi-person-gear"></i> @o.Tecnico</span>
                                         }
                                         else
                                         {

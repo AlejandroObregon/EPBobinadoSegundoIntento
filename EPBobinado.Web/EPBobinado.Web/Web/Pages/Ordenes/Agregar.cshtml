@@ -66,6 +66,19 @@
                         </select>
                         <span asp-validation-for="Orden.TecnicoId" class="os-error"></span>
                     </div>
+                    <div class="os-field">
+                        <label asp-for="Orden.UsuarioId" class="os-label">
+                            Cliente <span class="os-optional">(WIP)</span>
+                        </label>
+                        <select asp-for="Orden.UsuarioId" class="os-select">
+                            <option value="">— Sin asignar —</option>
+                            @foreach (var t in Model.Clientes)
+                            {
+                                <option value="@t.Id">@t.Nombre</option>
+                            }
+                        </select>
+                        <span asp-validation-for="Orden.UsuarioId" class="os-error"></span>
+                    </div>
                 </div>
             </div>
 

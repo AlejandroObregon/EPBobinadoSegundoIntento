@@ -57,7 +57,7 @@
                             @if (d.Orden?.Tecnico != null)
                             {
                                 <span class="dt-badge dt-badge-tecnico">
-                                    <i class="bi bi-person-gear"></i> @d.Orden.Tecnico.Nombre
+                                    <i class="bi bi-person-gear"></i> @d.Orden.Tecnico
                                 </span>
                             }
                         </div>
@@ -66,13 +66,13 @@
                     <div class="dt-card-body">
                         <div class="dt-card-meta">
                             <span><i class="bi bi-clipboard-check"></i> Orden <strong>#@d.OrdenId</strong></span>
-                            @if (d.Orden?.Motor != null)
+                            @if (d.Orden?.MotorId != null)
                             {
-                                <span><i class="bi bi-motorcycle"></i> @(d.Orden.Motor.NumeroSerie ?? $"Motor #{d.Orden.MotorId}")</span>
+                                <span><i class="bi bi-motorcycle"></i> Motor #@d.Orden.MotorId</span>
                             }
-                            @if (d.Orden?.Motor?.Usuario != null)
+                            @if (d.Orden?.Cliente != null)
                             {
-                                <span><i class="bi bi-person"></i> @d.Orden.Motor.Usuario.Nombre</span>
+                                <span><i class="bi bi-person"></i> @d.Orden.Cliente</span>
                             }
                         </div>
 

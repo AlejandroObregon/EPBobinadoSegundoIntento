@@ -28,19 +28,16 @@
             <div class="os-detail-grid">
                 <div class="os-detail-item">
                     <span class="os-detail-label">Motor</span>
-                    <span class="os-detail-value">@(Model.Orden.Motor?.NumeroSerie ?? $"Motor #{Model.Orden.MotorId}")</span>
+                    <span class="os-detail-value">Motor #@Model.Orden.MotorId</span>
                 </div>
-                <div class="os-detail-item">
-                    <span class="os-detail-label">Modelo</span>
-                    <span class="os-detail-value">@(Model.Orden.Motor?.Modelo?.Nombre ?? "—")</span>
-                </div>
+
                 <div class="os-detail-item">
                     <span class="os-detail-label">Usuario</span>
-                    <span class="os-detail-value">@(Model.Orden.Motor?.Usuario?.Nombre ?? "—")</span>
+                    <span class="os-detail-value">@(Model.Orden.Cliente ?? "—")</span>
                 </div>
                 <div class="os-detail-item">
                     <span class="os-detail-label">Técnico</span>
-                    <span class="os-detail-value">@(Model.Orden.Tecnico?.Nombre ?? "Sin asignar")</span>
+                    <span class="os-detail-value">@(Model.Orden.Tecnico ?? "Sin asignar")</span>
                 </div>
                 <div class="os-detail-item">
                     <span class="os-detail-label">Estado</span>

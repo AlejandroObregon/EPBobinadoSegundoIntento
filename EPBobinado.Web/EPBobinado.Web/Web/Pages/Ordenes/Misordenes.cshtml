@@ -44,79 +44,8 @@
             <p>Crea tu primer orden</p>
             @if (!Model.MisMotores.Any())
             {
-                <div class="os-summary-strip">
-                    @{
-                        var estados = new[] { "Pendiente", "En diagnóstico", "En reparación", "Completado", "Cancelado" };
-                        foreach (var e in estados)
-                        {
-                            var count = Model.Ordenes.Count(o => o.Estado == e);
-                            var slug = e.ToLower().Replace(" ", "-").Replace("ó", "o").Replace("é", "e");
-                            <div class="os-summary-chip os-summary-@slug">
-                                <span class="os-summary-count">@count</span>
-                                <span class="os-summary-label">@e</span>
-                            </div>
-                        }
-                    }
-                </div>
 
-                <div class="os-table-card">
-                    <table class="os-table">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Motor</th>
-                                <th>Usuario</th>
-                                <th>Técnico</th>
-                                <th>Estado</th>
-                                <th>Creada el</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var o in Model.Ordenes.OrderByDescending(x => x.CreadoEn))
-                            {
-                                var slug = o.Estado.ToLower().Replace(" ", "-").Replace("ó", "o").Replace("é", "e");
-                                <tr class="os-table-row">
-                                    <td><span class="os-id">#@o.Id</span></td>
-                                    <td>
-                                        <div class="os-motor-cell">
-                                            <span class="os-motor-icon">🏍️</span>
-                                            <div>
-                                                <strong>@(o.Motor?.NumeroSerie ?? $"Motor #{o.MotorId}")</strong>
-                                                <small>@(o.Motor?.Modelo?.Nombre ?? "—")</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>@(o.Motor?.Usuario?.Nombre ?? "—")</td>
-                                    <td>
-                                        @if (o.Tecnico != null)
-                                        {
-                                            <span class="os-tecnico">
-                                                <i class="bi bi-person-gear"></i> @o.Tecnico.Nombre
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="os-unassigned">Sin asignar</span>
-                                        }
-                                    </td>
-                                    <td><span class="os-badge os-badge-@slug">@o.Estado</span></td>
-                                    <td>@o.CreadoEn.ToString("dd/MM/yyyy")</td>
-                                    <td>
-                                        <div class="os-actions">
-                                            <a asp-page="Editar" asp-route-id="@o.Id" class="os-action-btn os-action-edit" title="Editar">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
-                                            <a asp-page="Eliminar" asp-route-id="@o.Id" class="os-action-btn os-action-delete" title="Eliminar">
-                                                <i class="bi bi-trash"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+
             }
             else
             {
@@ -128,42 +57,6 @@
     }
     else
     {
-        <!-- CHIPS DE ESTADO -->
-        <div class="mio-chips">
-            <button class="mio-chip mio-chip-all mio-chip-active" data-filter="">
-                <span class="mio-chip-num">@Model.Ordenes.Count</span> Todas
-            </button>
-            @if (Model.TotalPendiente > 0)
-            {
-                <button class="mio-chip mio-chip-pendiente" data-filter="pendiente">
-                    <span class="mio-chip-num">@Model.TotalPendiente</span> Pendiente
-                </button>
-            }
-            @if (Model.TotalDiagnostico > 0)
-            {
-                <button class="mio-chip mio-chip-diagnostico" data-filter="endiagnostico">
-                    <span class="mio-chip-num">@Model.TotalDiagnostico</span> En diagnóstico
-                </button>
-            }
-            @if (Model.TotalReparacion > 0)
-            {
-                <button class="mio-chip mio-chip-reparacion" data-filter="enreparacion">
-                    <span class="mio-chip-num">@Model.TotalReparacion</span> En reparación
-                </button>
-            }
-            @if (Model.TotalCompletado > 0)
-            {
-                <button class="mio-chip mio-chip-completado" data-filter="completado">
-                    <span class="mio-chip-num">@Model.TotalCompletado</span> Completado
-                </button>
-            }
-            @if (Model.TotalCancelado > 0)
-            {
-                <button class="mio-chip mio-chip-cancelado" data-filter="cancelado">
-                    <span class="mio-chip-num">@Model.TotalCancelado</span> Cancelado
-                </button>
-            }
-        </div>
 
         <!-- LISTA DE ÓRDENES -->
         <div class="mio-list" id="mio-list">
@@ -187,10 +80,7 @@
                                 <span class="mio-moto-icon">🏍️</span>
                                 <div>
                                     <p class="mio-moto-serie">
-                                        @(o.Motor?.NumeroSerie ?? $"Motor #{o.MotorId}")
-                                    </p>
-                                    <p class="mio-moto-modelo">
-                                        @(o.Motor?.Modelo?.Nombre ?? "Modelo desconocido")
+                                        @( $"Motor #{o.MotorId}")
                                     </p>
                                 </div>
                             </div>
@@ -206,7 +96,7 @@
                                 <i class="bi bi-person-gear"></i>
                                 <div>
                                     <span class="mio-detail-lbl">Técnico asignado</span>
-                                    <span class="mio-detail-val">@(o.Tecnico?.Nombre ?? "Sin asignar aún")</span>
+                                    <span class="mio-detail-val">@(o.Tecnico ?? "Sin asignar aún")</span>
                                 </div>
                             </div>
                             <div class="mio-detail-item">
@@ -216,16 +106,7 @@
                                     <span class="mio-detail-val">@o.CreadoEn.ToString("dd 'de' MMMM, yyyy")</span>
                                 </div>
                             </div>
-                            @if (o.Tecnico?.Email != null)
-                            {
-                                <div class="mio-detail-item">
-                                    <i class="bi bi-envelope"></i>
-                                    <div>
-                                        <span class="mio-detail-lbl">Contacto técnico</span>
-                                        <span class="mio-detail-val">@o.Tecnico.Email</span>
-                                    </div>
-                                </div>
-                            }
+
                         </div>
 
                         <!-- Barra de progreso del flujo -->

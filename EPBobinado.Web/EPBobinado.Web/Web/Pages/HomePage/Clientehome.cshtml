@@ -149,16 +149,16 @@
                         <div class="ch-order-moto-icon">🏍️</div>
                         <div class="ch-order-info">
                             <p class="ch-order-serie">
-                                @(o.Motor?.NumeroSerie ?? $"Motor #{o.MotorId}")
-                                @if (o.Motor?.Modelo != null)
+                                @($"Motor #{o.MotorId}")
+                                @if (o.MotorId != null)
                                 {
-                                    <span class="ch-order-modelo">— @o.Motor.Modelo.Nombre</span>
+                                    <span class="ch-order-modelo">— @o.MotorId</span>
                                 }
                             </p>
                             <p class="ch-order-meta">
                                 @if (o.Tecnico != null)
                                 {
-                                    <span><i class="bi bi-person-gear"></i> @o.Tecnico.Nombre</span>
+                                    <span><i class="bi bi-person-gear"></i> @o.Tecnico</span>
                                 }
                                 <span><i class="bi bi-calendar3"></i> @o.CreadoEn.ToString("dd/MM/yyyy")</span>
                             </p>

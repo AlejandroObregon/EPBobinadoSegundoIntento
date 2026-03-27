@@ -60,13 +60,13 @@
                     <div class="di-card-body">
                         <div class="di-card-meta">
                             <span><i class="bi bi-clipboard-check"></i> Orden <strong>#@d.OrdenId</strong></span>
-                            @if (d.Orden?.Motor != null)
+                            @if (d.Orden?.MotorId != null)
                             {
-                                <span><i class="bi bi-motorcycle"></i> @(d.Orden.Motor.NumeroSerie ?? $"Motor #{d.Orden.MotorId}")</span>
+                                <span><i class="bi bi-motorcycle"></i> @($"Motor #{d.Orden.MotorId}")</span>
                             }
-                            @if (d.Orden?.Motor?.Usuario != null)
+                            @if (d.Orden?.Cliente != null)
                             {
-                                <span><i class="bi bi-person"></i> @d.Orden.Motor.Usuario.Nombre</span>
+                                <span><i class="bi bi-person"></i> @d.Orden.Cliente</span>
                             }
                         </div>
 

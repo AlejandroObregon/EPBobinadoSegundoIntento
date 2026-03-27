@@ -18,13 +18,15 @@ namespace Abstracciones.Modelos
     public class OrdenServicioRequest : OrdenServicioBase {
         public int MotorId { get; set; }
         public int? TecnicoId { get; set; }
+        public int? UsuarioId { get; set; }
     }
 
     public class OrdenServicioResponse : OrdenServicioBase
     {
         public int Id { get; set; }
         public DateTime CreadoEn { get; set; }
-        public MotorResponse? Motor { get; set; }
-        public UsuarioResponse? Tecnico { get; set; }
+        public int MotorId { get; set; }
+        public string? Tecnico { get; set; }
+        public string? Cliente { get; set; }
     }
 }

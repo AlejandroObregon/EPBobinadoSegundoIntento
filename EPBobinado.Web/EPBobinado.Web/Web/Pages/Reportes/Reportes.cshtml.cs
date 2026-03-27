@@ -73,7 +73,7 @@ namespace Web.Pages.Reportes
         // Órdenes por técnico → barras
         public string OrdenesPorTecnicoJson => BuildJson(
             Ordenes.Where(o => o.Tecnico != null)
-                   .GroupBy(o => o.Tecnico!.Nombre)
+                   .GroupBy(o => o.Tecnico)
                    .OrderByDescending(g => g.Count())
                    .Take(8)
                    .Select(g => new { label = g.Key, value = g.Count() }));

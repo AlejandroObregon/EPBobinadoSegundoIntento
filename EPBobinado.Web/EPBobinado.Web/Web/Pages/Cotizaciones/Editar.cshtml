@@ -50,7 +50,7 @@
                         <option value="">— Seleccione una orden —</option>
                         @foreach (var o in Model.Ordenes)
                         {
-                            <option value="@o.Id">Orden #@o.Id — @o.Estado (@(o.Motor?.NumeroSerie ?? "Sin serie"))</option>
+                            <option value="@o.Id">Orden #@o.Id — @o.Estado (@o.MotorId)</option>
                         }
                     </select>
                     <span asp-validation-for="Cotizacion.OrdenId" class="mo-error"></span>
