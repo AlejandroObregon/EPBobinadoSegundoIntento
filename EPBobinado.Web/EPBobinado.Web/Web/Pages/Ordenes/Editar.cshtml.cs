@@ -44,7 +44,7 @@ namespace Web.Pages.Ordenes
             {
                 MotorId = response.MotorId,
                 Estado = response.Estado,
-                TecnicoId = response.TecnicoId
+                TecnicoId = response.IdTecnico
             };
 
             ViewData["OrdenId"] = response.Id;

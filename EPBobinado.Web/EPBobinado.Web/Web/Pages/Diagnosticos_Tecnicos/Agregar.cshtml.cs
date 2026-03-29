@@ -86,7 +86,7 @@ namespace Web.Pages.DiagnosticoTecnico
                 var request = new OrdenServicioRequest
                 {
                     MotorId = orden.MotorId,
-                    TecnicoId = orden.TecnicoId,
+                    TecnicoId = orden.IdTecnico,
                     Estado = nuevoEstado
                 };
                 var putUrl = string.Format(_config.ObtenerMetodo("ApiEndPointsOrdenServicio", "Editar"), ordenId);

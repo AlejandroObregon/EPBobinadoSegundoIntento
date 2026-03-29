@@ -9,6 +9,7 @@ namespace Web.Pages
 {
     public class ClienteHomeModel : PageModelBase
     {
+
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _config;
 
@@ -33,10 +34,11 @@ namespace Web.Pages
 
         public async Task<IActionResult> OnGetAsync()
         {
+
             // Verificar sesión activa (solo clientes)
             var auth = VerificarSesion();
             if (auth != null) return auth;
-
+            int usuarioId = UsuarioId;
             // Solo clientes aquí; admins/técnicos van al dashboard general
             if (UsuarioRol != 1)
                 return Redirect("/HomePage/HomePage");
@@ -70,16 +72,15 @@ namespace Web.Pages
                         await resp.Content.ReadAsStringAsync(), opciones) ?? new();
 
                     // Filtrar solo órdenes de motores del cliente
-                    var misIds = MisMotores.Select(m => m.Id).ToHashSet();
                     MisOrdenes = todas
-                        .Where(o => misIds.Contains(o.MotorId))
+                        .Where(o => o.IdCliente == usuarioId)
                         .OrderByDescending(o => o.CreadoEn)
                         .Take(5)
                         .ToList();
 
                     var activos = new[] { "Pendiente", "En diagnóstico", "En reparación" };
-                    OrdenesActivas = todas.Count(o => misIds.Contains(o.MotorId) && activos.Contains(o.Estado));
-                    OrdenesCompletadas = todas.Count(o => misIds.Contains(o.MotorId) && o.Estado == "Completado");
+                    OrdenesActivas = todas.Count(o => o.IdCliente == usuarioId && activos.Contains(o.Estado));
+                    OrdenesCompletadas = todas.Count(o => o.IdCliente == usuarioId && o.Estado == "Completado");
                 }
             }
             catch { }

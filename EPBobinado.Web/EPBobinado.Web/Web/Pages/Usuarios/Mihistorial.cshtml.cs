@@ -30,7 +30,7 @@ namespace Web.Pages.Cliente
         {
             var auth = VerificarSesion();
             if (auth != null) return auth;
-
+            var usuarioId = UsuarioId;
             var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             var client = _httpClientFactory.CreateClient();
 
@@ -50,7 +50,7 @@ namespace Web.Pages.Cliente
 
             if (!misMotores.Any()) return Page();
 
-            // 2. Obtener todas las órdenes y filtrar por motores del cliente
+            // 2. Obtener todas las órdenes y filtrar 
             var misIds = misMotores.Select(m => m.Id).ToHashSet();
             List<OrdenServicioResponse> misOrdenes = new();
             try
@@ -60,7 +60,7 @@ namespace Web.Pages.Cliente
                 {
                     var todas = JsonSerializer.Deserialize<List<OrdenServicioResponse>>(
                         await resp.Content.ReadAsStringAsync(), opciones) ?? new();
-                    misOrdenes = todas.Where(o => misIds.Contains(o.MotorId)).ToList();
+                    misOrdenes = todas.Where(o => o.IdCliente == usuarioId).ToList();
                 }
             }
             catch { }

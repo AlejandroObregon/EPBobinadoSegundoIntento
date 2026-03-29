@@ -5,7 +5,9 @@ CREATE   PROCEDURE EditarOrdenServicio
     @MotorId INT,
     @Estado NVARCHAR(50),
     @TecnicoId INT,
-    @UsuarioId INT
+    @UsuarioId INT,
+    @Costo DECIMAL(10, 2),
+    @Descripcion NVARCHAR(MAX)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -13,7 +15,9 @@ BEGIN
     SET MotorId = @MotorId,
         Estado = @Estado,
         TecnicoId = @TecnicoId,
-        UsuarioId = @UsuarioId
+        UsuarioId = @UsuarioId,
+        Costo = @Costo,
+        Descripcion = @Descripcion
     WHERE Id = @Id;
     
     SELECT @Id AS Id;

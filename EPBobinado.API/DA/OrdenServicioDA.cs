@@ -26,7 +26,9 @@ namespace DA
                 request.MotorId,
                 request.Estado,
                 request.TecnicoId,
-                request.UsuarioId
+                request.UsuarioId,
+                request.Descripcion,
+                request.Costo
             }, commandType: System.Data.CommandType.StoredProcedure);
         }
 
@@ -40,7 +42,9 @@ namespace DA
                 request.MotorId,
                 request.Estado,
                 request.TecnicoId,
-                request.UsuarioId
+                request.UsuarioId,
+                request.Descripcion,
+                request.Costo
             }, commandType: System.Data.CommandType.StoredProcedure);
         }
 
@@ -64,7 +68,8 @@ namespace DA
         public async Task<OrdenServicioResponse?> Obtener(int Id)
         {
             string query = @"ObtenerOrdenServicio";
-            var resultadoConsulta = await _sqlConnection.QueryAsync<OrdenServicioResponse>(query);
+            var resultadoConsulta = await _sqlConnection.QueryAsync<OrdenServicioResponse>(query,
+                new { Id = Id });
             return resultadoConsulta.FirstOrDefault(); ;
         }
        

@@ -42,9 +42,9 @@
                     {
                         <option value="@o.Id">
                             #@o.Id — @o.Estado
-                            @if (o.MotorId != null)
+                            @if (o.NumeroSerie != null)
                             {
-                                <text> — @($"Motor #{o.MotorId}")</text>
+                                <text> — @($"Motor #{o.NumeroSerie}")</text>
                             }
                         </option>
                     }

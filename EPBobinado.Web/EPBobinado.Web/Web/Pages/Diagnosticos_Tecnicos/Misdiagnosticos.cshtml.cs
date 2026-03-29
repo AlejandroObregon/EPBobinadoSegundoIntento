@@ -59,7 +59,7 @@ namespace Web.Pages.DiagnosticoTecnico
 
                 // Filtrar: solo los que pertenecen a órdenes donde TecnicoId == usuario en sesión
                 Diagnosticos = todos
-                    .Where(d => d.Orden?.TecnicoId == TecnicoId)
+                    .Where(d => d.Orden?.IdTecnico == TecnicoId)
                     .OrderByDescending(d => d.CreadoEn)
                     .ToList();
             }

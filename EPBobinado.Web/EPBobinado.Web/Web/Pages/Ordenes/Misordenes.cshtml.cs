@@ -37,21 +37,8 @@ namespace Web.Pages.Cliente
             var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             var client = _httpClientFactory.CreateClient();
 
-            // 1. Obtener los motores del cliente para filtrar órdenes
-            try
-            {
-                var motorEndpoint = ObtenerUrl("ApiEndPointsMotor", "Obtener");
-                var resp = await client.GetAsync(motorEndpoint);
-                if (resp.IsSuccessStatusCode && resp.StatusCode == HttpStatusCode.OK)
-                {
-                    var todos = JsonSerializer.Deserialize<List<MotorResponse>>(
-                        await resp.Content.ReadAsStringAsync(), opciones) ?? new();
-                    MisMotores = todos.Where(m => m.UsuarioId == usuarioId).ToList();
-                }
-            }
-            catch { }
 
-            // 2. Obtener órdenes y filtrar solo las de los motores del cliente
+            // 1. Obtener órdenes y filtrar solo las del cliente
             var misIds = MisMotores.Select(m => m.Id).ToHashSet();
             try
             {
@@ -62,7 +49,7 @@ namespace Web.Pages.Cliente
                     var todas = JsonSerializer.Deserialize<List<OrdenServicioResponse>>(
                         await resp.Content.ReadAsStringAsync(), opciones) ?? new();
                     Ordenes = todas
-                        .Where(o => misIds.Contains(o.MotorId))
+                        .Where(o => o.IdCliente == usuarioId)
                         .OrderByDescending(o => o.CreadoEn)
                         .ToList();
                 }

@@ -2,12 +2,14 @@
 AS
 BEGIN
     SET NOCOUNT ON;
-SELECT Orden.Id, Motor.Id AS MotorId, Orden.Estado, Orden.CreadoEn,
+SELECT Orden.Id, Orden.Estado, Orden.CreadoEn, Orden.Costo, Orden.Descripcion,
+       Motor.Id AS MotorId, Motor.NumeroSerie AS NumeroSerie, ModelosMotor.Nombre AS Modelo,
        Tecnico.Id AS IdTecnico, Tecnico.Nombre AS Tecnico,
        Cliente.Id AS IdCliente, Cliente.Nombre AS Cliente
 FROM OrdenesServicio Orden
-INNER JOIN Motores Motor ON Orden.MotorId = Motor.Id
-INNER JOIN Usuarios Cliente ON Orden.UsuarioId = Cliente.Id
-INNER JOIN Usuarios Tecnico ON Orden.TecnicoId = Tecnico.Id
+LEFT JOIN Motores Motor ON Orden.MotorId = Motor.Id
+LEFT JOIN ModelosMotor ON Motor.ModeloId = ModelosMotor.Id
+LEFT JOIN Usuarios Cliente ON Orden.UsuarioId = Cliente.Id
+LEFT JOIN Usuarios Tecnico ON Orden.TecnicoId = Tecnico.Id
 END
 GO
