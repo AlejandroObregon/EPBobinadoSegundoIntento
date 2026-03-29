@@ -28,7 +28,8 @@ namespace DA
                 request.TecnicoId,
                 request.UsuarioId,
                 request.Descripcion,
-                request.Costo
+                request.Costo,
+                request.FechaCita
             }, commandType: System.Data.CommandType.StoredProcedure);
         }
 
@@ -44,7 +45,8 @@ namespace DA
                 request.TecnicoId,
                 request.UsuarioId,
                 request.Descripcion,
-                request.Costo
+                request.Costo,
+                request.FechaCita
             }, commandType: System.Data.CommandType.StoredProcedure);
         }
 

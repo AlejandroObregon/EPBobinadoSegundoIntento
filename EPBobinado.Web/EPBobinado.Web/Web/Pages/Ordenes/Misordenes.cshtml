@@ -18,7 +18,7 @@
                 <p class="mio-subtitle">@Model.Ordenes.Count orden(es) de servicio</p>
             </div>
         </div>
-        <a asp-page="/Ordenes/Agregar" class="mio-btn mio-btn-primary">
+        <a asp-page="/Ordenes/AgregarCliente" class="mio-btn mio-btn-primary">
             <i class="bi bi-plus-lg"></i> Nueva Orden
         </a>
     </div>
@@ -44,36 +44,11 @@
             <p>Crea tu primer orden</p>
             @if (!Model.MisMotores.Any())
             {
-                <div class="os-summary-strip">
-                    @{
-                        var estados = new[] { "Pendiente", "En diagnóstico", "En reparación", "Completado", "Cancelado" };
-                        foreach (var e in estados)
-                        {
-                            var count = Model.Ordenes.Count(o => o.Estado == e);
-                            var slug = e.ToLower().Replace(" ", "-").Replace("ó", "o").Replace("é", "e");
-                            <div class="os-summary-chip os-summary-@slug">
-                                <span class="os-summary-count">@count</span>
-                                <span class="os-summary-label">@e</span>
-                            </div>
-                        }
-                    }
-                </div>
+
 
                 <div class="os-table-card">
                     <table class="os-table">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Modelo</th>
-                                <th>Numero de Serie</th>
-                                <th>Usuario</th>
-                                <th>Técnico</th>
-                                <th>Estado</th>
-                                <th>Creada el</th>
-                                <th>Costo</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
+
                         <tbody>
                             @foreach (var o in Model.Ordenes.OrderByDescending(x => x.CreadoEn))
                             {
@@ -122,7 +97,7 @@
             }
             else
             {
-                <a asp-page="/Ordenes/Agregar" class="mio-btn mio-btn-primary">
+                <a asp-page="/Ordenes/AgregarCliente" class="mio-btn mio-btn-primary">
                     <i class="bi bi-plus-lg"></i> Crear orden
                 </a>
             }
@@ -189,10 +164,10 @@
                                 <span class="mio-moto-icon">🏍️</span>
                                 <div>
                                     <p class="mio-moto-serie">
-                                        @($"Motor #{o.NumeroSerie}")
+                                        @(!string.IsNullOrEmpty(o.NumeroSerie) ? $"Motor #{o.NumeroSerie}" : "Motor no ingresado")
                                     </p>
                                     <p class="mio-moto-modelo">
-                                        @(o.Modelo ?? "Modelo desconocido")
+                                        @(o.Modelo ?? "Modelo sin clasificar")
                                     </p>
                                 </div>
                             </div>
@@ -218,7 +193,13 @@
                                     <span class="mio-detail-val">@o.CreadoEn.ToString("dd 'de' MMMM, yyyy")</span>
                                 </div>
                             </div>
-                            
+                            <div class="mio-detail-item">
+                                <i class="bi bi-calendar3"></i>
+                                <div>
+                                    <span class="mio-detail-lbl">Fecha de Cita</span>
+                                    <span class="mio-detail-val">@(o.FechaCita?.ToString("dd 'de' MMMM, HH:mm") ?? "Sin fecha")</span>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Barra de progreso del flujo -->

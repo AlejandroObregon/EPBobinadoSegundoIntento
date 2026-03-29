@@ -2,7 +2,7 @@
 AS
 BEGIN
     SET NOCOUNT ON;
-SELECT Orden.Id, Orden.Estado, Orden.CreadoEn, Orden.Costo, Orden.Descripcion,
+SELECT Orden.Id, Orden.Estado, Orden.CreadoEn, Orden.Costo, Orden.Descripcion, Orden.FechaCita,
        Motor.Id AS MotorId, Motor.NumeroSerie AS NumeroSerie, ModelosMotor.Nombre AS Modelo,
        Tecnico.Id AS IdTecnico, Tecnico.Nombre AS Tecnico,
        Cliente.Id AS IdCliente, Cliente.Nombre AS Cliente

@@ -1,5 +1,5 @@
 ﻿@page
-@model Web.Pages.Ordenes.AgregarModel
+@model Web.Pages.Ordenes.AgregarClienteModel
 @{
     Layout = "_LayoutUser";
     ViewData["Title"] = "Nueva Orden de Servicio";
@@ -34,70 +34,57 @@
         <form method="post">
 
             <div class="os-form-section">
-                <h4 class="os-form-section-title">
-                    <i class="bi bi-motorcycle"></i> Motor y Técnico
-                </h4>
+
 
                 <div class="os-form-grid">
-                    <div class="os-field">
-                        <label asp-for="Orden.MotorId" class="os-label">Motor</label>
-                        <select asp-for="Orden.MotorId" class="os-select">
-                            <option value="">— Seleccione un motor —</option>
-                            @foreach (var m in Model.Motores)
-                            {
-                                <option value="@m.Id">
-                                    @(m.NumeroSerie ?? $"Motor #{m.Id}") — @(m.Modelo?.Nombre ?? "Sin modelo") — @(m.Usuario?.Nombre ?? "Sin usuario")
-                                </option>
-                            }
-                        </select>
-                        <span asp-validation-for="Orden.MotorId" class="os-error"></span>
+                    <div class="mo-field">
+                        <label class="mo-label">Describa su orden <span style="color:var(--mo-muted);font-weight:400"></span></label>
+                        <textarea asp-for="Orden.Descripcion" class="mo-input"
+                                  rows="4"
+                                  placeholder="Ej: Necesito ingresar mi motor para una reparación urgente"
+                                  style="resize: vertical; width: 100%; height: 120px; border-radius: 4px;"></textarea>
+                        <span asp-validation-for="Orden.Descripcion" class="mo-error"></span>
                     </div>
-
-                    <div class="os-field">
-                        <label asp-for="Orden.TecnicoId" class="os-label">
-                            Técnico <span class="os-optional">(opcional)</span>
-                        </label>
-                        <select asp-for="Orden.TecnicoId" class="os-select">
-                            <option value="">— Sin asignar —</option>
-                            @foreach (var t in Model.Tecnicos)
-                            {
-                                <option value="@t.Id">@t.Nombre</option>
-                            }
-                        </select>
-                        <span asp-validation-for="Orden.TecnicoId" class="os-error"></span>
-                    </div>
-                    <div class="os-field">
-                        <label asp-for="Orden.UsuarioId" class="os-label">
-                            Cliente <span class="os-optional">(WIP)</span>
-                        </label>
-                        <select asp-for="Orden.UsuarioId" class="os-select">
-                            <option value="">— Sin asignar —</option>
-                            @foreach (var t in Model.Clientes)
-                            {
-                                <option value="@t.Id">@t.Nombre</option>
-                            }
-                        </select>
-                        <span asp-validation-for="Orden.UsuarioId" class="os-error"></span>
-                    </div>
+                   
                 </div>
             </div>
 
-            <div class="os-form-section">
-                <h4 class="os-form-section-title">
-                    <i class="bi bi-flag"></i> Estado
-                </h4>
+            <div class="os-form-grid">
+                <div class="os-form-grid">
 
-                <div class="os-status-picker">
-                    @foreach (var estado in new[] { "Pendiente", "En diagnóstico", "En reparación", "Completado", "Cancelado" })
-                    {
-                        <label class="os-status-option os-status-@estado.ToLower().Replace(" ", "-").Replace("ó", "o").Replace("é", "e")">
-                            <input type="radio" name="Orden.Estado" value="@estado"
-                                   @(estado == "Pendiente" ? "checked" : "") />
-                            <span>@estado</span>
-                        </label>
-                    }
+
+                    <div class="mo-field">
+                        <label class="mo-label">Si necesita de una cita, por favor ingrese un dia y hora</label>
+                        <input asp-for="Orden.FechaCita" class="mo-input"
+                               type="datetime-local"
+                               min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")"
+                               style="width: 100%; border-radius: 4px;" />
+                        <span asp-validation-for="Orden.FechaCita" class="mo-error"></span>
+                    </div>
                 </div>
-                <span asp-validation-for="Orden.Estado" class="os-error"></span>
+
+                <div class="os-field" hidden>
+                    <input asp-for="Orden.UsuarioId" class="os-select">
+                </div>
+
+
+                <div class="os-form-section" hidden>
+                    <h4 class="os-form-section-title">
+                        <i class="bi bi-flag"></i> Estado
+                    </h4>
+
+                    <div class="os-status-picker">
+                        @foreach (var estado in new[] { "Pendiente", "En diagnóstico", "En reparación", "Completado", "Cancelado" })
+                        {
+                            <label class="os-status-option os-status-@estado.ToLower().Replace(" ", "-").Replace("ó", "o").Replace("é", "e")">
+                                <input type="radio" name="Orden.Estado" value="@estado"
+                                       @(estado == "Pendiente" ? "checked" : "") />
+                                <span>@estado</span>
+                            </label>
+                        }
+                    </div>
+                    <span asp-validation-for="Orden.Estado" class="os-error"></span>
+                </div>
             </div>
 
             <div class="os-form-actions">
@@ -335,16 +322,77 @@
         border-color: #94a3b8;
     }
 
-    @@media (max-width: 768px) {
-        .os-page-header {
-            flex-direction: column;
-            align-items: flex-start;
+    .os-form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        width: 100%;
+    }
+
+    .mo-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .mo-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #374151;
+        letter-spacing: 0.01em;
+    }
+
+    .mo-input {
+        width: 100%;
+        padding: 0.65rem 0.9rem;
+        font-size: 0.95rem;
+        color: #1f2937;
+        background-color: #f9fafb;
+        border: 1.5px solid #d1d5db;
+        border-radius: 8px;
+        outline: none;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+        font-family: inherit;
+        box-sizing: border-box;
+    }
+
+        .mo-input:focus {
+            border-color: #6366f1;
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
         }
 
-        .os-form-grid {
-            grid-template-columns: 1fr;
+        .mo-input:disabled,
+        .mo-input[readonly] {
+            background-color: #f3f4f6;
+            color: #9ca3af;
+            cursor: not-allowed;
         }
+
+    textarea.mo-input {
+        resize: vertical;
+        min-height: 120px;
+        line-height: 1.6;
     }
+
+    input[type="datetime-local"].mo-input {
+        cursor: pointer;
+        color-scheme: light;
+    }
+
+    .mo-error {
+        font-size: 0.78rem;
+        color: #ef4444;
+        margin-top: 0.1rem;
+    }
+
+    @@media (max-width: 640px) {
+        .os-form-grid{
+        grid-template-columns: 1fr;
+    }
+
+    }
+
 </style>
 
 @section Scripts {

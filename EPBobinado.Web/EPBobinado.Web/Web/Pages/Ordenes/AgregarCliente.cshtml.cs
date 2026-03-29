@@ -1,18 +1,20 @@
+using Abstracciones.Interfaces.Reglas;
+using Abstracciones.Modelos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Net.Http.Json;
+using System.Reflection;
+using System.Security.Claims;
 using System.Text.Json;
-using Abstracciones.Modelos;
-using Abstracciones.Interfaces.Reglas;
 
 namespace Web.Pages.Ordenes
 {
-    public class AgregarModel : PageModel
+    public class AgregarClienteModel : PageModelBase
     {
         private readonly IConfiguracion _config;
         private readonly IHttpClientFactory _httpClientFactory;
 
-        public AgregarModel(IConfiguracion config, IHttpClientFactory httpClientFactory)
+        public AgregarClienteModel(IConfiguracion config, IHttpClientFactory httpClientFactory)
         {
             _config = config;
             _httpClientFactory = httpClientFactory;
@@ -34,10 +36,13 @@ namespace Web.Pages.Ordenes
                 await CargarSelectsAsync();
                 return Page();
             }
-
+            var auth = VerificarSesion();
+            int usuarioId = UsuarioId;
             var endpoint = _config.ObtenerMetodo("ApiEndPointsOrdenServicio", "Agregar");
             var client = _httpClientFactory.CreateClient();
+            Orden.UsuarioId = usuarioId;
             var response = await client.PostAsJsonAsync(endpoint, Orden);
+
 
             if (!response.IsSuccessStatusCode)
             {
@@ -73,14 +78,6 @@ namespace Web.Pages.Ordenes
             }
             catch { Tecnicos = new(); }
 
-            try
-            {
-                var resp = await client.GetAsync(_config.ObtenerMetodo("ApiEndPointsUsuario", "Obtener"));
-                if (resp.IsSuccessStatusCode)
-                    Clientes = JsonSerializer.Deserialize<List<UsuarioResponse>>(
-                        await resp.Content.ReadAsStringAsync(), opciones) ?? new();
-            }
-            catch { Clientes = new(); }
         }
     }
 }

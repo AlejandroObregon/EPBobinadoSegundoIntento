@@ -7,7 +7,8 @@ CREATE   PROCEDURE EditarOrdenServicio
     @TecnicoId INT,
     @UsuarioId INT,
     @Costo DECIMAL(10, 2),
-    @Descripcion NVARCHAR(MAX)
+    @Descripcion NVARCHAR(MAX),
+    @FechaCita DATETIME
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -17,7 +18,8 @@ BEGIN
         TecnicoId = @TecnicoId,
         UsuarioId = @UsuarioId,
         Costo = @Costo,
-        Descripcion = @Descripcion
+        Descripcion = @Descripcion,
+        FechaCita = @FechaCita
     WHERE Id = @Id;
     
     SELECT @Id AS Id;

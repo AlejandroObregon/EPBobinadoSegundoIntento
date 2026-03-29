@@ -2,6 +2,15 @@
 
 namespace Abstracciones.Modelos
 {
+    public class FutureDateAttribute : ValidationAttribute
+    {
+        public override bool IsValid(object value)
+        {
+            if (value is DateTime fecha)
+                return fecha > DateTime.Now;
+            return false;
+        }
+    }
     public class OrdenServicioBase
     {
 
@@ -11,7 +20,9 @@ namespace Abstracciones.Modelos
         public string? Descripcion { get; set; }
         [Range(0, double.MaxValue, ErrorMessage = "El costo debe ser mayor o igual a 0")]
         public decimal? Costo { get; set; }
-
+        [DataType(DataType.DateTime)]
+        [FutureDate(ErrorMessage = "La fecha debe ser posterior al día actual.")]
+        public DateTime? FechaCita { get; set; }
     }
 
     public class OrdenServicioRequest : OrdenServicioBase
@@ -33,4 +44,6 @@ namespace Abstracciones.Modelos
         public int? MotorId { get; set; }
         public int? IdTecnico { get; set; }
     }
+
+    
 }

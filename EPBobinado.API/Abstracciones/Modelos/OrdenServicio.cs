@@ -11,7 +11,7 @@ namespace Abstracciones.Modelos
         public string? Descripcion { get; set; }
         [Range(0, double.MaxValue, ErrorMessage = "El costo debe ser mayor o igual a 0")]
         public decimal? Costo { get; set; }
-
+        public DateTime? FechaCita { get; set; }
     }
 
     public class OrdenServicioRequest : OrdenServicioBase {

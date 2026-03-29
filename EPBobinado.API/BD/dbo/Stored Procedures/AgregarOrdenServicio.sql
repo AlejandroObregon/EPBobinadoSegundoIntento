@@ -6,12 +6,13 @@ CREATE   PROCEDURE AgregarOrdenServicio
     @TecnicoId INT,
     @UsuarioId INT,
     @Costo DECIMAL(10, 2),
-    @Descripcion NVARCHAR(MAX)
+    @Descripcion NVARCHAR(MAX),
+    @FechaCita DATETIME
 AS
 BEGIN
     SET NOCOUNT ON;
-    INSERT INTO OrdenesServicio (MotorId, Estado, TecnicoId, UsuarioId, Costo, Descripcion)
-    VALUES (@MotorId, @Estado, @TecnicoId, @UsuarioId, @Costo, @Descripcion);
+    INSERT INTO OrdenesServicio (MotorId, Estado, TecnicoId, UsuarioId, Costo, Descripcion, FechaCita)
+    VALUES (@MotorId, @Estado, @TecnicoId, @UsuarioId, @Costo, @Descripcion, @FechaCita);
     
     SELECT SCOPE_IDENTITY() AS Id;
 END
