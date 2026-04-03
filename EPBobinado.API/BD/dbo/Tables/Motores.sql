@@ -5,7 +5,7 @@
     [NumeroSerie] NVARCHAR (100) NULL,
     [CreadoEn]    DATETIME2 (7)  DEFAULT (sysdatetime()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC),
-    CONSTRAINT [FK_Motores_Usuarios] FOREIGN KEY ([UsuarioId]) REFERENCES [dbo].[Usuarios] ([Id]),
-    CONSTRAINT [FK_Motores_Modelos]  FOREIGN KEY ([ModeloId])  REFERENCES [dbo].[ModelosMotor] ([Id])
+    FOREIGN KEY ([ModeloId]) REFERENCES [dbo].[ModelosMotor] ([Id]),
+    FOREIGN KEY ([UsuarioId]) REFERENCES [dbo].[Usuarios] ([Id])
 );
 

@@ -5,7 +5,7 @@ using System.Text.Json;
 using Abstracciones.Modelos;
 using Abstracciones.Interfaces.Reglas;
 
-namespace Web.Pages.DiagnosticoInicial
+namespace Web.Pages.Diagnostico
 {
     public class AgregarModel : PageModel
     {
@@ -19,7 +19,7 @@ namespace Web.Pages.DiagnosticoInicial
         }
 
         [BindProperty]
-        public DiagnosticoInicialRequest Diagnostico { get; set; } = new();
+        public DiagnosticoRequest Diagnostico { get; set; } = new();
 
         public List<OrdenServicioResponse> Ordenes { get; set; } = new();
 
@@ -33,21 +33,21 @@ namespace Web.Pages.DiagnosticoInicial
                 return Page();
             }
 
-            var endpoint = _config.ObtenerMetodo("ApiEndPointsDiagnosticoInicial", "Agregar");
+            var endpoint = _config.ObtenerMetodo("ApiEndPointsDiagnostico", "Agregar");
             var client = _httpClientFactory.CreateClient();
             var response = await client.PostAsJsonAsync(endpoint, Diagnostico);
 
             if (!response.IsSuccessStatusCode)
             {
-                ModelState.AddModelError(string.Empty, "Error al registrar el diagnóstico inicial.");
+                ModelState.AddModelError(string.Empty, "Error al registrar el diagnóstico técnico.");
                 await CargarSelectsAsync();
                 return Page();
             }
 
-            // ── Cambio automático de estado: Pendiente → En diagnóstico ──────
-            await ActualizarEstadoOrdenAsync(client, Diagnostico.OrdenId, "En diagnóstico");
+            // ── Cambio automático de estado: En diagnóstico → En reparación ──
+            await ActualizarEstadoOrdenAsync(client, Diagnostico.OrdenId, "En reparación");
 
-            TempData["Success"] = "Diagnóstico inicial registrado. La orden pasó a \"En diagnóstico\" automáticamente.";
+            TempData["Success"] = "Diagnóstico técnico registrado. La orden pasó a \"En reparación\" automáticamente.";
             return RedirectToPage("Listado");
         }
 
@@ -71,7 +71,6 @@ namespace Web.Pages.DiagnosticoInicial
             {
                 var opciones = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
-                // 1. Obtener la orden actual para preservar MotorId y TecnicoId
                 var getUrl = string.Format(_config.ObtenerMetodo("ApiEndPointsOrdenServicio", "ObtenerPorId"), ordenId);
                 var getResp = await client.GetAsync(getUrl);
                 if (!getResp.IsSuccessStatusCode) return;
@@ -80,11 +79,10 @@ namespace Web.Pages.DiagnosticoInicial
                     await getResp.Content.ReadAsStringAsync(), opciones);
                 if (orden == null) return;
 
-                // Solo actualizar si el estado actual es anterior (no sobreescribir estados avanzados)
-                var estadosAnteriores = new[] { "Pendiente" };
+                // Solo avanzar si la orden está en un estado anterior
+                var estadosAnteriores = new[] { "Pendiente", "En diagnóstico" };
                 if (!estadosAnteriores.Contains(orden.Estado)) return;
 
-                // 2. PUT con el nuevo estado
                 var request = new OrdenServicioRequest
                 {
                     MotorId = orden.MotorId,
@@ -94,7 +92,7 @@ namespace Web.Pages.DiagnosticoInicial
                 var putUrl = string.Format(_config.ObtenerMetodo("ApiEndPointsOrdenServicio", "Editar"), ordenId);
                 await client.PutAsJsonAsync(putUrl, request);
             }
-            catch { /* No bloquear el flujo principal si falla el cambio de estado */ }
+            catch { }
         }
 
     }

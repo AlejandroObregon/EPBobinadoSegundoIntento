@@ -4,6 +4,6 @@
     [Fecha]        DATETIME2 (7)  DEFAULT (sysdatetime()) NULL,
     [RealizadoPor] INT            NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC),
-    CONSTRAINT [FK_Backups_Usuarios] FOREIGN KEY ([RealizadoPor]) REFERENCES [dbo].[Usuarios] ([Id])
+    FOREIGN KEY ([RealizadoPor]) REFERENCES [dbo].[Usuarios] ([Id])
 );
 

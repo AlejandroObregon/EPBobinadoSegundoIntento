@@ -98,16 +98,10 @@
                         <span class="menu-label">Productos</span>
                     </a>
                 </li>
-                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Diagnosticos_Tecnicos") ? "active" : "")">
-                    <a href="/Diagnosticos_Tecnicos/Listado">
+                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Diagnosticos") ? "active" : "")">
+                    <a href="/Diagnosticos/Listado">
                         <span class="menu-icon"><i class="bi bi-tools"></i></span>
                         <span class="menu-label">Diagnósticos</span>
-                    </a>
-                </li>
-                <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Diagnosticos_Iniciales") ? "active" : "")">
-                    <a href="/Diagnosticos_Iniciales/Listado">
-                        <span class="menu-icon"><i class="bi bi-search-heart"></i></span>
-                        <span class="menu-label">Diag. Inicial</span>
                     </a>
                 </li>
                 <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Reportes") ? "active" : "")">

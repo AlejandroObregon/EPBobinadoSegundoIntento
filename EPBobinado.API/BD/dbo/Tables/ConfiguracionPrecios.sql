@@ -5,6 +5,6 @@
     [ConfiguradoPor]     INT             NOT NULL,
     [FechaConfiguracion] DATETIME2 (7)   DEFAULT (sysdatetime()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC),
-    CONSTRAINT [FK_ConfigPrecios_Usuarios] FOREIGN KEY ([ConfiguradoPor]) REFERENCES [dbo].[Usuarios] ([Id])
+    FOREIGN KEY ([ConfiguradoPor]) REFERENCES [dbo].[Usuarios] ([Id])
 );
 

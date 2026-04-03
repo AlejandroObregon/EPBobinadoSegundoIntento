@@ -14,8 +14,8 @@
     [IsSuperuser]  BIT            DEFAULT ((0)) NULL,
     [IsStaff]      BIT            DEFAULT ((0)) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC),
-    CONSTRAINT [FK_Usuarios_Direcciones] FOREIGN KEY ([DireccionId]) REFERENCES [dbo].[Direcciones] ([Id]),
-    CONSTRAINT [FK_Usuarios_Roles] FOREIGN KEY ([RolId]) REFERENCES [dbo].[Roles] ([Id]),
+    FOREIGN KEY ([DireccionId]) REFERENCES [dbo].[Direcciones] ([Id]),
+    FOREIGN KEY ([RolId]) REFERENCES [dbo].[Roles] ([Id]),
     UNIQUE NONCLUSTERED ([Cedula] ASC),
     UNIQUE NONCLUSTERED ([Email] ASC)
 );

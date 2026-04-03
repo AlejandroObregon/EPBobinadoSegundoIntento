@@ -5,6 +5,6 @@
     [Impuesto] DECIMAL (10, 2) NULL,
     [Fecha]    DATETIME2 (7)   DEFAULT (sysdatetime()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC),
-    CONSTRAINT [FK_Facturas_Orden] FOREIGN KEY ([OrdenId]) REFERENCES [dbo].[OrdenesServicio] ([Id])
+    FOREIGN KEY ([OrdenId]) REFERENCES [dbo].[OrdenesServicio] ([Id])
 );
 

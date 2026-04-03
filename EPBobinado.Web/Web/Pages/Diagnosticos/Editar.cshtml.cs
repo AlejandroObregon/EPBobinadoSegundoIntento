@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Net.Http.Json;
 using System.Text.Json;
 
-namespace Web.Pages.DiagnosticoTecnico
+namespace Web.Pages.Diagnostico
 {
     public class EditarModel : PageModel
     {
@@ -19,7 +19,7 @@ namespace Web.Pages.DiagnosticoTecnico
         }
 
         [BindProperty]
-        public DiagnosticoTecnicoRequest Diagnostico { get; set; }
+        public DiagnosticoRequest Diagnostico { get; set; }
 
         public List<OrdenServicioResponse> Ordenes { get; set; } = new();
 
@@ -27,19 +27,19 @@ namespace Web.Pages.DiagnosticoTecnico
         {
             if (id <= 0) return NotFound();
 
-            var endpoint = _config.ObtenerMetodo("ApiEndPointsDiagnosticoTecnico", "ObtenerPorId");
+            var endpoint = _config.ObtenerMetodo("ApiEndPointsDiagnostico", "ObtenerPorId");
             var client = _httpClientFactory.CreateClient();
             var respuesta = await client.GetAsync(string.Format(endpoint, id));
 
             if (!respuesta.IsSuccessStatusCode) return NotFound();
 
             var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            var response = JsonSerializer.Deserialize<DiagnosticoTecnicoResponse>(
+            var response = JsonSerializer.Deserialize<DiagnosticoResponse>(
                 await respuesta.Content.ReadAsStringAsync(), opciones);
 
             if (response == null) return NotFound();
 
-            Diagnostico = new DiagnosticoTecnicoRequest
+            Diagnostico = new DiagnosticoRequest
             {
                 OrdenId = response.OrdenId,
                 Detalle = response.Detalle

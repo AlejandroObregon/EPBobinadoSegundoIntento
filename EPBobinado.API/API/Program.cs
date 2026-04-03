@@ -29,8 +29,7 @@ builder.Services.AddScoped<IMotorDA, MotorDA>();
 
 // Órdenes de Servicio
 builder.Services.AddScoped<IOrdenServicioDA, OrdenServicioDA>();
-builder.Services.AddScoped<IDiagnosticoInicialDA, DiagnosticoInicialDA>();
-builder.Services.AddScoped<IDiagnosticoTecnicoDA, DiagnosticoTecnicoDA>();
+builder.Services.AddScoped<IDiagnosticoDA, DiagnosticoDA>();
 
 // Inventario
 builder.Services.AddScoped<IProductoDA, ProductoDA>();
@@ -64,8 +63,7 @@ builder.Services.AddScoped<IMotorFlujo, MotorFlujo>();
 
 // Órdenes de Servicio
 builder.Services.AddScoped<IOrdenServicioFlujo, OrdenServicioFlujo>();
-builder.Services.AddScoped<IDiagnosticoInicialFlujo, DiagnosticoInicialFlujo>();
-builder.Services.AddScoped<IDiagnosticoTecnicoFlujo, DiagnosticoTecnicoFlujo>();
+builder.Services.AddScoped<IDiagnosticoFlujo, DiagnosticoFlujo>();
 
 // Inventario
 builder.Services.AddScoped<IProductoFlujo, ProductoFlujo>();

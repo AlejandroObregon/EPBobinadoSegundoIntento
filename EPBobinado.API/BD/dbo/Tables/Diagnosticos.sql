@@ -4,6 +4,6 @@
     [Detalle]  NVARCHAR (MAX) NOT NULL,
     [CreadoEn] DATETIME2 (7)  DEFAULT (sysdatetime()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC),
-    CONSTRAINT [FK_DiagnosticoTecnico_Orden] FOREIGN KEY ([OrdenId]) REFERENCES [dbo].[OrdenesServicio] ([Id])
+    FOREIGN KEY ([OrdenId]) REFERENCES [dbo].[OrdenesServicio] ([Id])
 );
 

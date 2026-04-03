@@ -1,4 +1,4 @@
-﻿// DA/DiagnosticoTecnicoDA.cs
+﻿// DA/DiagnosticoDA.cs
 using Abstracciones.Interfaces.DA;
 using Abstracciones.Modelos;
 using Dapper;
@@ -6,20 +6,20 @@ using Microsoft.Data.SqlClient;
 
 namespace DA
 {
-    public class DiagnosticoTecnicoDA : IDiagnosticoTecnicoDA
+    public class DiagnosticoDA : IDiagnosticoDA
     {
         private IRepositorioDapper _repositorioDapper;
         private SqlConnection _sqlConnection;
 
-        public DiagnosticoTecnicoDA(IRepositorioDapper repositorioDapper)
+        public DiagnosticoDA(IRepositorioDapper repositorioDapper)
         {
             _repositorioDapper = repositorioDapper;
             _sqlConnection = _repositorioDapper.ObtenerRepositorio();
         }
 
-        public async Task<int> Agregar(DiagnosticoTecnicoRequest request)
+        public async Task<int> Agregar(DiagnosticoRequest request)
         {
-            string query = @"AgregarDiagnosticoTecnico";
+            string query = @"AgregarDiagnostico";
             var resultadoConsulta = await _sqlConnection.ExecuteScalarAsync<int>(query, new
             {
                 OrdenId = request.OrdenId,
@@ -29,10 +29,10 @@ namespace DA
             return resultadoConsulta;
         }
 
-        public async Task<int> Editar(int Id, DiagnosticoTecnicoRequest request)
+        public async Task<int> Editar(int Id, DiagnosticoRequest request)
         {
-            await verificarDiagnosticoTecnicoExiste(Id);
-            string query = @"EditarDiagnosticoTecnico";
+            await verificarDiagnosticoExiste(Id);
+            string query = @"EditarDiagnostico";
             var resultadoConsulta = await _sqlConnection.ExecuteScalarAsync<int>(query, new
             {
                 Id = Id,
@@ -44,8 +44,8 @@ namespace DA
 
         public async Task<int> Eliminar(int Id)
         {
-            await verificarDiagnosticoTecnicoExiste(Id);
-            string query = @"EliminarDiagnosticoTecnico";
+            await verificarDiagnosticoExiste(Id);
+            string query = @"EliminarDiagnostico";
             var resultadoConsulta = await _sqlConnection.ExecuteScalarAsync<int>(query, new
             {
                 Id = Id
@@ -53,24 +53,24 @@ namespace DA
             return resultadoConsulta;
         }
 
-        public async Task<IEnumerable<DiagnosticoTecnicoResponse>> Obtener()
+        public async Task<IEnumerable<DiagnosticoResponse>> Obtener()
         {
-            string query = @"ObtenerDiagnosticosTecnicos";
-            var resultadoConsulta = await _sqlConnection.QueryAsync<DiagnosticoTecnicoResponse>(query);
+            string query = @"ObtenerDiagnosticos";
+            var resultadoConsulta = await _sqlConnection.QueryAsync<DiagnosticoResponse>(query);
             return resultadoConsulta;
         }
 
-        public async Task<DiagnosticoTecnicoResponse> Obtener(int Id)
+        public async Task<DiagnosticoResponse> Obtener(int Id)
         {
-            string query = @"ObtenerDiagnosticoTecnico";
-            var resultadoConsulta = await _sqlConnection.QueryAsync<DiagnosticoTecnicoResponse>(query,
+            string query = @"ObtenerDiagnostico";
+            var resultadoConsulta = await _sqlConnection.QueryAsync<DiagnosticoResponse>(query,
                 new { Id = Id });
             return resultadoConsulta.FirstOrDefault();
         }
 
-        private async Task verificarDiagnosticoTecnicoExiste(int Id)
+        private async Task verificarDiagnosticoExiste(int Id)
         {
-            DiagnosticoTecnicoResponse? resultadoConsulta = await Obtener(Id);
+            DiagnosticoResponse? resultadoConsulta = await Obtener(Id);
             if (resultadoConsulta == null)
                 throw new Exception("No se encontró el diagnóstico técnico");
         }

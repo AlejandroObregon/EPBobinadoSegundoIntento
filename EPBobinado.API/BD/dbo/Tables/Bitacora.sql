@@ -6,6 +6,6 @@
     [RegistroId]    INT            NULL,
     [Fecha]         DATETIME2 (7)  DEFAULT (sysdatetime()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC),
-    CONSTRAINT [FK_Bitacora_Usuarios] FOREIGN KEY ([UsuarioId]) REFERENCES [dbo].[Usuarios] ([Id])
+    FOREIGN KEY ([UsuarioId]) REFERENCES [dbo].[Usuarios] ([Id])
 );
 

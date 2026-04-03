@@ -6,7 +6,7 @@
     [UltimaActividad] DATETIME2 (7)  NULL,
     [Activa]          BIT            DEFAULT ((1)) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC),
-    CONSTRAINT [FK_Sesiones_Usuarios] FOREIGN KEY ([UsuarioId]) REFERENCES [dbo].[Usuarios] ([Id]),
+    FOREIGN KEY ([UsuarioId]) REFERENCES [dbo].[Usuarios] ([Id]),
     UNIQUE NONCLUSTERED ([Token] ASC)
 );
 

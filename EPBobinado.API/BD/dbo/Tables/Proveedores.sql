@@ -5,6 +5,6 @@
     [CreadoPor]     INT            NULL,
     [FechaCreacion] DATETIME2 (7)  DEFAULT (sysdatetime()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC),
-    CONSTRAINT [FK_Proveedores_Usuarios] FOREIGN KEY ([CreadoPor]) REFERENCES [dbo].[Usuarios] ([Id])
+    FOREIGN KEY ([CreadoPor]) REFERENCES [dbo].[Usuarios] ([Id])
 );
 

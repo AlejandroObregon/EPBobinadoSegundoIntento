@@ -5,6 +5,6 @@
     [MetodoPago] NVARCHAR (50)   NULL,
     [Fecha]      DATETIME2 (7)   DEFAULT (sysdatetime()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC),
-    CONSTRAINT [FK_Pagos_Facturas] FOREIGN KEY ([FacturaId]) REFERENCES [dbo].[Facturas] ([Id])
+    FOREIGN KEY ([FacturaId]) REFERENCES [dbo].[Facturas] ([Id])
 );
 
