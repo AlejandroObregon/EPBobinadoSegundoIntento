@@ -11,11 +11,17 @@
     <div class="os-page-header">
         <div>
             <h2 class="os-page-title">📋 Órdenes de Servicio</h2>
-            <p class="os-page-sub">@Model.Ordenes.Count orden(es) registrada(s)</p>
+            <p class="os-page-sub" id="registrosCount">@Model.Ordenes.Count orden(es) registrada(s)</p>
         </div>
-        <a asp-page="Agregar" class="os-btn os-btn-primary">
-            <i class="bi bi-plus-circle"></i> Nueva Orden
-        </a>
+        <div class="os-header-actions">
+            <!-- BOTÓN TOGGLE TABLA/CALENDARIO -->
+            <button id="toggleViewBtn" class="os-btn os-btn-secondary" onclick="toggleView()">
+                <i class="bi bi-calendar-week"></i> Vista Calendario
+            </button>
+            <a asp-page="Agregar" class="os-btn os-btn-primary">
+                <i class="bi bi-plus-circle"></i> Nueva Orden
+            </a>
+        </div>
     </div>
 
     @if (TempData["MensajeExito"] != null)
@@ -61,24 +67,24 @@
             }
         </div>
 
-        <!-- TABLA -->
-        <div class="os-table-card">
+        <!-- VISTA TABLA (por defecto visible) -->
+        <div id="tableView" class="os-table-card">
             <table class="os-table">
                 <thead>
                     <tr>
                         <th>#</th>
                         <th>Modelo</th>
-                        <th>Numero de Serie</th>
-                        <th>Usuario</th>
+                        <th>Número de Serie</th>
+                        <th>Cliente</th>
                         <th>Técnico</th>
                         <th>Estado</th>
-                        <th>Creada el</th>
+                        <th>Fecha Cita</th>
                         <th>Costo</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var o in Model.Ordenes.OrderByDescending(x => x.CreadoEn))
+                    @foreach (var o in Model.Ordenes.OrderByDescending(x => x.FechaCita ?? x.CreadoEn))
                     {
                         var slug = o.Estado.ToLower().Replace(" ", "-").Replace("ó", "o").Replace("é", "e");
                         <tr class="os-table-row">
@@ -91,11 +97,12 @@
                                     </div>
                                 </div>
                             </td>
+                            <td>@(o.NumeroSerie ?? "N/A")</td>
                             <td>
                                 @if (o.Cliente != null)
                                 {
                                     <span class="os-tecnico">
-                                        <i class="bi bi-person-gear"></i> @o.Cliente
+                                        <i class="bi bi-person"></i> @o.Cliente
                                     </span>
                                 }
                                 else
@@ -116,7 +123,17 @@
                                 }
                             </td>
                             <td><span class="os-badge os-badge-@slug">@o.Estado</span></td>
-                            <td>@o.CreadoEn.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                @if (o.FechaCita.HasValue)
+                                {
+                                    <span class="os-date">@o.FechaCita.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                                }
+                                else
+                                {
+                                    <span class="os-unassigned">Sin cita</span>
+                                }
+                            </td>
+                            <td><span class="os-cost">₡@(o.Costo?.ToString("N0") ?? "0")</span></td>
                             <td>
                                 <div class="os-actions">
                                     <a asp-page="Editar" asp-route-id="@o.Id" class="os-action-btn os-action-edit" title="Editar">
@@ -131,6 +148,17 @@
                     }
                 </tbody>
             </table>
+        </div>
+
+        <!-- VISTA CALENDARIO (oculta por defecto) -->
+        <div id="calendarView" style="display: none;">
+            <div class="os-calendar-controls">
+                <button class="os-btn os-btn-secondary" onclick="changeMonth(-1)">← Mes anterior</button>
+                <h3 id="currentMonthDisplay" class="os-calendar-month"></h3>
+                <button class="os-btn os-btn-secondary" onclick="changeMonth(1)">Mes siguiente →</button>
+                <button class="os-btn os-btn-primary" onclick="goToToday()">Hoy</button>
+            </div>
+            <div id="calendarGrid" class="os-calendar-grid"></div>
         </div>
     }
 </div>
@@ -165,6 +193,13 @@
         align-items: center;
         margin-bottom: 24px;
         gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .os-header-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
     }
 
     .os-page-title {
@@ -197,18 +232,6 @@
         color: #065f46;
     }
 
-    .os-alert-danger {
-        background: #fef2f2;
-        border: 1px solid #fca5a5;
-        color: #991b1b;
-    }
-
-    .os-alert-warning {
-        background: #fffbeb;
-        border: 1px solid #fcd34d;
-        color: #92400e;
-    }
-
     /* BUTTONS */
     .os-btn {
         display: inline-flex;
@@ -230,36 +253,24 @@
         color: white;
     }
 
-        .os-btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(59,130,246,.35);
-            color: white;
-            text-decoration: none;
-        }
-
-    .os-btn-danger {
-        background: linear-gradient(135deg,#ef4444,#dc2626);
+    .os-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(59,130,246,.35);
         color: white;
+        text-decoration: none;
     }
 
-        .os-btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(239,68,68,.35);
-            color: white;
-            text-decoration: none;
-        }
-
-    .os-btn-ghost {
+    .os-btn-secondary {
         background: var(--os-surface);
         border: 1px solid var(--os-border);
-        color: var(--os-muted);
+        color: var(--os-text);
     }
 
-        .os-btn-ghost:hover {
-            background: var(--os-bg);
-            color: var(--os-text);
-            text-decoration: none;
-        }
+    .os-btn-secondary:hover {
+        background: var(--os-bg);
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
 
     /* SUMMARY STRIP */
     .os-summary-strip {
@@ -286,30 +297,11 @@
         font-weight: 700;
     }
 
-    .os-summary-pendiente {
-        border-color: var(--c-pendiente);
-        color: var(--c-pendiente);
-    }
-
-    .os-summary-en-diagnostico {
-        border-color: var(--c-diagnostico);
-        color: var(--c-diagnostico);
-    }
-
-    .os-summary-en-reparacion {
-        border-color: var(--c-reparacion);
-        color: var(--c-reparacion);
-    }
-
-    .os-summary-completado {
-        border-color: var(--c-completado);
-        color: var(--c-completado);
-    }
-
-    .os-summary-cancelado {
-        border-color: var(--c-cancelado);
-        color: var(--c-cancelado);
-    }
+    .os-summary-pendiente { border-color: var(--c-pendiente); color: var(--c-pendiente); }
+    .os-summary-en-diagnostico { border-color: var(--c-diagnostico); color: var(--c-diagnostico); }
+    .os-summary-en-reparacion { border-color: var(--c-reparacion); color: var(--c-reparacion); }
+    .os-summary-completado { border-color: var(--c-completado); color: var(--c-completado); }
+    .os-summary-cancelado { border-color: var(--c-cancelado); color: var(--c-cancelado); }
 
     /* TABLE */
     .os-table-card {
@@ -326,17 +318,17 @@
         font-size: 14px;
     }
 
-        .os-table thead th {
-            padding: 14px 18px;
-            background: #f8fafc;
-            color: var(--os-muted);
-            font-weight: 600;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: .05em;
-            border-bottom: 1px solid var(--os-border);
-            white-space: nowrap;
-        }
+    .os-table thead th {
+        padding: 14px 18px;
+        background: #f8fafc;
+        color: var(--os-muted);
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        border-bottom: 1px solid var(--os-border);
+        white-space: nowrap;
+    }
 
     .os-table-row td {
         padding: 16px 18px;
@@ -345,36 +337,13 @@
         color: var(--os-text);
     }
 
-    .os-table-row:last-child td {
-        border-bottom: none;
+    .os-table-row:hover {
+        background: #f8fafc;
     }
 
-    .os-table-row {
-        transition: var(--os-transition);
-        animation: fadeInRow .4s ease both;
-    }
-
-        .os-table-row:hover {
-            background: #f8fafc;
-        }
-
-    @@keyframes fadeInRow {
-        from {
-            opacity: 0;
-            transform: translateY(8px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .os-id {
-        font-weight: 700;
-        color: var(--os-muted);
-        font-size: 13px;
-    }
+    .os-id { font-weight: 700; color: var(--os-muted); font-size: 13px; }
+    .os-cost { font-weight: 600; color: #059669; }
+    .os-date { font-size: 13px; }
 
     .os-motor-cell {
         display: flex;
@@ -382,20 +351,7 @@
         gap: 10px;
     }
 
-    .os-motor-icon {
-        font-size: 22px;
-    }
-
-    .os-motor-cell strong {
-        display: block;
-        font-weight: 600;
-    }
-
-    .os-motor-cell small {
-        display: block;
-        color: var(--os-muted);
-        font-size: 12px;
-    }
+    .os-motor-icon { font-size: 22px; }
 
     .os-tecnico {
         display: inline-flex;
@@ -418,40 +374,16 @@
         border-radius: 100px;
         font-size: 12px;
         font-weight: 700;
-        letter-spacing: .02em;
     }
 
-    .os-badge-pendiente {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .os-badge-en-diagnostico {
-        background: #dbeafe;
-        color: #1e40af;
-    }
-
-    .os-badge-en-reparacion {
-        background: #ede9fe;
-        color: #5b21b6;
-    }
-
-    .os-badge-completado {
-        background: #d1fae5;
-        color: #065f46;
-    }
-
-    .os-badge-cancelado {
-        background: #fee2e2;
-        color: #991b1b;
-    }
+    .os-badge-pendiente { background: #fef3c7; color: #92400e; }
+    .os-badge-en-diagnostico { background: #dbeafe; color: #1e40af; }
+    .os-badge-en-reparacion { background: #ede9fe; color: #5b21b6; }
+    .os-badge-completado { background: #d1fae5; color: #065f46; }
+    .os-badge-cancelado { background: #fee2e2; color: #991b1b; }
 
     /* ACTIONS */
-    .os-actions {
-        display: flex;
-        gap: 6px;
-    }
-
+    .os-actions { display: flex; gap: 6px; }
     .os-action-btn {
         width: 34px;
         height: 34px;
@@ -465,275 +397,314 @@
         border: 1px solid var(--os-border);
         background: white;
     }
+    .os-action-edit { color: #3b82f6; }
+    .os-action-edit:hover { background: #dbeafe; border-color: #3b82f6; color: #1e40af; text-decoration: none; }
+    .os-action-delete { color: #ef4444; }
+    .os-action-delete:hover { background: #fee2e2; border-color: #ef4444; color: #991b1b; text-decoration: none; }
 
-    .os-action-edit {
-        color: #3b82f6;
-    }
-
-        .os-action-edit:hover {
-            background: #dbeafe;
-            border-color: #3b82f6;
-            color: #1e40af;
-            text-decoration: none;
-        }
-
-    .os-action-delete {
-        color: #ef4444;
-    }
-
-        .os-action-delete:hover {
-            background: #fee2e2;
-            border-color: #ef4444;
-            color: #991b1b;
-            text-decoration: none;
-        }
-
-    /* EMPTY STATE */
-    .os-empty {
-        text-align: center;
-        padding: 80px 24px;
-        background: white;
-        border-radius: var(--os-radius);
-        border: 1px dashed var(--os-border);
-    }
-
-    .os-empty-icon {
-        font-size: 56px;
-        margin-bottom: 16px;
-    }
-
-    .os-empty h3 {
-        font-size: 20px;
-        font-weight: 700;
-        color: var(--os-text);
-        margin-bottom: 8px;
-    }
-
-    .os-empty p {
-        color: var(--os-muted);
-        margin-bottom: 24px;
-    }
-
-    /* FORM CARD */
-    .os-form-card {
-        background: var(--os-surface);
-        border-radius: var(--os-radius);
-        box-shadow: var(--os-shadow);
-        border: 1px solid var(--os-border);
-        padding: 32px;
-    }
-
-    .os-form-section {
-        margin-bottom: 32px;
-    }
-
-    .os-form-section-title {
-        font-size: 15px;
-        font-weight: 700;
-        color: var(--os-text);
-        margin-bottom: 18px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid var(--os-border);
+    /* CALENDARIO */
+    .os-calendar-controls {
         display: flex;
+        justify-content: center;
         align-items: center;
-        gap: 8px;
-    }
-
-    .os-form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-    }
-
-    .os-field {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-
-    .os-label {
-        font-size: 13px;
-        font-weight: 600;
-        color: #475569;
-    }
-
-    .os-optional {
-        font-weight: 400;
-        color: var(--os-muted);
-    }
-
-    .os-select, .os-input {
-        padding: 11px 14px;
-        border: 1px solid var(--os-border);
-        border-radius: 10px;
-        font-size: 14px;
-        color: var(--os-text);
-        background: white;
-        transition: var(--os-transition);
-        outline: none;
-    }
-
-        .os-select:focus, .os-input:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59,130,246,.12);
-        }
-
-    .os-error {
-        font-size: 12px;
-        color: #ef4444;
-    }
-
-    /* STATUS PICKER */
-    .os-status-picker {
-        display: flex;
-        gap: 10px;
+        gap: 16px;
+        margin-bottom: 24px;
         flex-wrap: wrap;
     }
 
-    .os-status-option {
-        display: flex;
-        align-items: center;
-        gap: 0;
-        cursor: pointer;
+    .os-calendar-month {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--os-text);
+        min-width: 200px;
+        text-align: center;
+        margin: 0;
     }
 
-        .os-status-option input[type="radio"] {
-            display: none;
-        }
-
-        .os-status-option span {
-            padding: 8px 18px;
-            border-radius: 100px;
-            font-size: 13px;
-            font-weight: 600;
-            border: 2px solid var(--os-border);
-            color: var(--os-muted);
-            background: white;
-            transition: var(--os-transition);
-            user-select: none;
-        }
-
-        .os-status-option input:checked + span {
-            color: white;
-            border-color: transparent;
-        }
-
-    .os-status-pendiente input:checked + span {
-        background: var(--c-pendiente);
-    }
-
-    .os-status-en-diagnostico input:checked + span {
-        background: var(--c-diagnostico);
-    }
-
-    .os-status-en-reparacion input:checked + span {
-        background: var(--c-reparacion);
-    }
-
-    .os-status-completado input:checked + span {
-        background: var(--c-completado);
-    }
-
-    .os-status-cancelado input:checked + span {
-        background: var(--c-cancelado);
-    }
-
-    .os-status-option:hover span {
-        border-color: #94a3b8;
-    }
-
-    /* FORM ACTIONS */
-    .os-form-actions {
-        display: flex;
-        gap: 12px;
-        margin-top: 8px;
-    }
-
-    /* DELETE CARD */
-    .os-delete-card {
+    .os-calendar-grid {
         background: var(--os-surface);
         border-radius: var(--os-radius);
         box-shadow: var(--os-shadow);
         border: 1px solid var(--os-border);
-        padding: 32px;
+        overflow: hidden;
     }
 
-    .os-delete-warning {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 16px 20px;
-        background: #fff7ed;
-        border: 1px solid #fed7aa;
-        border-radius: 10px;
-        color: #9a3412;
-        font-size: 15px;
-        font-weight: 500;
-        margin-bottom: 28px;
-    }
-
-        .os-delete-warning i {
-            font-size: 22px;
-            color: #f97316;
-            flex-shrink: 0;
-        }
-
-    .os-detail-grid {
+    .calendar-weekdays {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 16px;
-        margin-bottom: 28px;
+        grid-template-columns: repeat(7, 1fr);
+        background: #f8fafc;
+        border-bottom: 1px solid var(--os-border);
     }
 
-    .os-detail-item {
+    .calendar-weekday {
+        padding: 12px;
+        text-align: center;
+        font-weight: 700;
+        color: var(--os-muted);
+        font-size: 13px;
+        text-transform: uppercase;
+    }
+
+    .calendar-days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+    }
+
+    .calendar-day {
+        min-height: 120px;
+        padding: 8px;
+        border-right: 1px solid var(--os-border);
+        border-bottom: 1px solid var(--os-border);
+        background: white;
+        transition: var(--os-transition);
+        vertical-align: top;
+    }
+
+    .calendar-day:hover {
+        background: #f8fafc;
+    }
+
+    .calendar-day.other-month {
+        background: #f9f9fb;
+        color: var(--os-muted);
+    }
+
+    .calendar-day.today {
+        background: #eff6ff;
+        border: 2px solid #3b82f6;
+    }
+
+    .day-number {
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 8px;
+        display: inline-block;
+        padding: 2px 6px;
+        border-radius: 20px;
+    }
+
+    .today .day-number {
+        background: #3b82f6;
+        color: white;
+    }
+
+    .calendar-events {
         display: flex;
         flex-direction: column;
         gap: 4px;
-        padding: 14px 16px;
-        background: var(--os-bg);
-        border-radius: 10px;
+        max-height: 90px;
+        overflow-y: auto;
     }
 
-    .os-detail-label {
+    .calendar-event {
         font-size: 11px;
-        font-weight: 700;
-        color: var(--os-muted);
-        text-transform: uppercase;
-        letter-spacing: .06em;
+        padding: 4px 6px;
+        border-radius: 6px;
+        background: #f1f5f9;
+        cursor: pointer;
+        transition: var(--os-transition);
+        text-decoration: none;
+        display: block;
+        color: var(--os-text);
+        border-left: 3px solid;
     }
 
-    .os-detail-value {
-        font-size: 15px;
-        font-weight: 600;
-        color: var(--os-text);
+    .calendar-event:hover {
+        transform: translateX(2px);
+        text-decoration: none;
+    }
+
+    .event-pendiente { border-left-color: var(--c-pendiente); }
+    .event-en-diagnostico { border-left-color: var(--c-diagnostico); }
+    .event-en-reparacion { border-left-color: var(--c-reparacion); }
+    .event-completado { border-left-color: var(--c-completado); }
+    .event-cancelado { border-left-color: var(--c-cancelado); }
+
+    .empty-day {
+        color: var(--os-muted);
+        font-size: 11px;
+        text-align: center;
+        margin-top: 20px;
     }
 
     /* RESPONSIVE */
     @@media (max-width: 768px) {
-        .os-page-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .os-form-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .os-summary-strip {
-            gap: 8px;
-        }
-
-        .os-table-card {
-            overflow-x: auto;
-        }
+        .os-page-header { flex-direction: column; align-items: flex-start; }
+        .os-header-actions { width: 100%; justify-content: space-between; }
+        .calendar-day { min-height: 80px; }
+        .calendar-event { font-size: 9px; padding: 2px 4px; }
+        .os-table-card { overflow-x: auto; }
     }
 </style>
 
+<script>
+    // Datos de órdenes desde el servidor (serializados)
+    const ordenes = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Ordenes.Select(o => new {
+    id = o.Id,
+    estado = o.Estado,
+    cliente = o.Cliente,
+    tecnico = o.Tecnico,
+    numeroSerie = o.NumeroSerie,
+    fechaCita = o.FechaCita,
+    costo = o.Costo
+}), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }))
+
+    let currentDate = new Date();
+    let currentView = 'table'; // 'table' o 'calendar'
+
+    function toggleView() {
+        const tableView = document.getElementById('tableView');
+        const calendarView = document.getElementById('calendarView');
+        const toggleBtn = document.getElementById('toggleViewBtn');
+
+        if (currentView === 'table') {
+            tableView.style.display = 'none';
+            calendarView.style.display = 'block';
+            toggleBtn.innerHTML = '<i class="bi bi-table"></i> Vista Tabla';
+            currentView = 'calendar';
+            renderCalendar();
+        } else {
+            tableView.style.display = 'block';
+            calendarView.style.display = 'none';
+            toggleBtn.innerHTML = '<i class="bi bi-calendar-week"></i> Vista Calendario';
+            currentView = 'table';
+        }
+    }
+
+    function renderCalendar() {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        
+        const firstDayOfMonth = new Date(year, month, 1);
+        const startDayOfWeek = firstDayOfMonth.getDay(); // 0 = Domingo
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        
+        // Obtener días del mes anterior para completar la primera semana
+        const daysInPrevMonth = new Date(year, month, 0).getDate();
+        
+        const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                           'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        document.getElementById('currentMonthDisplay').innerText = `${monthNames[month]} ${year}`;
+        
+        let calendarHTML = `
+            <div class="calendar-weekdays">
+                <div class="calendar-weekday">Dom</div>
+                <div class="calendar-weekday">Lun</div>
+                <div class="calendar-weekday">Mar</div>
+                <div class="calendar-weekday">Mié</div>
+                <div class="calendar-weekday">Jue</div>
+                <div class="calendar-weekday">Vie</div>
+                <div class="calendar-weekday">Sáb</div>
+            </div>
+            <div class="calendar-days">
+        `;
+        
+        let dayCounter = 1;
+        let nextMonthCounter = 1;
+        
+        // Días del mes anterior
+        for (let i = 0; i < startDayOfWeek; i++) {
+            const prevDate = daysInPrevMonth - startDayOfWeek + i + 1;
+            calendarHTML += `<div class="calendar-day other-month">
+                                <div class="day-number">${prevDate}</div>
+                                <div class="calendar-events"></div>
+                            </div>`;
+            dayCounter++;
+        }
+        
+        // Días del mes actual
+        const today = new Date();
+        const isCurrentMonth = today.getMonth() === month && today.getFullYear() === year;
+        
+        for (let d = 1; d <= daysInMonth; d++) {
+            const currentDateObj = new Date(year, month, d);
+            const isToday = isCurrentMonth && today.getDate() === d;
+            const dateStr = currentDateObj.toISOString().split('T')[0];
+            
+            // Filtrar órdenes para este día
+            const dayOrders = ordenes.filter(o => {
+                if (!o.fechaCita) return false;
+                const orderDate = new Date(o.fechaCita);
+                return orderDate.getFullYear() === year && 
+                       orderDate.getMonth() === month && 
+                       orderDate.getDate() === d;
+            });
+            
+            calendarHTML += `<div class="calendar-day ${isToday ? 'today' : ''}">
+                                <div class="day-number">${d}</div>
+                                <div class="calendar-events">`;
+            
+            if (dayOrders.length === 0) {
+                calendarHTML += `<div class="empty-day">—</div>`;
+            } else {
+                dayOrders.forEach(order => {
+                    const estadoSlug = order.estado.toLowerCase().replace(/ /g, '-').replace('ó', 'o').replace('é', 'e');
+                    calendarHTML += `<a href="/Ordenes/Editar?id=${order.id}" class="calendar-event event-${estadoSlug}">
+                                        <strong>#${order.id}</strong> - ${order.cliente || 'Sin cliente'} 
+                                        ${order.costo ? `₡${order.costo.toLocaleString()}` : ''}
+                                    </a>`;
+                });
+            }
+            
+            calendarHTML += `</div></div>`;
+        }
+        
+        // Completar con días del próximo mes (para llegar a 42 celdas - 6 semanas)
+        const totalCells = 42; // 6 filas * 7 días
+        const cellsUsed = startDayOfWeek + daysInMonth;
+        const remainingCells = totalCells - cellsUsed;
+        
+        for (let i = 1; i <= remainingCells; i++) {
+            calendarHTML += `<div class="calendar-day other-month">
+                                <div class="day-number">${i}</div>
+                                <div class="calendar-events"></div>
+                            </div>`;
+        }
+        
+        calendarHTML += `</div>`;
+        document.getElementById('calendarGrid').innerHTML = calendarHTML;
+    }
+    
+    function changeMonth(delta) {
+        currentDate.setMonth(currentDate.getMonth() + delta);
+        renderCalendar();
+    }
+    
+    function goToToday() {
+        currentDate = new Date();
+        renderCalendar();
+    }
+    
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', function() {
+        // Pequeña animación para las filas de la tabla
+        document.querySelectorAll('.os-table-row').forEach((row, i) => {
+            row.style.animation = `fadeInRow 0.4s ease both ${i * 0.04}s`;
+        });
+    });
+    
+    // Añadir keyframes si no existen
+    if (!document.querySelector('#dynamicStyles')) {
+        const style = document.createElement('style');
+        style.id = 'dynamicStyles';
+        style.textContent = `
+            @@keyframes fadeInRow {
+                from { opacity: 0; transform: translateY(8px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+</script>
+
 @section Scripts {
     <script>
-        // Animación stagger en las filas
-        document.querySelectorAll('.os-table-row').forEach((row, i) => {
-            row.style.animationDelay = `${i * 0.04}s`;
-        });
+        // Bootstrap Icons (si no están ya incluidos)
+        if (!document.querySelector('link[href*="bootstrap-icons"]')) {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css';
+            document.head.appendChild(link);
+        }
     </script>
 }
