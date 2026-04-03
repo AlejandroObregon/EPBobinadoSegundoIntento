@@ -1,7 +1,7 @@
 ﻿-- =============================================
 -- Obtener un diagnóstico técnico por ID
 -- =============================================
-CREATE PROCEDURE ObtenerDiagnosticoTecnico
+CREATE PROCEDURE [dbo].[ObtenerDiagnostico]
     @Id INT
 AS
 BEGIN
@@ -10,10 +10,9 @@ BEGIN
            os.Estado AS OrdenEstado,
            m.Id AS MotorId, m.NumeroSerie AS MotorNumeroSerie,
            u.Nombre AS UsuarioNombre
-    FROM DiagnosticosTecnicos dt
+    FROM Diagnosticos dt
     INNER JOIN OrdenesServicio os ON dt.OrdenId = os.Id
     INNER JOIN Motores m ON os.MotorId = m.Id
     INNER JOIN Usuarios u ON m.UsuarioId = u.Id
     WHERE dt.Id = @Id;
 END
-GO

@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[DiagnosticosTecnicos] (
+﻿CREATE TABLE [dbo].[Diagnosticos] (
     [Id]       INT            IDENTITY (1, 1) NOT NULL,
     [OrdenId]  INT            NOT NULL,
     [Detalle]  NVARCHAR (MAX) NOT NULL,

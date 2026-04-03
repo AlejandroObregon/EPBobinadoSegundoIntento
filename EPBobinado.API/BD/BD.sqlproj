@@ -78,8 +78,6 @@
     <Build Include="dbo\Tables\ModelosMotor.sql" />
     <Build Include="dbo\Tables\Facturas.sql" />
     <Build Include="dbo\Tables\Direcciones.sql" />
-    <Build Include="dbo\Tables\DiagnosticosTecnicos.sql" />
-    <Build Include="dbo\Tables\DiagnosticosIniciales.sql" />
     <Build Include="dbo\Tables\Cotizaciones.sql" />
     <Build Include="dbo\Tables\ConfiguracionPrecios.sql" />
     <Build Include="dbo\Tables\ConfiguracionImpuestos.sql" />
@@ -109,10 +107,6 @@
     <Build Include="dbo\Stored Procedures\ObtenerFactura.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerDirecciones.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerDireccion.sql" />
-    <Build Include="dbo\Stored Procedures\ObtenerDiagnosticoTecnico.sql" />
-    <Build Include="dbo\Stored Procedures\ObtenerDiagnosticosTecnicos.sql" />
-    <Build Include="dbo\Stored Procedures\ObtenerDiagnosticosIniciales.sql" />
-    <Build Include="dbo\Stored Procedures\ObtenerDiagnosticoInicial.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerCotizaciones.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerCotizacion.sql" />
     <Build Include="dbo\Stored Procedures\ObtenerConfiguracionPrecio.sql" />
@@ -133,8 +127,6 @@
     <Build Include="dbo\Stored Procedures\EliminarModeloMotor.sql" />
     <Build Include="dbo\Stored Procedures\EliminarFactura.sql" />
     <Build Include="dbo\Stored Procedures\EliminarDireccion.sql" />
-    <Build Include="dbo\Stored Procedures\EliminarDiagnosticoTecnico.sql" />
-    <Build Include="dbo\Stored Procedures\EliminarDiagnosticoInicial.sql" />
     <Build Include="dbo\Stored Procedures\EliminarCotizacion.sql" />
     <Build Include="dbo\Stored Procedures\EliminarConfiguracionPrecio.sql" />
     <Build Include="dbo\Stored Procedures\EliminarConfiguracionImpuesto.sql" />
@@ -151,8 +143,6 @@
     <Build Include="dbo\Stored Procedures\EditarModeloMotor.sql" />
     <Build Include="dbo\Stored Procedures\EditarFactura.sql" />
     <Build Include="dbo\Stored Procedures\EditarDireccion.sql" />
-    <Build Include="dbo\Stored Procedures\EditarDiagnosticoTecnico.sql" />
-    <Build Include="dbo\Stored Procedures\EditarDiagnosticoInicial.sql" />
     <Build Include="dbo\Stored Procedures\EditarCotizacion.sql" />
     <Build Include="dbo\Stored Procedures\EditarConfiguracionPrecio.sql" />
     <Build Include="dbo\Stored Procedures\EditarConfiguracionImpuesto.sql" />
@@ -169,8 +159,6 @@
     <Build Include="dbo\Stored Procedures\AgregarModeloMotor.sql" />
     <Build Include="dbo\Stored Procedures\AgregarFactura.sql" />
     <Build Include="dbo\Stored Procedures\AgregarDireccion.sql" />
-    <Build Include="dbo\Stored Procedures\AgregarDiagnosticoTecnico.sql" />
-    <Build Include="dbo\Stored Procedures\AgregarDiagnosticoInicial.sql" />
     <Build Include="dbo\Stored Procedures\AgregarCotizacion.sql" />
     <Build Include="dbo\Stored Procedures\AgregarConfiguracionPrecio.sql" />
     <Build Include="dbo\Stored Procedures\AgregarConfiguracionImpuesto.sql" />
@@ -182,5 +170,11 @@
     <Build Include="dbo\Stored Procedures\ValidarTokenReset.sql" />
     <Build Include="dbo\Stored Procedures\UsarTokenReset.sql" />
     <Build Include="dbo\Stored Procedures\CrearTokenReset.sql" />
+    <Build Include="dbo\Tables\Diagnosticos.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerDiagnosticos.sql" />
+    <Build Include="dbo\Stored Procedures\ObtenerDiagnostico.sql" />
+    <Build Include="dbo\Stored Procedures\EliminarDiagnostico.sql" />
+    <Build Include="dbo\Stored Procedures\EditarDiagnostico.sql" />
+    <Build Include="dbo\Stored Procedures\AgregarDiagnostico.sql" />
   </ItemGroup>
 </Project>
