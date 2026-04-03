@@ -6,12 +6,10 @@
 }
 
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <div class="rp-page">
 
-    <!-- HEADER -->
     <div class="rp-header">
         <div class="rp-header-left">
             <div class="rp-header-icon">📊</div>
@@ -20,163 +18,308 @@
                 <p class="rp-subtitle">Métricas generales del taller</p>
             </div>
         </div>
-        <span class="rp-date"><i class="bi bi-calendar3"></i> @DateTime.Now.ToString("dd 'de' MMMM, yyyy")</span>
+        <div class="rp-header-actions">
+            <span class="rp-date"><i class="bi bi-calendar3"></i> @DateTime.Now.ToString("dd 'de' MMMM, yyyy")</span>
+            <button onclick="exportPDF()" class="rp-btn rp-btn-export">
+                <i class="bi bi-file-earmark-pdf-fill"></i> Exportar PDF
+            </button>
+        </div>
     </div>
 
-    <!-- KPIs -->
+    <!-- KPIs GLOBALES -->
     <div class="rp-kpis">
         <div class="rp-kpi rp-kpi-blue">
             <div class="rp-kpi-icon"><i class="bi bi-clipboard-check-fill"></i></div>
-            <div>
-                <span class="rp-kpi-num">@Model.TotalOrdenes</span>
-                <span class="rp-kpi-lbl">Total órdenes</span>
-            </div>
+            <div><span class="rp-kpi-num">@Model.TotalOrdenes</span><span class="rp-kpi-lbl">Total órdenes</span></div>
         </div>
         <div class="rp-kpi rp-kpi-amber">
             <div class="rp-kpi-icon"><i class="bi bi-clock-fill"></i></div>
-            <div>
-                <span class="rp-kpi-num">@Model.OrdenesActivas</span>
-                <span class="rp-kpi-lbl">Órdenes activas</span>
-            </div>
+            <div><span class="rp-kpi-num">@Model.OrdenesActivas</span><span class="rp-kpi-lbl">Activas</span></div>
         </div>
         <div class="rp-kpi rp-kpi-green">
             <div class="rp-kpi-icon"><i class="bi bi-check-circle-fill"></i></div>
-            <div>
-                <span class="rp-kpi-num">@Model.OrdenesCompletadas</span>
-                <span class="rp-kpi-lbl">Completadas</span>
-            </div>
+            <div><span class="rp-kpi-num">@Model.OrdenesCompletadas</span><span class="rp-kpi-lbl">Completadas</span></div>
         </div>
         <div class="rp-kpi rp-kpi-purple">
             <div class="rp-kpi-icon"><i class="bi bi-people-fill"></i></div>
-            <div>
-                <span class="rp-kpi-num">@Model.TotalClientes</span>
-                <span class="rp-kpi-lbl">Clientes</span>
-            </div>
+            <div><span class="rp-kpi-num">@Model.TotalClientes</span><span class="rp-kpi-lbl">Clientes</span></div>
         </div>
         <div class="rp-kpi rp-kpi-dark">
-            <div class="rp-kpi-icon"><i class="bi bi-motorcycle"></i></div>
-            <div>
-                <span class="rp-kpi-num">@Model.TotalMotores</span>
-                <span class="rp-kpi-lbl">Motores</span>
-            </div>
+            <div class="rp-kpi-icon"><i class="bi bi-gear-wide-connected"></i></div>
+            <div><span class="rp-kpi-num">@Model.TotalMotores</span><span class="rp-kpi-lbl">Motores</span></div>
         </div>
         <div class="rp-kpi rp-kpi-red">
             <div class="rp-kpi-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
-            <div>
-                <span class="rp-kpi-num">@Model.ProductosBajoStock</span>
-                <span class="rp-kpi-lbl">Stock bajo</span>
-            </div>
-        </div>
-        <button onclick="exportPDF()" class="di-btn di-btn-primary">Generar Reporte</button>
-    </div>
-
-   <div id="dashboard">
-    <!-- ── SECCIÓN ÓRDENES ──────────────────────────────── -->
-    <div class="rp-section-title">
-        <i class="bi bi-clipboard-data-fill"></i> ÓRDENES DE SERVICIO
-    </div>
-
-    <div class="rp-grid-2">
-        <!-- Dona: órdenes por estado -->
-        <div class="rp-card">
-            <div class="rp-card-header">
-                <h3 class="rp-card-title">Distribución por estado</h3>
-            </div>
-            <div class="rp-chart-wrap rp-chart-sm">
-                <canvas id="chartEstados"></canvas>
-            </div>
-        </div>
-
-        <!-- Línea: órdenes por mes -->
-        <div class="rp-card">
-            <div class="rp-card-header">
-                <h3 class="rp-card-title">Órdenes últimos 6 meses</h3>
-            </div>
-            <div class="rp-chart-wrap">
-                <canvas id="chartMeses"></canvas>
-            </div>
-        </div>
-    </div>
-    <br />
-    <!-- Barras: órdenes por técnico -->
-    <div class="rp-card">
-        <div class="rp-card-header">
-            <h3 class="rp-card-title">Órdenes por técnico</h3>
-            <span class="rp-card-sub">Top 8</span>
-        </div>
-        <div class="rp-chart-wrap rp-chart-md">
-            <canvas id="chartTecnicos"></canvas>
+            <div><span class="rp-kpi-num">@Model.ProductosBajoStock</span><span class="rp-kpi-lbl">Stock bajo</span></div>
         </div>
     </div>
 
-    <!-- ── SECCIÓN MOTORES ──────────────────────────────── -->
-    <div class="rp-section-title">
-        <i class="bi bi-gear-wide-connected"></i> MOTORES
+    <!-- TABS -->
+    <div class="rp-tabs">
+        <button class="rp-tab active" onclick="cambiarTab('ordenes',this)">
+            <i class="bi bi-clipboard-data-fill"></i> Órdenes
+        </button>
+        <button class="rp-tab" onclick="cambiarTab('motores',this)">
+            <i class="bi bi-gear-wide-connected"></i> Motores
+        </button>
+        <button class="rp-tab" onclick="cambiarTab('inventario',this)">
+            <i class="bi bi-box-seam-fill"></i> Inventario
+        </button>
+        <button class="rp-tab" onclick="cambiarTab('ventas',this)">
+            <i class="bi bi-currency-dollar"></i> Ventas &amp; Pagos
+            <span class="rp-tab-badge">Demo</span>
+        </button>
     </div>
 
-    <div class="rp-card">
-        <div class="rp-card-header">
-            <h3 class="rp-card-title">Motores por modelo</h3>
-            <span class="rp-card-sub">Top 8</span>
-        </div>
-        <div class="rp-chart-wrap rp-chart-md">
-            <canvas id="chartModelos"></canvas>
-        </div>
-    </div>
+    <div id="dashboard">
 
-    <!-- ── SECCIÓN INVENTARIO ───────────────────────────── -->
-    <div class="rp-section-title">
-        <i class="bi bi-box-seam-fill"></i> INVENTARIO
-    </div>
-
-    <div class="rp-grid-2">
-        <!-- Barras: stock por categoría -->
-        <div class="rp-card">
-            <div class="rp-card-header">
-                <h3 class="rp-card-title">Stock por categoría</h3>
-                <span class="rp-card-sub">Unidades disponibles</span>
+        <!-- ══ TAB ÓRDENES ══ -->
+        <div class="rp-panel" id="panel-ordenes">
+            <div class="rp-filters">
+                <div class="rp-filter-group">
+                    <label class="rp-filter-lbl"><i class="bi bi-calendar-range"></i> Desde</label>
+                    <input type="date" id="ord-desde" class="rp-filter-input" onchange="filtrarOrdenes()">
+                </div>
+                <div class="rp-filter-group">
+                    <label class="rp-filter-lbl">Hasta</label>
+                    <input type="date" id="ord-hasta" class="rp-filter-input" onchange="filtrarOrdenes()">
+                </div>
+                <div class="rp-filter-group">
+                    <label class="rp-filter-lbl"><i class="bi bi-funnel"></i> Estado</label>
+                    <select id="ord-estado" class="rp-filter-input" onchange="filtrarOrdenes()">
+                        <option value="">Todos</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="En diagnóstico">En diagnóstico</option>
+                        <option value="En reparación">En reparación</option>
+                        <option value="Completado">Completado</option>
+                        <option value="Cancelado">Cancelado</option>
+                    </select>
+                </div>
+                <button class="rp-filter-clear" onclick="limpiarFiltrosOrdenes()">
+                    <i class="bi bi-x-circle"></i> Limpiar
+                </button>
+                <span class="rp-filter-result" id="ord-result"></span>
             </div>
-            <div class="rp-chart-wrap">
-                <canvas id="chartStock"></canvas>
+
+            <div class="rp-grid-2">
+                <div class="rp-card">
+                    <div class="rp-card-header">
+                        <h3 class="rp-card-title">Distribución por estado</h3>
+                    </div>
+                    <div class="rp-chart-wrap" style="height:220px">
+                        <canvas id="chartEstados"></canvas>
+                    </div>
+                </div>
+                <div class="rp-card">
+                    <div class="rp-card-header">
+                        <h3 class="rp-card-title">Tendencia mensual</h3>
+                        <span class="rp-card-sub">Últimos 6 meses</span>
+                    </div>
+                    <div class="rp-chart-wrap" style="height:220px">
+                        <canvas id="chartMeses"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="rp-card">
+                <div class="rp-card-header">
+                    <h3 class="rp-card-title">Órdenes por técnico</h3>
+                    <span class="rp-card-sub">Top 8</span>
+                </div>
+                <div class="rp-chart-wrap" style="height:200px">
+                    <canvas id="chartTecnicos"></canvas>
+                </div>
             </div>
         </div>
 
-        <!-- Barras: productos con menos stock -->
-        <div class="rp-card">
-            <div class="rp-card-header">
-                <h3 class="rp-card-title">Productos con menos stock</h3>
-                <span class="rp-card-sub rp-sub-red">⚠ Top 6 más bajos</span>
+        <!-- ══ TAB MOTORES ══ -->
+        <div class="rp-panel" id="panel-motores" style="display:none">
+
+            <!-- Filtro por modelo -->
+            <div class="rp-filters">
+                <div class="rp-filter-group">
+                    <label class="rp-filter-lbl"><i class="bi bi-search"></i> Buscar modelo</label>
+                    <input type="text" id="mot-buscar" class="rp-filter-input"
+                           placeholder="Ej: Siemens, WEG…"
+                           oninput="filtrarMotores()">
+                </div>
+                <div class="rp-filter-group">
+                    <label class="rp-filter-lbl"><i class="bi bi-sort-down"></i> Ordenar por</label>
+                    <select id="mot-orden" class="rp-filter-input" onchange="filtrarMotores()">
+                        <option value="desc">Mayor cantidad primero</option>
+                        <option value="asc">Menor cantidad primero</option>
+                        <option value="az">Nombre A→Z</option>
+                    </select>
+                </div>
+                <button class="rp-filter-clear" onclick="limpiarFiltrosMotores()">
+                    <i class="bi bi-x-circle"></i> Limpiar
+                </button>
+                <span class="rp-filter-result" id="mot-result"></span>
             </div>
-            <div class="rp-chart-wrap">
-                <canvas id="chartBajos"></canvas>
+
+            <!-- Gráficos motores: barra + doughnut -->
+            <div class="rp-grid-2">
+                <div class="rp-card">
+                    <div class="rp-card-header">
+                        <h3 class="rp-card-title">Motores por modelo</h3>
+                        <span class="rp-card-sub" id="mot-sub-bar">Top 8</span>
+                    </div>
+                    <div class="rp-chart-wrap" style="height:240px">
+                        <canvas id="chartModelos"></canvas>
+                    </div>
+                </div>
+                <div class="rp-card">
+                    <div class="rp-card-header">
+                        <h3 class="rp-card-title">Distribución por modelo</h3>
+                        <span class="rp-card-sub">Top 5 + Otros</span>
+                    </div>
+                    <div class="rp-chart-wrap" style="height:240px">
+                        <canvas id="chartMotDist"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Motores más atendidos (si hay datos de Motor en órdenes) -->
+            <div class="rp-card" id="card-masServiciados">
+                <div class="rp-card-header">
+                    <h3 class="rp-card-title">Motores por cliente</h3>
+                    <span class="rp-card-sub">Top 8 — cantidad de motores por dueño</span>
+                </div>
+                <div class="rp-chart-wrap" style="height:200px">
+                    <canvas id="chartMasServiciados"></canvas>
+                </div>
             </div>
         </div>
+
+        <!-- ══ TAB INVENTARIO ══ -->
+        <div class="rp-panel" id="panel-inventario" style="display:none">
+
+            <!-- Filtros inventario -->
+            <div class="rp-filters">
+                <div class="rp-filter-group">
+                    <label class="rp-filter-lbl"><i class="bi bi-tag"></i> Categoría</label>
+                    <select id="inv-cat" class="rp-filter-input" onchange="filtrarInventario()">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
+                <div class="rp-filter-group">
+                    <label class="rp-filter-lbl"><i class="bi bi-funnel"></i> Ver</label>
+                    <select id="inv-modo" class="rp-filter-input" onchange="filtrarInventario()">
+                        <option value="todos">Todos los productos</option>
+                        <option value="bajos">Solo bajo stock</option>
+                    </select>
+                </div>
+                <button class="rp-filter-clear" onclick="limpiarFiltrosInventario()">
+                    <i class="bi bi-x-circle"></i> Limpiar
+                </button>
+                <span class="rp-filter-result" id="inv-result"></span>
+            </div>
+
+            <div class="rp-grid-2">
+                <div class="rp-card">
+                    <div class="rp-card-header">
+                        <h3 class="rp-card-title">Stock por categoría</h3>
+                        <span class="rp-card-sub">Unidades disponibles</span>
+                    </div>
+                    <div class="rp-chart-wrap" style="height:220px"><canvas id="chartStock"></canvas></div>
+                </div>
+                <div class="rp-card">
+                    <div class="rp-card-header">
+                        <h3 class="rp-card-title">Productos con menos stock</h3>
+                        <span class="rp-card-sub rp-sub-red">⚠ Top 6 más bajos</span>
+                    </div>
+                    <div class="rp-chart-wrap" style="height:220px"><canvas id="chartBajos"></canvas></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ TAB VENTAS ══ -->
+        <div class="rp-panel" id="panel-ventas" style="display:none">
+            <div class="rp-demo-badge">
+                <i class="bi bi-info-circle-fill"></i>
+                Datos de demostración — se reemplazarán cuando el módulo de pagos esté integrado.
+            </div>
+
+            <!-- Filtro ventas por rango de meses -->
+            <div class="rp-filters">
+                <div class="rp-filter-group">
+                    <label class="rp-filter-lbl"><i class="bi bi-calendar-range"></i> Desde mes</label>
+                    <select id="ven-desde" class="rp-filter-input" onchange="filtrarVentas()"></select>
+                </div>
+                <div class="rp-filter-group">
+                    <label class="rp-filter-lbl">Hasta mes</label>
+                    <select id="ven-hasta" class="rp-filter-input" onchange="filtrarVentas()"></select>
+                </div>
+                <button class="rp-filter-clear" onclick="limpiarFiltrosVentas()">
+                    <i class="bi bi-x-circle"></i> Limpiar
+                </button>
+                <span class="rp-filter-result" id="ven-result"></span>
+            </div>
+
+            <div class="rp-kpis-ventas">
+                <div class="rp-kpi-v rp-kpi-v-green">
+                    <span class="rp-kpi-v-lbl">Ingresos en rango</span>
+                    <span class="rp-kpi-v-num" id="ven-kpi-total">₡@Model.VentasTotalMes.ToString("N0")</span>
+                    <span class="rp-kpi-v-sub" id="ven-kpi-sub">Mes más reciente</span>
+                </div>
+                <div class="rp-kpi-v rp-kpi-v-blue">
+                    <span class="rp-kpi-v-lbl">Ticket promedio</span>
+                    <span class="rp-kpi-v-num">₡@Model.TicketPromedio.ToString("N0")</span>
+                    <span class="rp-kpi-v-sub">Por orden de servicio</span>
+                </div>
+                <div class="rp-kpi-v rp-kpi-v-amber">
+                    <span class="rp-kpi-v-lbl">Pagos pendientes</span>
+                    <span class="rp-kpi-v-num">@Model.PagosPendientes</span>
+                    <span class="rp-kpi-v-sub">Cotizaciones sin cobrar</span>
+                </div>
+            </div>
+            <div class="rp-card">
+                <div class="rp-card-header">
+                    <h3 class="rp-card-title">Ingresos por mes</h3>
+                    <span class="rp-card-sub">Período seleccionado (₡)</span>
+                </div>
+                <div class="rp-chart-wrap" style="height:220px"><canvas id="chartVentasMes"></canvas></div>
+            </div>
+            <div class="rp-grid-2">
+                <div class="rp-card">
+                    <div class="rp-card-header">
+                        <h3 class="rp-card-title">Pagos por método</h3>
+                    </div>
+                    <div class="rp-chart-wrap" style="height:220px">
+                        <canvas id="chartMetodoPago"></canvas>
+                    </div>
+                </div>
+                <div class="rp-card">
+                    <div class="rp-card-header">
+                        <h3 class="rp-card-title">Ingresos por tipo de servicio</h3>
+                    </div>
+                    <div class="rp-chart-wrap" style="height:220px"><canvas id="chartServicios"></canvas></div>
+                </div>
+            </div>
+        </div>
+
     </div>
-   </div>
 </div>
-
 
 <style>
     :root {
         --rp-surface: #fff;
         --rp-border: #e2e8f0;
-        --rp-bg: #f8fafc;
         --rp-text: #0f172a;
         --rp-muted: #64748b;
         --rp-radius: 14px;
         --rp-shadow: 0 4px 20px rgba(0,0,0,.07);
         --rp-ff: 'Barlow Condensed',sans-serif;
         --rp-ff-body: 'Barlow',sans-serif;
+        --rp-amber: #f59e0b;
     }
 
     .rp-page {
         font-family: var(--rp-ff-body);
         display: flex;
         flex-direction: column;
-        gap: 24px;
+        gap: 20px;
     }
 
-    /* HEADER */
     .rp-header {
         display: flex;
         justify-content: space-between;
@@ -189,6 +332,12 @@
         display: flex;
         align-items: center;
         gap: 16px;
+    }
+
+    .rp-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 14px;
     }
 
     .rp-header-icon {
@@ -220,31 +369,27 @@
         gap: 6px;
     }
 
-    .di-btn {
+    .rp-btn {
         display: inline-flex;
         align-items: center;
         gap: 7px;
-        padding: 10px 20px;
-        border-radius: 10px;
-        font-weight: 600;
-        font-size: 14px;
+        padding: 9px 18px;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 700;
         cursor: pointer;
-        text-decoration: none;
         border: none;
-        transition: var(--di-transition);
-        white-space: nowrap;
+        transition: all .2s;
     }
 
-    .di-btn-primary {
-        background: linear-gradient(135deg,#3b82f6,#2563eb);
-        color: white;
+    .rp-btn-export {
+        background: linear-gradient(135deg,#ef4444,#dc2626);
+        color: #fff;
     }
 
-        .di-btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(59,130,246,.35);
-            color: white;
-            text-decoration: none;
+        .rp-btn-export:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(239,68,68,.35);
         }
 
     /* KPIs */
@@ -283,27 +428,27 @@
         }
 
     .rp-kpi-blue::before {
-        background: #3b82f6;
+        background: #3b82f6
     }
 
     .rp-kpi-amber::before {
-        background: #f59e0b;
+        background: #f59e0b
     }
 
     .rp-kpi-green::before {
-        background: #10b981;
+        background: #10b981
     }
 
     .rp-kpi-purple::before {
-        background: #8b5cf6;
+        background: #8b5cf6
     }
 
     .rp-kpi-dark::before {
-        background: #334155;
+        background: #334155
     }
 
     .rp-kpi-red::before {
-        background: #ef4444;
+        background: #ef4444
     }
 
     .rp-kpi-icon {
@@ -312,27 +457,27 @@
     }
 
     .rp-kpi-blue .rp-kpi-icon {
-        color: #3b82f6;
+        color: #3b82f6
     }
 
     .rp-kpi-amber .rp-kpi-icon {
-        color: #f59e0b;
+        color: #f59e0b
     }
 
     .rp-kpi-green .rp-kpi-icon {
-        color: #10b981;
+        color: #10b981
     }
 
     .rp-kpi-purple .rp-kpi-icon {
-        color: #8b5cf6;
+        color: #8b5cf6
     }
 
     .rp-kpi-dark .rp-kpi-icon {
-        color: #334155;
+        color: #334155
     }
 
     .rp-kpi-red .rp-kpi-icon {
-        color: #ef4444;
+        color: #ef4444
     }
 
     .rp-kpi-num {
@@ -353,33 +498,134 @@
         margin-top: 2px;
     }
 
-    /* SECTION TITLE */
-    .rp-section-title {
-        font-family: var(--rp-ff);
-        font-size: 13px;
-        font-weight: 700;
-        letter-spacing: .14em;
-        text-transform: uppercase;
-        color: #475569;
+    /* TABS */
+    .rp-tabs {
         display: flex;
-        align-items: center;
-        gap: 8px;
-        padding-bottom: 10px;
-        border-bottom: 2px solid var(--rp-border);
+        gap: 4px;
+        background: #f1f5f9;
+        padding: 5px;
+        border-radius: 12px;
+        flex-wrap: wrap;
     }
 
-        .rp-section-title i {
-            color: #f59e0b;
+    .rp-tab {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 18px;
+        border-radius: 9px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        color: var(--rp-muted);
+        transition: all .2s;
+        white-space: nowrap;
+    }
+
+        .rp-tab:hover {
+            color: var(--rp-text);
+            background: rgba(255,255,255,.7);
         }
 
-    /* GRID */
+        .rp-tab.active {
+            background: #fff;
+            color: var(--rp-text);
+            box-shadow: 0 2px 8px rgba(0,0,0,.08);
+        }
+
+    .rp-tab-badge {
+        font-size: 10px;
+        background: #f59e0b;
+        color: #0f1923;
+        padding: 1px 7px;
+        border-radius: 100px;
+        font-weight: 700;
+    }
+
+    /* FILTERS */
+    .rp-filters {
+        display: flex;
+        align-items: flex-end;
+        gap: 12px;
+        padding: 16px 20px;
+        background: #f8fafc;
+        border: 1.5px solid var(--rp-border);
+        border-radius: 12px;
+        flex-wrap: wrap;
+    }
+
+    .rp-filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .rp-filter-lbl {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--rp-muted);
+        text-transform: uppercase;
+        letter-spacing: .05em;
+    }
+
+    .rp-filter-input {
+        padding: 8px 12px;
+        border: 1.5px solid var(--rp-border);
+        border-radius: 8px;
+        font-size: 13px;
+        color: var(--rp-text);
+        background: #fff;
+        outline: none;
+        transition: border-color .2s;
+        min-width: 140px;
+    }
+
+        .rp-filter-input:focus {
+            border-color: var(--rp-amber);
+            box-shadow: 0 0 0 3px rgba(245,158,11,.1);
+        }
+
+    .rp-filter-clear {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        border: 1.5px solid var(--rp-border);
+        background: #fff;
+        color: var(--rp-muted);
+        transition: all .2s;
+    }
+
+        .rp-filter-clear:hover {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+    .rp-filter-result {
+        font-size: 13px;
+        color: var(--rp-muted);
+        align-self: center;
+    }
+
+    /* PANEL / GRID / CARD */
+    .rp-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
     .rp-grid-2 {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 20px;
     }
 
-    /* CARD */
     .rp-card {
         background: var(--rp-surface);
         border: 1.5px solid var(--rp-border);
@@ -414,25 +660,99 @@
         font-weight: 600;
     }
 
-    /* CHART WRAPPERS */
+    /* CHARTS — altura fija, sin distorsión */
     .rp-chart-wrap {
         position: relative;
         width: 100%;
     }
 
         .rp-chart-wrap canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100% !important;
+            height: 100% !important;
         }
 
-    .rp-chart-sm {
-        max-height: 100%;
-        max-width: 70%;
+    /* VENTAS KPIs */
+    .rp-kpis-ventas {
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: 16px;
     }
 
-    .rp-chart-md {
-        margin: auto;
-        max-height: 85%;
-        max-width: 80%;
+    .rp-kpi-v {
+        border-radius: 14px;
+        padding: 22px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        border: 1.5px solid transparent;
+    }
+
+    .rp-kpi-v-green {
+        background: #ecfdf5;
+        border-color: #a7f3d0
+    }
+
+    .rp-kpi-v-blue {
+        background: #eff6ff;
+        border-color: #bfdbfe
+    }
+
+    .rp-kpi-v-amber {
+        background: #fffbeb;
+        border-color: #fde68a
+    }
+
+    .rp-kpi-v-lbl {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        color: var(--rp-muted);
+    }
+
+    .rp-kpi-v-num {
+        font-family: var(--rp-ff);
+        font-size: 32px;
+        font-weight: 800;
+        color: var(--rp-text);
+        line-height: 1.1;
+    }
+
+    .rp-kpi-v-sub {
+        font-size: 12px;
+        color: var(--rp-muted);
+    }
+
+    /* DEMO */
+    .rp-demo-badge {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        background: #fffbeb;
+        border: 1.5px solid #fde68a;
+        border-radius: 10px;
+        font-size: 13px;
+        color: #92400e;
+    }
+
+        .rp-demo-badge i {
+            color: #f59e0b;
+        }
+
+    /* NO DATA */
+    .rp-nodata {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        min-height: 120px;
+        color: #94a3b8;
+        font-size: 14px;
+        gap: 8px;
     }
 
     @@media(max-width:1200px) {
@@ -448,6 +768,10 @@
 
         .rp-kpis {
             grid-template-columns: repeat(2,1fr)
+        }
+
+        .rp-kpis-ventas {
+            grid-template-columns: 1fr
         }
     }
 
@@ -466,255 +790,454 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         (function(){
-            // ── Datos del servidor ───────────────────────────────────────────
-            const estadosData   = @Html.Raw(Model.OrdenesEstadoJson);
-            const mesesData     = @Html.Raw(Model.OrdenesPorMesJson);
-            const tecnicosData  = @Html.Raw(Model.OrdenesPorTecnicoJson);
-            const modelosData   = @Html.Raw(Model.MotoresPorModeloJson);
-            const stockData     = @Html.Raw(Model.ProductosStockJson);
-            const bajosData     = @Html.Raw(Model.ProductosBajosJson);
 
-            // ── Paletas de colores ───────────────────────────────────────────
-            const coloresEstado = {
-                'Pendiente':       '#f59e0b',
-                'En diagnóstico':  '#3b82f6',
-                'En reparación':   '#8b5cf6',
-                'Completado':      '#10b981',
-                'Cancelado':       '#ef4444'
-            };
-            const paleta = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ef4444','#06b6d4','#f97316','#84cc16'];
+            // ── Datos del servidor ────────────────────────────────────────────
+            const ORDENES_RAW        = @Html.Raw(Model.OrdenesJsonCompleto);
+            const modelosData        = @Html.Raw(Model.MotoresPorModeloJson);
+            const motDistData        = @Html.Raw(Model.MotoresDistribucionJson);
+            const masServiciadosData = @Html.Raw(Model.MotoresPorDuenoJson);
+            const stockData          = @Html.Raw(Model.ProductosStockJson);
+            const bajosData          = @Html.Raw(Model.ProductosBajosJson);
+            const CATEGORIAS_RAW     = @Html.Raw(Model.ProductosPorCategoriaJson);
+            const ventasMesData      = @Html.Raw(Model.VentasPorMesJson);
+            const metodoPagoData     = @Html.Raw(Model.PagosPorMetodoJson);
+            const serviciosData      = @Html.Raw(Model.IngresosPorServicioJson);
 
-            const defaults = {
-                font: { family: "'Barlow', sans-serif", size: 12 },
-                color: '#64748b'
+            // ── Constantes de estilo ──────────────────────────────────────────
+            const COLORES_ESTADO = {
+                'Pendiente':'#f59e0b','En diagnóstico':'#3b82f6',
+                'En reparación':'#8b5cf6','Completado':'#10b981','Cancelado':'#ef4444'
             };
-            Chart.defaults.font    = defaults.font;
-            Chart.defaults.color   = defaults.color;
+            const PALETA = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ef4444','#06b6d4','#f97316','#84cc16'];
+
+            Chart.defaults.font  = { family:"'Barlow', sans-serif", size:12 };
+            Chart.defaults.color = '#64748b';
             Chart.defaults.plugins.legend.labels.boxWidth = 14;
             Chart.defaults.plugins.legend.labels.padding  = 16;
+            // Mejorar nitidez en pantallas de alta densidad
+            Chart.defaults.devicePixelRatio = window.devicePixelRatio || 2;
 
-            // ── Helper ───────────────────────────────────────────────────────
-            function labels(d)  { return d.map(x => x.label); }
-            function values(d)  { return d.map(x => x.value); }
-            function noData(id) {
-                const ctx = document.getElementById(id);
-                if(!ctx) return;
-                ctx.parentElement.innerHTML =
-                    '<div style="display:flex;align-items:center;justify-content:center;height:100%;min-height:160px;color:#94a3b8;font-size:14px;gap:8px"><i class="bi bi-inbox"></i> Sin datos aún</div>';
+            const lbl = d => d.map(x => x.label);
+            const val = d => d.map(x => x.value);
+
+            function noData(id){
+                const el = document.getElementById(id);
+                if(!el) return;
+                el.parentElement.innerHTML = '<div class="rp-nodata"><i class="bi bi-inbox"></i> Sin datos aún</div>';
             }
 
-            // ── 1. Dona: estados ─────────────────────────────────────────────
-            if (estadosData.length) {
-                new Chart(document.getElementById('chartEstados'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: labels(estadosData),
-                        datasets: [{
-                            data: values(estadosData),
-                            backgroundColor: labels(estadosData).map(l => coloresEstado[l] || '#94a3b8'),
-                            borderWidth: 2,
-                            borderColor: '#fff',
-                            hoverOffset: 8
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        cutout: '62%',
-                        plugins: {
-                            legend: { position: 'right' },
-                            tooltip: {
-                                callbacks: {
-                                    label: ctx => ` ${ctx.label}: ${ctx.raw} órdenes`
-                                }
-                            }
-                        }
-                    }
-                });
-            } else noData('chartEstados');
+            // ── Opciones comunes para evitar distorsión ───────────────────────
+            const BASE_OPTS = { responsive:true, maintainAspectRatio:false };
 
-            // ── 2. Línea: órdenes por mes ────────────────────────────────────
-            if (mesesData.length) {
-                new Chart(document.getElementById('chartMeses'), {
-                    type: 'line',
-                    data: {
-                        labels: labels(mesesData),
-                        datasets: [{
-                            label: 'Órdenes',
-                            data: values(mesesData),
-                            borderColor: '#3b82f6',
-                            backgroundColor: 'rgba(59,130,246,.1)',
-                            pointBackgroundColor: '#3b82f6',
-                            pointRadius: 5,
-                            pointHoverRadius: 7,
-                            borderWidth: 2.5,
-                            fill: true,
-                            tension: 0.35
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: { precision: 0 },
-                                grid: { color: '#f1f5f9' }
-                            },
-                            x: { grid: { display: false } }
-                        }
-                    }
-                });
-            } else noData('chartMeses');
+            // ═════════════════════════════════════════════════════════════════
+            // TAB ÓRDENES
+            // ═════════════════════════════════════════════════════════════════
+            let chartEstados, chartMeses, chartTecnicos;
 
-            // ── 3. Barras: órdenes por técnico ───────────────────────────────
-            if (tecnicosData.length) {
-                new Chart(document.getElementById('chartTecnicos'), {
-                    type: 'bar',
-                    data: {
-                        labels: labels(tecnicosData),
-                        datasets: [{
-                            label: 'Órdenes asignadas',
-                            data: values(tecnicosData),
-                            backgroundColor: paleta,
-                            borderRadius: 7,
-                            borderSkipped: false
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: { precision: 0 },
-                                grid: { color: '#f1f5f9' }
-                            },
-                            x: { grid: { display: false } }
-                        }
-                    }
-                });
-            } else noData('chartTecnicos');
+            function buildOrdenesData(filtradas){
+                const porEstado = {};
+                filtradas.forEach(o => porEstado[o.estado] = (porEstado[o.estado]||0)+1);
+                const estadosArr = Object.entries(porEstado).map(([k,v])=>({label:k,value:v}));
 
-            // ── 4. Barras horizontales: motores por modelo ───────────────────
-            if (modelosData.length) {
-                new Chart(document.getElementById('chartModelos'), {
-                    type: 'bar',
-                    data: {
-                        labels: labels(modelosData),
-                        datasets: [{
-                            label: 'Motores registrados',
-                            data: values(modelosData),
-                            backgroundColor: paleta,
-                            borderRadius: 6,
-                            borderSkipped: false
-                        }]
-                    },
-                    options: {
-                        indexAxis: 'y',
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            x: {
-                                beginAtZero: true,
-                                ticks: { precision: 0 },
-                                grid: { color: '#f1f5f9' }
-                            },
-                            y: { grid: { display: false } }
-                        }
-                    }
+                const hoy = new Date();
+                const meses = Array.from({length:6},(_,i)=>{
+                    const d = new Date(hoy.getFullYear(), hoy.getMonth()-5+i, 1);
+                    return { year:d.getFullYear(), month:d.getMonth(),
+                             label:d.toLocaleString('es-CR',{month:'short',year:'numeric'}) };
                 });
-            } else noData('chartModelos');
+                const porMes = meses.map(m=>({
+                    label: m.label,
+                    value: filtradas.filter(o=>{
+                        const d = new Date(o.creadoEn);
+                        return d.getFullYear()===m.year && d.getMonth()===m.month;
+                    }).length
+                }));
 
-            // ── 5. Barras: stock por categoría ───────────────────────────────
-            if (stockData.length) {
-                new Chart(document.getElementById('chartStock'), {
-                    type: 'bar',
-                    data: {
-                        labels: labels(stockData),
-                        datasets: [{
-                            label: 'Unidades en stock',
-                            data: values(stockData),
-                            backgroundColor: paleta.map(c => c + 'cc'),
-                            borderColor: paleta,
-                            borderWidth: 1.5,
-                            borderRadius: 7,
-                            borderSkipped: false
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: { precision: 0 },
-                                grid: { color: '#f1f5f9' }
-                            },
-                            x: { grid: { display: false }, ticks: { maxRotation: 35 } }
-                        }
-                    }
-                });
-            } else noData('chartStock');
+                const porTec = {};
+                filtradas.forEach(o=>{ if(o.tecnico) porTec[o.tecnico]=(porTec[o.tecnico]||0)+1; });
+                const tecArr = Object.entries(porTec)
+                    .map(([k,v])=>({label:k,value:v}))
+                    .sort((a,b)=>b.value-a.value).slice(0,8);
 
-            // ── 6. Barras: productos con menos stock ─────────────────────────
-            if (bajosData.length) {
-                new Chart(document.getElementById('chartBajos'), {
-                    type: 'bar',
-                    data: {
-                        labels: labels(bajosData),
-                        datasets: [{
-                            label: 'Stock actual',
-                            data: values(bajosData),
-                            backgroundColor: values(bajosData).map(v =>
-                                v <= 5 ? '#fecaca' : v <= 15 ? '#fef3c7' : '#d1fae5'),
-                            borderColor: values(bajosData).map(v =>
-                                v <= 5 ? '#ef4444' : v <= 15 ? '#f59e0b' : '#10b981'),
-                            borderWidth: 1.5,
-                            borderRadius: 7,
-                            borderSkipped: false
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: { label: ctx => ` Stock: ${ctx.raw} unidades` }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: { precision: 0 },
-                                grid: { color: '#f1f5f9' }
-                            },
-                            x: { grid: { display: false }, ticks: { maxRotation: 35 } }
-                        }
-                    }
+                return { estadosArr, porMes, tecArr };
+            }
+
+            function renderOrdenes(filtradas){
+                const { estadosArr, porMes, tecArr } = buildOrdenesData(filtradas);
+
+                // Dona — estados
+                if(!chartEstados){
+                    chartEstados = new Chart(document.getElementById('chartEstados'),{
+                        type:'doughnut',
+                        data:{ labels:lbl(estadosArr), datasets:[{
+                            data:val(estadosArr),
+                            backgroundColor:lbl(estadosArr).map(l=>COLORES_ESTADO[l]||'#94a3b8'),
+                            borderWidth:2, borderColor:'#fff', hoverOffset:8
+                        }]},
+                        options:{ ...BASE_OPTS, cutout:'62%',
+                            plugins:{ legend:{position:'right'},
+                                tooltip:{callbacks:{label:c=>` ${c.label}: ${c.raw} órdenes`}} }}
+                    });
+                } else {
+                    chartEstados.data.labels = lbl(estadosArr);
+                    chartEstados.data.datasets[0].data = val(estadosArr);
+                    chartEstados.data.datasets[0].backgroundColor = lbl(estadosArr).map(l=>COLORES_ESTADO[l]||'#94a3b8');
+                    chartEstados.update();
+                }
+
+                // Línea — meses
+                if(!chartMeses){
+                    chartMeses = new Chart(document.getElementById('chartMeses'),{
+                        type:'line',
+                        data:{ labels:lbl(porMes), datasets:[{ label:'Órdenes', data:val(porMes),
+                            borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,.1)',
+                            pointBackgroundColor:'#3b82f6', pointRadius:5, pointHoverRadius:7,
+                            borderWidth:2.5, fill:true, tension:0.35 }]},
+                        options:{ ...BASE_OPTS, plugins:{legend:{display:false}},
+                            scales:{ y:{beginAtZero:true,ticks:{precision:0},grid:{color:'#f1f5f9'}},
+                                     x:{grid:{display:false}} }}
+                    });
+                } else {
+                    chartMeses.data.labels = lbl(porMes);
+                    chartMeses.data.datasets[0].data = val(porMes);
+                    chartMeses.update();
+                }
+
+                // Barra — técnicos
+                if(!chartTecnicos){
+                    chartTecnicos = new Chart(document.getElementById('chartTecnicos'),{
+                        type:'bar',
+                        data:{ labels:lbl(tecArr), datasets:[{ label:'Órdenes asignadas', data:val(tecArr),
+                            backgroundColor:PALETA, borderRadius:7, borderSkipped:false }]},
+                        options:{ ...BASE_OPTS, plugins:{legend:{display:false}},
+                            scales:{ y:{beginAtZero:true,ticks:{precision:0},grid:{color:'#f1f5f9'}},
+                                     x:{grid:{display:false}} }}
+                    });
+                } else {
+                    chartTecnicos.data.labels = lbl(tecArr);
+                    chartTecnicos.data.datasets[0].data = val(tecArr);
+                    chartTecnicos.data.datasets[0].backgroundColor = PALETA.slice(0,tecArr.length);
+                    chartTecnicos.update();
+                }
+
+                const res = document.getElementById('ord-result');
+                res.textContent = filtradas.length < ORDENES_RAW.length
+                    ? `Mostrando ${filtradas.length} de ${ORDENES_RAW.length} órdenes` : '';
+            }
+
+            window.filtrarOrdenes = function(){
+                const desde  = document.getElementById('ord-desde').value;
+                const hasta  = document.getElementById('ord-hasta').value;
+                const estado = document.getElementById('ord-estado').value;
+                let f = ORDENES_RAW;
+                if(desde)  f = f.filter(o => o.creadoEn >= desde);
+                if(hasta)  f = f.filter(o => o.creadoEn <= hasta);
+                if(estado) f = f.filter(o => o.estado === estado);
+                renderOrdenes(f);
+            };
+            window.limpiarFiltrosOrdenes = function(){
+                ['ord-desde','ord-hasta'].forEach(id => document.getElementById(id).value = '');
+                document.getElementById('ord-estado').value = '';
+                renderOrdenes(ORDENES_RAW);
+            };
+
+            // ═════════════════════════════════════════════════════════════════
+            // TAB MOTORES
+            // ═════════════════════════════════════════════════════════════════
+            let chartModelos, chartMotDist, chartMasServ;
+
+            // Inicializar doughnut distribución (no cambia con filtro, usa top5+otros)
+            if(motDistData.length){
+                chartMotDist = new Chart(document.getElementById('chartMotDist'),{
+                    type:'doughnut',
+                    data:{ labels:lbl(motDistData), datasets:[{
+                        data:val(motDistData),
+                        backgroundColor:[...PALETA,'#94a3b8'],
+                        borderWidth:2, borderColor:'#fff', hoverOffset:10
+                    }]},
+                    options:{ ...BASE_OPTS, cutout:'58%',
+                        plugins:{ legend:{position:'right'},
+                            tooltip:{callbacks:{label:c=>{
+                                const total = c.dataset.data.reduce((a,b)=>a+b,0);
+                                return ` ${c.label}: ${c.raw} (${Math.round(c.raw/total*100)}%)`;
+                            }}} }}
                 });
-            } else noData('chartBajos');
+            } else noData('chartMotDist');
+
+            // Inicializar gráfico de motores más atendidos
+            if(masServiciadosData.length){
+                chartMasServ = new Chart(document.getElementById('chartMasServiciados'),{
+                    type:'bar',
+                    data:{ labels:lbl(masServiciadosData), datasets:[{ label:'Órdenes',
+                        data:val(masServiciadosData),
+                        backgroundColor:PALETA, borderRadius:7, borderSkipped:false }]},
+                    options:{ ...BASE_OPTS, plugins:{legend:{display:false}},
+                        scales:{ y:{beginAtZero:true,ticks:{precision:0},grid:{color:'#f1f5f9'}},
+                                 x:{grid:{display:false}} }}
+                });
+            } else noData('chartMasServiciados');
+
+            function renderMotores(datos){
+                if(!chartModelos){
+                    chartModelos = new Chart(document.getElementById('chartModelos'),{
+                        type:'bar',
+                        data:{ labels:lbl(datos), datasets:[{ label:'Motores',
+                            data:val(datos), backgroundColor:PALETA,
+                            borderRadius:6, borderSkipped:false }]},
+                        options:{ indexAxis:'y', ...BASE_OPTS, plugins:{legend:{display:false}},
+                            scales:{ x:{beginAtZero:true,ticks:{precision:0},grid:{color:'#f1f5f9'}},
+                                     y:{grid:{display:false}} }}
+                    });
+                } else {
+                    chartModelos.data.labels = lbl(datos);
+                    chartModelos.data.datasets[0].data = val(datos);
+                    chartModelos.data.datasets[0].backgroundColor = PALETA.slice(0,datos.length);
+                    chartModelos.update();
+                }
+            }
+
+            window.filtrarMotores = function(){
+                const buscar = document.getElementById('mot-buscar').value.toLowerCase().trim();
+                const orden  = document.getElementById('mot-orden').value;
+
+                // Reagrupar desde el raw completo con el filtro
+                const mapa = {};
+                MOTORES_RAW.forEach(m => {
+                    if(!buscar || m.modelo.toLowerCase().includes(buscar))
+                        mapa[m.modelo] = (mapa[m.modelo]||0)+1;
+                });
+                let arr = Object.entries(mapa).map(([k,v])=>({label:k,value:v}));
+                if(orden==='desc') arr.sort((a,b)=>b.value-a.value);
+                else if(orden==='asc') arr.sort((a,b)=>a.value-b.value);
+                else arr.sort((a,b)=>a.label.localeCompare(b.label));
+                arr = arr.slice(0,8);
+
+                renderMotores(arr);
+                document.getElementById('mot-result').textContent =
+                    buscar ? `${arr.length} modelo(s) encontrado(s)` : '';
+                document.getElementById('mot-sub-bar').textContent =
+                    buscar ? `Filtrado` : 'Top 8';
+            };
+            window.limpiarFiltrosMotores = function(){
+                document.getElementById('mot-buscar').value = '';
+                document.getElementById('mot-orden').value = 'desc';
+                renderMotores(modelosData);
+                document.getElementById('mot-result').textContent = '';
+                document.getElementById('mot-sub-bar').textContent = 'Top 8';
+            };
+
+            // Render inicial motores
+            if(modelosData.length){ renderMotores(modelosData); }
+            else noData('chartModelos');
+
+            // ═════════════════════════════════════════════════════════════════
+            // TAB INVENTARIO
+            // ═════════════════════════════════════════════════════════════════
+            let chartStock, chartBajos;
+
+            // Popular select de categorías
+            (function poblarCategorias(){
+                const sel = document.getElementById('inv-cat');
+                CATEGORIAS_RAW.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.categoria;
+                    opt.textContent = c.categoria;
+                    sel.appendChild(opt);
+                });
+            })();
+
+            function renderInventario(catFiltro, modo){
+                // Determinar datos según filtros
+                let stockFiltrado, bajosFiltrado;
+
+                if(catFiltro){
+                    const cat = CATEGORIAS_RAW.find(c => c.categoria === catFiltro);
+                    if(cat){
+                        const items = modo==='bajos'
+                            ? cat.items.filter(p => p.value <= p.minimo)
+                            : cat.items;
+                        stockFiltrado = [{ label:cat.categoria, value:cat.totalStock }];
+                        bajosFiltrado = items.slice(0,6);
+                    } else { stockFiltrado=[]; bajosFiltrado=[]; }
+                } else {
+                    stockFiltrado = modo==='bajos'
+                        ? CATEGORIAS_RAW.filter(c=>c.cantBajos>0).map(c=>({label:c.categoria,value:c.cantBajos}))
+                        : stockData;
+                    bajosFiltrado = bajosData;
+                }
+
+                const resEl = document.getElementById('inv-result');
+                if(catFiltro || modo==='bajos'){
+                    const total = stockFiltrado.reduce((s,x)=>s+x.value,0);
+                    resEl.textContent = `${total} unidades en vista`;
+                } else { resEl.textContent=''; }
+
+                // Chart stock por categoría
+                if(!chartStock){
+                    chartStock = new Chart(document.getElementById('chartStock'),{
+                        type:'bar',
+                        data:{ labels:lbl(stockFiltrado), datasets:[{ label:'Unidades en stock',
+                            data:val(stockFiltrado),
+                            backgroundColor:PALETA.map(c=>c+'cc'), borderColor:PALETA,
+                            borderWidth:1.5, borderRadius:7, borderSkipped:false }]},
+                        options:{ ...BASE_OPTS, plugins:{legend:{display:false}},
+                            scales:{ y:{beginAtZero:true,ticks:{precision:0},grid:{color:'#f1f5f9'}},
+                                     x:{grid:{display:false},ticks:{maxRotation:35}} }}
+                    });
+                } else {
+                    chartStock.data.labels = lbl(stockFiltrado);
+                    chartStock.data.datasets[0].data = val(stockFiltrado);
+                    chartStock.update();
+                }
+
+                // Chart productos bajos
+                const vs = val(bajosFiltrado);
+                if(!chartBajos){
+                    chartBajos = new Chart(document.getElementById('chartBajos'),{
+                        type:'bar',
+                        data:{ labels:lbl(bajosFiltrado), datasets:[{ label:'Stock actual', data:vs,
+                            backgroundColor:vs.map(v=>v<=5?'#fecaca':v<=15?'#fef3c7':'#d1fae5'),
+                            borderColor:vs.map(v=>v<=5?'#ef4444':v<=15?'#f59e0b':'#10b981'),
+                            borderWidth:1.5, borderRadius:7, borderSkipped:false }]},
+                        options:{ ...BASE_OPTS, plugins:{legend:{display:false},
+                            tooltip:{callbacks:{label:c=>` Stock: ${c.raw} unidades`}}},
+                            scales:{ y:{beginAtZero:true,ticks:{precision:0},grid:{color:'#f1f5f9'}},
+                                     x:{grid:{display:false},ticks:{maxRotation:35}} }}
+                    });
+                } else {
+                    chartBajos.data.labels = lbl(bajosFiltrado);
+                    chartBajos.data.datasets[0].data = vs;
+                    chartBajos.data.datasets[0].backgroundColor = vs.map(v=>v<=5?'#fecaca':v<=15?'#fef3c7':'#d1fae5');
+                    chartBajos.data.datasets[0].borderColor = vs.map(v=>v<=5?'#ef4444':v<=15?'#f59e0b':'#10b981');
+                    chartBajos.update();
+                }
+            }
+
+            window.filtrarInventario = function(){
+                const cat  = document.getElementById('inv-cat').value;
+                const modo = document.getElementById('inv-modo').value;
+                renderInventario(cat, modo);
+            };
+            window.limpiarFiltrosInventario = function(){
+                document.getElementById('inv-cat').value  = '';
+                document.getElementById('inv-modo').value = 'todos';
+                renderInventario('','todos');
+            };
+
+            if(stockData.length) renderInventario('','todos');
+            else { noData('chartStock'); noData('chartBajos'); }
+
+            // ═════════════════════════════════════════════════════════════════
+            // TAB VENTAS
+            // ═════════════════════════════════════════════════════════════════
+            let chartVentasMes;
+
+            // Popular selects de mes
+            (function poblarMeses(){
+                const desde = document.getElementById('ven-desde');
+                const hasta = document.getElementById('ven-hasta');
+                ventasMesData.forEach((m,i) => {
+                    [desde,hasta].forEach(sel => {
+                        const opt = document.createElement('option');
+                        opt.value = i;
+                        opt.textContent = m.label;
+                        sel.appendChild(opt);
+                    });
+                });
+                desde.value = 0;
+                hasta.value = ventasMesData.length - 1;
+            })();
+
+            function renderVentas(datos){
+                const total = datos.reduce((s,x)=>s+x.value,0);
+                document.getElementById('ven-kpi-total').textContent =
+                    '₡' + total.toLocaleString('es-CR');
+                document.getElementById('ven-kpi-sub').textContent =
+                    datos.length === 1 ? datos[0].label : `${datos[0].label} – ${datos[datos.length-1].label}`;
+
+                if(!chartVentasMes){
+                    chartVentasMes = new Chart(document.getElementById('chartVentasMes'),{
+                        type:'line',
+                        data:{ labels:lbl(datos), datasets:[{ label:'Ingresos (₡)', data:val(datos),
+                            borderColor:'#10b981', backgroundColor:'rgba(16,185,129,.1)',
+                            pointBackgroundColor:'#10b981', pointRadius:5, pointHoverRadius:7,
+                            borderWidth:2.5, fill:true, tension:0.35 }]},
+                        options:{ ...BASE_OPTS, plugins:{legend:{display:false}},
+                            scales:{ y:{beginAtZero:true, grid:{color:'#f1f5f9'},
+                                ticks:{callback:v=>'₡'+Number(v).toLocaleString('es-CR')}},
+                                     x:{grid:{display:false}} }}
+                    });
+                } else {
+                    chartVentasMes.data.labels = lbl(datos);
+                    chartVentasMes.data.datasets[0].data = val(datos);
+                    chartVentasMes.update();
+                }
+            }
+
+            window.filtrarVentas = function(){
+                const desde = parseInt(document.getElementById('ven-desde').value);
+                const hasta = parseInt(document.getElementById('ven-hasta').value);
+                const d = desde <= hasta
+                    ? ventasMesData.slice(desde, hasta+1)
+                    : ventasMesData.slice(hasta, desde+1);
+                renderVentas(d);
+                document.getElementById('ven-result').textContent =
+                    d.length < ventasMesData.length ? `${d.length} mes(es) seleccionado(s)` : '';
+            };
+            window.limpiarFiltrosVentas = function(){
+                document.getElementById('ven-desde').value = 0;
+                document.getElementById('ven-hasta').value = ventasMesData.length - 1;
+                renderVentas(ventasMesData);
+                document.getElementById('ven-result').textContent = '';
+            };
+
+            renderVentas(ventasMesData);
+
+            // Pagos por método (doughnut fijo)
+            new Chart(document.getElementById('chartMetodoPago'),{
+                type:'doughnut',
+                data:{ labels:lbl(metodoPagoData), datasets:[{ data:val(metodoPagoData),
+                    backgroundColor:['#3b82f6','#10b981','#8b5cf6','#f59e0b'],
+                    borderWidth:2, borderColor:'#fff', hoverOffset:8 }]},
+                options:{ ...BASE_OPTS, cutout:'62%',
+                    plugins:{ legend:{position:'right'},
+                        tooltip:{callbacks:{label:c=>` ${c.label}: ${c.raw}%`}} }}
+            });
+
+            // Servicios (barra horizontal fija)
+            new Chart(document.getElementById('chartServicios'),{
+                type:'bar',
+                data:{ labels:lbl(serviciosData), datasets:[{ label:'Ingresos (₡)', data:val(serviciosData),
+                    backgroundColor:PALETA, borderRadius:7, borderSkipped:false }]},
+                options:{ indexAxis:'y', ...BASE_OPTS, plugins:{legend:{display:false}},
+                    scales:{ x:{beginAtZero:true, grid:{color:'#f1f5f9'},
+                        ticks:{callback:v=>'₡'+Number(v).toLocaleString('es-CR')}},
+                             y:{grid:{display:false}} }}
+            });
+
+            // ═════════════════════════════════════════════════════════════════
+            // Render inicial
+            // ═════════════════════════════════════════════════════════════════
+            renderOrdenes(ORDENES_RAW);
 
         })();
-    </script>
-    <script>
-        function exportPDF() {
-          const element = document.getElementById('dashboard');
 
-          const opt = {
-            margin:       0.5,
-            filename:     'reporte.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
-            jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
-          };
+        // ── Tabs ──────────────────────────────────────────────────────────────
+        window.cambiarTab = function(tab, btn){
+            document.querySelectorAll('.rp-panel').forEach(p => p.style.display='none');
+            document.querySelectorAll('.rp-tab').forEach(b => b.classList.remove('active'));
+            document.getElementById('panel-'+tab).style.display = 'flex';
+            btn.classList.add('active');
+        };
 
-          html2pdf().set(opt).from(element).save();
-        }
+        // ── Export PDF ────────────────────────────────────────────────────────
+        window.exportPDF = function(){
+            html2pdf().set({
+                margin:0.5, filename:'reporte-ep-bobinado.pdf',
+                image:{type:'jpeg',quality:0.98},
+                html2canvas:{scale:2, useCORS:true},
+                jsPDF:{unit:'in',format:'letter',orientation:'landscape'}
+            }).from(document.getElementById('dashboard')).save();
+        };
     </script>
 }

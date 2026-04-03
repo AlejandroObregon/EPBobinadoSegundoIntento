@@ -18,12 +18,10 @@ namespace Web.Pages.Reportes
             _config = config;
         }
 
-        // ── Datos crudos ──────────────────────────────────────────────
         public List<OrdenServicioResponse> Ordenes { get; set; } = new();
         public List<MotorResponse> Motores { get; set; } = new();
         public List<UsuarioResponse> Usuarios { get; set; } = new();
 
-        // ── KPIs rápidos ─────────────────────────────────────────────
         public int TotalOrdenes => Ordenes.Count;
         public int OrdenesActivas => Ordenes.Count(o => o.Estado is "Pendiente" or "En diagnóstico" or "En reparación");
         public int OrdenesCompletadas => Ordenes.Count(o => o.Estado == "Completado");
@@ -31,54 +29,26 @@ namespace Web.Pages.Reportes
         public int TotalClientes => Usuarios.Count(u => u.RolId == 1);
         public int TotalTecnicos => Usuarios.Count(u => u.RolId == 1002);
 
-        // ── Exporte de Reporte en PDF ────────────────
-
         public IActionResult OnPostReporte()
         {
             var pdf = new NReco.PdfGenerator.HtmlToPdfConverter();
-            string url = "https://localhost:7225/Reportes";
-            System.Net.WebClient wc = new System.Net.WebClient();
-            string html = wc.DownloadString(url);
-
+            var wc = new System.Net.WebClient();
+            var html = wc.DownloadString("https://localhost:7225/Reportes");
             var pdfByte = pdf.GeneratePdf(html);
             return File(pdfByte, "application/pdf", "reporteGeneral.pdf");
         }
 
-        // ── Series para gráficos (JSON para pasar a JS) ────────────────
+        // Todas las órdenes serializadas para que JS filtre en el cliente
+        public string OrdenesJsonCompleto => BuildJson(
+            Ordenes.Select(o => new {
+                id = o.Id,
+                estado = o.Estado,
+                tecnico = o.Tecnico ?? "Sin asignar",
+                creadoEn = o.CreadoEn.ToString("yyyy-MM-dd")
+            }));
 
-        // Órdenes por estado → dona
-        public string OrdenesEstadoJson => BuildJson(
-            Ordenes.GroupBy(o => o.Estado)
-                   .Select(g => new { label = g.Key, value = g.Count() }));
-
-        // Órdenes por mes (últimos 6 meses) → línea
-        public string OrdenesPorMesJson
-        {
-            get
-            {
-                var hoy = DateTime.Today;
-                var meses = Enumerable.Range(0, 6)
-                    .Select(i => hoy.AddMonths(-5 + i))
-                    .ToList();
-
-                var data = meses.Select(m => new
-                {
-                    label = m.ToString("MMM yyyy"),
-                    value = Ordenes.Count(o => o.CreadoEn.Year == m.Year && o.CreadoEn.Month == m.Month)
-                });
-                return BuildJson(data);
-            }
-        }
-
-        // Órdenes por técnico → barras
-        public string OrdenesPorTecnicoJson => BuildJson(
-            Ordenes.Where(o => o.Tecnico != null)
-                   .GroupBy(o => o.Tecnico)
-                   .OrderByDescending(g => g.Count())
-                   .Take(8)
-                   .Select(g => new { label = g.Key, value = g.Count() }));
-
-        // Motores por modelo → barras horizontales
+        // ── Motores ────────────────────────────────────────────────────────
+        // Top 8 por cantidad (barra horizontal)
         public string MotoresPorModeloJson => BuildJson(
             Motores.Where(m => m.Modelo != null)
                    .GroupBy(m => m.Modelo!.Nombre)
@@ -86,35 +56,90 @@ namespace Web.Pages.Reportes
                    .Take(8)
                    .Select(g => new { label = g.Key, value = g.Count() }));
 
-        // Productos: stock actual por categoría → barras apiladas
-        // (usamos Producto endpoint — se pasará al client como JSON en el view)
+        // Distribución top-5 + Otros (doughnut)
+        public string MotoresDistribucionJson
+        {
+            get
+            {
+                var grupos = Motores.Where(m => m.Modelo != null)
+                    .GroupBy(m => m.Modelo!.Nombre)
+                    .OrderByDescending(g => g.Count())
+                    .ToList();
+
+                var top5 = grupos.Take(5).Select(g => new { label = g.Key, value = g.Count() }).ToList();
+                var otros = grupos.Skip(5).Sum(g => g.Count());
+                if (otros > 0)
+                    top5.Add(new { label = "Otros", value = otros });
+                return BuildJson(top5);
+            }
+        }
+
+        // Motores con más órdenes de servicio (requiere Motor en OrdenServicioResponse)
+        // Si OrdenServicioResponse no tiene Motor, esta propiedad devolverá "[]"
+        // Reemplazar MotoresMasServiciadosJson por esto:
+        public string MotoresPorDuenoJson => BuildJson(
+            Motores
+                .Where(m => m.Usuario.Nombre != null)   
+                .GroupBy(m => m.Usuario.Nombre)
+                .OrderByDescending(g => g.Count())
+                .Take(8)
+                .Select(g => new { label = g.Key, value = g.Count() }));
+
+        // ── Inventario ─────────────────────────────────────────────────────
         public string ProductosStockJson { get; private set; } = "[]";
         public string ProductosBajosJson { get; private set; } = "[]";
+        // Dataset completo para filtrado en cliente (categoría + productos)
+        public string ProductosPorCategoriaJson { get; private set; } = "[]";
         public int TotalProductos { get; private set; }
         public int ProductosBajoStock { get; private set; }
 
+        // ── Datos quemados Ventas & Pagos ──────────────────────────────────
+        public string VentasPorMesJson => BuildJson(new[]
+        {
+            new { label = "Oct 2025", value = 285000m },
+            new { label = "Nov 2025", value = 412000m },
+            new { label = "Dic 2025", value = 378000m },
+            new { label = "Ene 2026", value = 520000m },
+            new { label = "Feb 2026", value = 467000m },
+            new { label = "Mar 2026", value = 615000m },
+        });
+
+        public string PagosPorMetodoJson => BuildJson(new[]
+        {
+            new { label = "Transferencia", value = 48 },
+            new { label = "Efectivo",      value = 31 },
+            new { label = "Tarjeta",       value = 15 },
+            new { label = "SINPE",         value = 6  },
+        });
+
+        public string IngresosPorServicioJson => BuildJson(new[]
+        {
+            new { label = "Rebobinado completo",  value = 890000m },
+            new { label = "Diagnóstico",          value = 340000m },
+            new { label = "Mantenimiento",        value = 275000m },
+            new { label = "Reparación eléctrica", value = 210000m },
+            new { label = "Cambio rodamientos",   value = 185000m },
+        });
+
+        public decimal VentasTotalMes => 615000m;
+        public decimal TicketPromedio => 41000m;
+        public int PagosPendientes => 4;
+
         public async Task<IActionResult> OnGetAsync()
         {
-            var auth = VerificarSesion(2, 1002); // solo admin y técnico
+            var auth = VerificarSesion(2, 1002);
             if (auth != null) return auth;
 
             var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             var client = _httpClientFactory.CreateClient();
 
-            await CargarAsync<OrdenServicioResponse>(client, opciones, "ApiEndPointsOrdenServicio",
-                data => Ordenes = data);
+            await CargarAsync<OrdenServicioResponse>(client, opciones, "ApiEndPointsOrdenServicio", d => Ordenes = d);
+            await CargarAsync<MotorResponse>(client, opciones, "ApiEndPointsMotor", d => Motores = d);
+            await CargarAsync<UsuarioResponse>(client, opciones, "ApiEndPointsUsuario", d => Usuarios = d);
 
-            await CargarAsync<MotorResponse>(client, opciones, "ApiEndPointsMotor",
-                data => Motores = data);
-
-            await CargarAsync<UsuarioResponse>(client, opciones, "ApiEndPointsUsuario",
-                data => Usuarios = data);
-
-            // Productos — sección separada para construir los JSONs de stock
             try
             {
-                var url = ObtenerUrl("ApiEndPointsProducto", "Obtener");
-                var resp = await client.GetAsync(url);
+                var resp = await client.GetAsync(ObtenerUrl("ApiEndPointsProducto", "Obtener"));
                 if (resp.IsSuccessStatusCode && resp.StatusCode == HttpStatusCode.OK)
                 {
                     var productos = JsonSerializer.Deserialize<List<ProductoResponse>>(
@@ -123,20 +148,33 @@ namespace Web.Pages.Reportes
                     TotalProductos = productos.Count;
                     ProductosBajoStock = productos.Count(p => p.Activo && p.Stock <= p.StockMinimo);
 
-                    // Stock por categoría
                     ProductosStockJson = BuildJson(
                         productos.Where(p => p.Activo)
                                  .GroupBy(p => string.IsNullOrWhiteSpace(p.Categoria) ? "Sin categoría" : p.Categoria)
-                                 .OrderByDescending(g => g.Sum(p => p.Stock))
-                                 .Take(8)
+                                 .OrderByDescending(g => g.Sum(p => p.Stock)).Take(8)
                                  .Select(g => new { label = g.Key, value = g.Sum(p => p.Stock) }));
 
-                    // Productos con stock más bajo (top 6)
                     ProductosBajosJson = BuildJson(
+                        productos.Where(p => p.Activo).OrderBy(p => p.Stock).Take(6)
+                                 .Select(p => new {
+                                     label = p.Nombre.Length > 20 ? p.Nombre[..20] + "…" : p.Nombre,
+                                     value = p.Stock
+                                 }));
+
+                    // Dataset completo por categoría para filtrado en JS
+                    ProductosPorCategoriaJson = BuildJson(
                         productos.Where(p => p.Activo)
-                                 .OrderBy(p => p.Stock)
-                                 .Take(6)
-                                 .Select(p => new { label = p.Nombre.Length > 20 ? p.Nombre[..20] + "…" : p.Nombre, value = p.Stock }));
+                                 .GroupBy(p => string.IsNullOrWhiteSpace(p.Categoria) ? "Sin categoría" : p.Categoria)
+                                 .Select(g => new {
+                                     categoria = g.Key,
+                                     totalStock = g.Sum(p => p.Stock),
+                                     cantBajos = g.Count(p => p.Stock <= p.StockMinimo),
+                                     items = g.Select(p => new {
+                                         label = p.Nombre.Length > 22 ? p.Nombre[..22] + "…" : p.Nombre,
+                                         value = p.Stock,
+                                         minimo = p.StockMinimo
+                                     }).OrderBy(p => p.value).ToList()
+                                 }).ToList());
                 }
             }
             catch { }
@@ -144,7 +182,6 @@ namespace Web.Pages.Reportes
             return Page();
         }
 
-        // ── Helpers ───────────────────────────────────────────────────
         private async Task CargarAsync<T>(HttpClient client, JsonSerializerOptions opt,
             string seccionKey, Action<List<T>> setter)
         {
@@ -152,11 +189,8 @@ namespace Web.Pages.Reportes
             {
                 var resp = await client.GetAsync(ObtenerUrl(seccionKey, "Obtener"));
                 if (resp.IsSuccessStatusCode && resp.StatusCode == HttpStatusCode.OK)
-                {
-                    var data = JsonSerializer.Deserialize<List<T>>(
-                        await resp.Content.ReadAsStringAsync(), opt) ?? new();
-                    setter(data);
-                }
+                    setter(JsonSerializer.Deserialize<List<T>>(
+                        await resp.Content.ReadAsStringAsync(), opt) ?? new());
             }
             catch { }
         }
@@ -175,7 +209,6 @@ namespace Web.Pages.Reportes
             System.Text.Json.JsonSerializer.Serialize(data);
     }
 
-    // DTO mínimo de Producto para esta página
     public class ProductoResponse
     {
         public int Id { get; set; }
