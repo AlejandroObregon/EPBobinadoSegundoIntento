@@ -639,7 +639,7 @@
             } else {
                 dayOrders.forEach(order => {
                     const estadoSlug = order.estado.toLowerCase().replace(/ /g, '-').replace('ó', 'o').replace('é', 'e');
-                    calendarHTML += `<a href="/Ordenes/Editar?id=${order.id}" class="calendar-event event-${estadoSlug}">
+                    calendarHTML += `<a href="/Ordenes/Editar/${order.id}" class="calendar-event event-${estadoSlug}">
                                         <strong>#${order.id}</strong> - ${order.cliente || 'Sin cliente'} 
                                         ${order.costo ? `₡${order.costo.toLocaleString()}` : ''}
                                     </a>`;
