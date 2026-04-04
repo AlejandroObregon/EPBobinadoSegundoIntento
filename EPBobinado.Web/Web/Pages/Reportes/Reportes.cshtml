@@ -7,6 +7,7 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <div class="rp-page">
 
@@ -20,9 +21,78 @@
         </div>
         <div class="rp-header-actions">
             <span class="rp-date"><i class="bi bi-calendar3"></i> @DateTime.Now.ToString("dd 'de' MMMM, yyyy")</span>
-            <button onclick="exportPDF()" class="rp-btn rp-btn-export">
+            <button onclick="abrirModalPDF()" class="rp-btn rp-btn-export">
                 <i class="bi bi-file-earmark-pdf-fill"></i> Exportar PDF
             </button>
+        </div>
+    </div>
+
+    <!-- MODAL PARA PARÁMETROS DEL PDF -->
+    <div id="pdfModal" class="rp-modal" style="display:none;">
+        <div class="rp-modal-content">
+            <div class="rp-modal-header">
+                <h3><i class="bi bi-file-earmark-pdf-fill"></i> Exportar Reporte PDF</h3>
+                <button class="rp-modal-close" onclick="cerrarModalPDF()">&times;</button>
+            </div>
+            <div class="rp-modal-body">
+                <div class="rp-modal-section">
+                    <label class="rp-modal-label">📅 Rango de fechas</label>
+                    <div class="rp-modal-row">
+                        <div class="rp-modal-field">
+                            <label>Desde:</label>
+                            <input type="date" id="pdfFechaDesde" class="rp-modal-input">
+                        </div>
+                        <div class="rp-modal-field">
+                            <label>Hasta:</label>
+                            <input type="date" id="pdfFechaHasta" class="rp-modal-input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rp-modal-section">
+                    <label class="rp-modal-label">📊 Seleccione qué incluir</label>
+                    <div class="rp-modal-check-group">
+                        <label><input type="checkbox" id="pdfIncluirKPIs" checked> KPIs globales</label>
+                        <label><input type="checkbox" id="pdfIncluirOrdenes" checked> Órdenes por estado</label>
+                        <label><input type="checkbox" id="pdfIncluirMotores" checked> Motores por modelo</label>
+                        <label><input type="checkbox" id="pdfIncluirInventario" checked> Resumen inventario</label>
+                        <label><input type="checkbox" id="pdfIncluirVentas" checked> Ventas</label>
+                    </div>
+                </div>
+
+                <div class="rp-modal-section">
+                    <label class="rp-modal-label">🎨 Formato del reporte</label>
+                    <div class="rp-modal-row">
+                        <div class="rp-modal-field">
+                            <label>Orientación:</label>
+                            <select id="pdfOrientacion" class="rp-modal-input">
+                                <option value="landscape">Horizontal (Landscape)</option>
+                                <option value="portrait">Vertical (Portrait)</option>
+                            </select>
+                        </div>
+                        <div class="rp-modal-field">
+                            <label>Tamaño:</label>
+                            <select id="pdfTamano" class="rp-modal-input">
+                                <option value="letter">Carta (Letter)</option>
+                                <option value="a4">A4</option>
+                                <option value="legal">Oficio (Legal)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rp-modal-section">
+                    <label class="rp-modal-label">📝 Información adicional</label>
+                    <textarea id="pdfNotas" class="rp-modal-textarea" rows="2"
+                              placeholder="Notas adicionales para incluir en el reporte (opcional)..."></textarea>
+                </div>
+            </div>
+            <div class="rp-modal-footer">
+                <button class="rp-btn rp-btn-secondary" onclick="cerrarModalPDF()">Cancelar</button>
+                <button class="rp-btn rp-btn-primary" onclick="generarPDFConParametros(this)">
+                    <i class="bi bi-download"></i> Generar PDF
+                </button>
+            </div>
         </div>
     </div>
 
@@ -133,8 +203,6 @@
 
         <!-- ══ TAB MOTORES ══ -->
         <div class="rp-panel" id="panel-motores" style="display:none">
-
-            <!-- Filtro por modelo -->
             <div class="rp-filters">
                 <div class="rp-filter-group">
                     <label class="rp-filter-lbl"><i class="bi bi-search"></i> Buscar modelo</label>
@@ -156,7 +224,6 @@
                 <span class="rp-filter-result" id="mot-result"></span>
             </div>
 
-            <!-- Gráficos motores: barra + doughnut -->
             <div class="rp-grid-2">
                 <div class="rp-card">
                     <div class="rp-card-header">
@@ -178,7 +245,6 @@
                 </div>
             </div>
 
-            <!-- Motores más atendidos (si hay datos de Motor en órdenes) -->
             <div class="rp-card" id="card-masServiciados">
                 <div class="rp-card-header">
                     <h3 class="rp-card-title">Motores por cliente</h3>
@@ -192,8 +258,6 @@
 
         <!-- ══ TAB INVENTARIO ══ -->
         <div class="rp-panel" id="panel-inventario" style="display:none">
-
-            <!-- Filtros inventario -->
             <div class="rp-filters">
                 <div class="rp-filter-group">
                     <label class="rp-filter-lbl"><i class="bi bi-tag"></i> Categoría</label>
@@ -239,7 +303,6 @@
                 Datos de demostración — se reemplazarán cuando el módulo de pagos esté integrado.
             </div>
 
-            <!-- Filtro ventas por rango de meses -->
             <div class="rp-filters">
                 <div class="rp-filter-group">
                     <label class="rp-filter-lbl"><i class="bi bi-calendar-range"></i> Desde mes</label>
@@ -392,6 +455,174 @@
             box-shadow: 0 6px 16px rgba(239,68,68,.35);
         }
 
+    .rp-btn-primary {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+    }
+
+    .rp-btn-secondary {
+        background: #f1f5f9;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+    }
+
+        .rp-btn-primary:hover, .rp-btn-secondary:hover {
+            transform: translateY(-1px);
+        }
+
+    /* MODAL */
+    .rp-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .rp-modal-content {
+        background: white;
+        border-radius: 20px;
+        width: 90%;
+        max-width: 550px;
+        max-height: 85vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        animation: modalSlideIn 0.3s ease;
+    }
+
+    @@keyframes modalSlideIn {
+        from {
+            transform: translateY(-30px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .rp-modal-header {
+        padding: 20px 24px;
+        border-bottom: 2px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .rp-modal-header h3 {
+            margin: 0;
+            font-family: var(--rp-ff);
+            font-size: 22px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+    .rp-modal-close {
+        background: none;
+        border: none;
+        font-size: 32px;
+        cursor: pointer;
+        color: #94a3b8;
+        transition: color 0.2s;
+    }
+
+        .rp-modal-close:hover {
+            color: #ef4444;
+        }
+
+    .rp-modal-body {
+        padding: 24px;
+    }
+
+    .rp-modal-section {
+        margin-bottom: 24px;
+    }
+
+    .rp-modal-label {
+        display: block;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 12px;
+        font-size: 14px;
+    }
+
+    .rp-modal-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .rp-modal-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+        .rp-modal-field label {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+    .rp-modal-input {
+        padding: 10px 12px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.2s;
+    }
+
+        .rp-modal-input:focus {
+            outline: none;
+            border-color: #f59e0b;
+        }
+
+    .rp-modal-check-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+        .rp-modal-check-group label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #334155;
+        }
+
+        .rp-modal-check-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #f59e0b;
+        }
+
+    .rp-modal-textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: inherit;
+        resize: vertical;
+    }
+
+    .rp-modal-footer {
+        padding: 16px 24px;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
     /* KPIs */
     .rp-kpis {
         display: grid;
@@ -428,27 +659,27 @@
         }
 
     .rp-kpi-blue::before {
-        background: #3b82f6
+        background: #3b82f6;
     }
 
     .rp-kpi-amber::before {
-        background: #f59e0b
+        background: #f59e0b;
     }
 
     .rp-kpi-green::before {
-        background: #10b981
+        background: #10b981;
     }
 
     .rp-kpi-purple::before {
-        background: #8b5cf6
+        background: #8b5cf6;
     }
 
     .rp-kpi-dark::before {
-        background: #334155
+        background: #334155;
     }
 
     .rp-kpi-red::before {
-        background: #ef4444
+        background: #ef4444;
     }
 
     .rp-kpi-icon {
@@ -457,27 +688,27 @@
     }
 
     .rp-kpi-blue .rp-kpi-icon {
-        color: #3b82f6
+        color: #3b82f6;
     }
 
     .rp-kpi-amber .rp-kpi-icon {
-        color: #f59e0b
+        color: #f59e0b;
     }
 
     .rp-kpi-green .rp-kpi-icon {
-        color: #10b981
+        color: #10b981;
     }
 
     .rp-kpi-purple .rp-kpi-icon {
-        color: #8b5cf6
+        color: #8b5cf6;
     }
 
     .rp-kpi-dark .rp-kpi-icon {
-        color: #334155
+        color: #334155;
     }
 
     .rp-kpi-red .rp-kpi-icon {
-        color: #ef4444
+        color: #ef4444;
     }
 
     .rp-kpi-num {
@@ -660,7 +891,6 @@
         font-weight: 600;
     }
 
-    /* CHARTS — altura fija, sin distorsión */
     .rp-chart-wrap {
         position: relative;
         width: 100%;
@@ -674,7 +904,6 @@
             height: 100% !important;
         }
 
-    /* VENTAS KPIs */
     .rp-kpis-ventas {
         display: grid;
         grid-template-columns: repeat(3,1fr);
@@ -692,17 +921,17 @@
 
     .rp-kpi-v-green {
         background: #ecfdf5;
-        border-color: #a7f3d0
+        border-color: #a7f3d0;
     }
 
     .rp-kpi-v-blue {
         background: #eff6ff;
-        border-color: #bfdbfe
+        border-color: #bfdbfe;
     }
 
     .rp-kpi-v-amber {
         background: #fffbeb;
-        border-color: #fde68a
+        border-color: #fde68a;
     }
 
     .rp-kpi-v-lbl {
@@ -726,7 +955,6 @@
         color: var(--rp-muted);
     }
 
-    /* DEMO */
     .rp-demo-badge {
         display: flex;
         align-items: center;
@@ -743,7 +971,6 @@
             color: #f59e0b;
         }
 
-    /* NO DATA */
     .rp-nodata {
         display: flex;
         align-items: center;
@@ -757,37 +984,36 @@
 
     @@media(max-width:1200px) {
         .rp-kpis {
-            grid-template-columns: repeat(3,1fr)
+            grid-template-columns: repeat(3,1fr);
         }
     }
 
     @@media(max-width:900px) {
         .rp-grid-2 {
-            grid-template-columns: 1fr
+            grid-template-columns: 1fr;
         }
 
         .rp-kpis {
-            grid-template-columns: repeat(2,1fr)
+            grid-template-columns: repeat(2,1fr);
         }
 
         .rp-kpis-ventas {
-            grid-template-columns: 1fr
+            grid-template-columns: 1fr;
         }
     }
 
     @@media(max-width:600px) {
         .rp-title {
-            font-size: 30px
+            font-size: 30px;
         }
 
         .rp-kpis {
-            grid-template-columns: 1fr 1fr
+            grid-template-columns: 1fr 1fr;
         }
     }
 </style>
 
 @section Scripts {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         (function(){
 
@@ -814,7 +1040,6 @@
             Chart.defaults.color = '#64748b';
             Chart.defaults.plugins.legend.labels.boxWidth = 14;
             Chart.defaults.plugins.legend.labels.padding  = 16;
-            // Mejorar nitidez en pantallas de alta densidad
             Chart.defaults.devicePixelRatio = window.devicePixelRatio || 2;
 
             const lbl = d => d.map(x => x.label);
@@ -826,7 +1051,6 @@
                 el.parentElement.innerHTML = '<div class="rp-nodata"><i class="bi bi-inbox"></i> Sin datos aún</div>';
             }
 
-            // ── Opciones comunes para evitar distorsión ───────────────────────
             const BASE_OPTS = { responsive:true, maintainAspectRatio:false };
 
             // ═════════════════════════════════════════════════════════════════
@@ -865,7 +1089,6 @@
             function renderOrdenes(filtradas){
                 const { estadosArr, porMes, tecArr } = buildOrdenesData(filtradas);
 
-                // Dona — estados
                 if(!chartEstados){
                     chartEstados = new Chart(document.getElementById('chartEstados'),{
                         type:'doughnut',
@@ -885,7 +1108,6 @@
                     chartEstados.update();
                 }
 
-                // Línea — meses
                 if(!chartMeses){
                     chartMeses = new Chart(document.getElementById('chartMeses'),{
                         type:'line',
@@ -903,7 +1125,6 @@
                     chartMeses.update();
                 }
 
-                // Barra — técnicos
                 if(!chartTecnicos){
                     chartTecnicos = new Chart(document.getElementById('chartTecnicos'),{
                         type:'bar',
@@ -946,7 +1167,6 @@
             // ═════════════════════════════════════════════════════════════════
             let chartModelos, chartMotDist, chartMasServ;
 
-            // Inicializar doughnut distribución (no cambia con filtro, usa top5+otros)
             if(motDistData.length){
                 chartMotDist = new Chart(document.getElementById('chartMotDist'),{
                     type:'doughnut',
@@ -964,7 +1184,6 @@
                 });
             } else noData('chartMotDist');
 
-            // Inicializar gráfico de motores más atendidos
             if(masServiciadosData.length){
                 chartMasServ = new Chart(document.getElementById('chartMasServiciados'),{
                     type:'bar',
@@ -1000,7 +1219,6 @@
                 const buscar = document.getElementById('mot-buscar').value.toLowerCase().trim();
                 const orden  = document.getElementById('mot-orden').value;
 
-                // Reagrupar desde el raw completo con el filtro
                 const mapa = {};
                 MOTORES_RAW.forEach(m => {
                     if(!buscar || m.modelo.toLowerCase().includes(buscar))
@@ -1026,7 +1244,6 @@
                 document.getElementById('mot-sub-bar').textContent = 'Top 8';
             };
 
-            // Render inicial motores
             if(modelosData.length){ renderMotores(modelosData); }
             else noData('chartModelos');
 
@@ -1035,7 +1252,6 @@
             // ═════════════════════════════════════════════════════════════════
             let chartStock, chartBajos;
 
-            // Popular select de categorías
             (function poblarCategorias(){
                 const sel = document.getElementById('inv-cat');
                 CATEGORIAS_RAW.forEach(c => {
@@ -1047,7 +1263,6 @@
             })();
 
             function renderInventario(catFiltro, modo){
-                // Determinar datos según filtros
                 let stockFiltrado, bajosFiltrado;
 
                 if(catFiltro){
@@ -1072,7 +1287,6 @@
                     resEl.textContent = `${total} unidades en vista`;
                 } else { resEl.textContent=''; }
 
-                // Chart stock por categoría
                 if(!chartStock){
                     chartStock = new Chart(document.getElementById('chartStock'),{
                         type:'bar',
@@ -1090,7 +1304,6 @@
                     chartStock.update();
                 }
 
-                // Chart productos bajos
                 const vs = val(bajosFiltrado);
                 if(!chartBajos){
                     chartBajos = new Chart(document.getElementById('chartBajos'),{
@@ -1132,7 +1345,6 @@
             // ═════════════════════════════════════════════════════════════════
             let chartVentasMes;
 
-            // Popular selects de mes
             (function poblarMeses(){
                 const desde = document.getElementById('ven-desde');
                 const hasta = document.getElementById('ven-hasta');
@@ -1193,7 +1405,6 @@
 
             renderVentas(ventasMesData);
 
-            // Pagos por método (doughnut fijo)
             new Chart(document.getElementById('chartMetodoPago'),{
                 type:'doughnut',
                 data:{ labels:lbl(metodoPagoData), datasets:[{ data:val(metodoPagoData),
@@ -1204,7 +1415,6 @@
                         tooltip:{callbacks:{label:c=>` ${c.label}: ${c.raw}%`}} }}
             });
 
-            // Servicios (barra horizontal fija)
             new Chart(document.getElementById('chartServicios'),{
                 type:'bar',
                 data:{ labels:lbl(serviciosData), datasets:[{ label:'Ingresos (₡)', data:val(serviciosData),
@@ -1215,9 +1425,6 @@
                              y:{grid:{display:false}} }}
             });
 
-            // ═════════════════════════════════════════════════════════════════
-            // Render inicial
-            // ═════════════════════════════════════════════════════════════════
             renderOrdenes(ORDENES_RAW);
 
         })();
@@ -1230,14 +1437,179 @@
             btn.classList.add('active');
         };
 
-        // ── Export PDF ────────────────────────────────────────────────────────
-        window.exportPDF = function(){
-            html2pdf().set({
-                margin:0.5, filename:'reporte-ep-bobinado.pdf',
-                image:{type:'jpeg',quality:0.98},
-                html2canvas:{scale:2, useCORS:true},
-                jsPDF:{unit:'in',format:'letter',orientation:'landscape'}
-            }).from(document.getElementById('dashboard')).save();
+        // ── Modal y Export PDF ────────────────────────────────────────────────
+        window.abrirModalPDF = function() {
+            const modal = document.getElementById('pdfModal');
+            modal.style.display = 'flex';
+
+            const hoy = new Date();
+            const hace30 = new Date();
+            hace30.setDate(hoy.getDate() - 30);
+
+            document.getElementById('pdfFechaDesde').value = hace30.toISOString().split('T')[0];
+            document.getElementById('pdfFechaHasta').value = hoy.toISOString().split('T')[0];
+        };
+
+        window.cerrarModalPDF = function() {
+            document.getElementById('pdfModal').style.display = 'none';
+        };
+
+        window.generarPDFConParametros = async function(btn) {
+            const fechaDesde = document.getElementById('pdfFechaDesde').value;
+            const fechaHasta = document.getElementById('pdfFechaHasta').value;
+            const incluirKPIs = document.getElementById('pdfIncluirKPIs').checked;
+            const incluirOrdenes = document.getElementById('pdfIncluirOrdenes').checked;
+            const incluirMotores = document.getElementById('pdfIncluirMotores').checked;
+            const incluirInventario = document.getElementById('pdfIncluirInventario').checked;
+            const incluirVentas = document.getElementById('pdfIncluirVentas').checked;
+            const orientacion = document.getElementById('pdfOrientacion').value;
+            const tamano = document.getElementById('pdfTamano').value;
+            const notas = document.getElementById('pdfNotas').value;
+
+            const textoOriginal = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generando...';
+            btn.disabled = true;
+
+            try {
+                const pdfContent = document.createElement('div');
+                pdfContent.style.padding = '20px';
+                pdfContent.style.fontFamily = "'Barlow', sans-serif";
+                pdfContent.style.backgroundColor = 'white';
+
+                pdfContent.innerHTML = `
+                    <div style="text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid #f59e0b;">
+                        <h1 style="font-family: 'Barlow Condensed', sans-serif; font-size: 28px; margin: 0; color: #1e293b;">📊 EP BOBINADO</h1>
+                        <p style="font-size: 14px; color: #64748b; margin: 5px 0;">Reporte General del Taller</p>
+                        <p style="font-size: 12px; color: #94a3b8; margin: 0;">Generado: ${new Date().toLocaleString('es-CR')}</p>
+                        ${fechaDesde && fechaHasta ? `<p style="font-size: 12px; color: #f59e0b; margin-top: 10px;">📅 Período: ${new Date(fechaDesde).toLocaleDateString('es-CR')} - ${new Date(fechaHasta).toLocaleDateString('es-CR')}</p>` : ''}
+                    </div>
+                `;
+
+                if (incluirKPIs) {
+                    pdfContent.innerHTML += `
+                        <div style="margin-bottom: 30px;">
+                            <h2 style="font-size: 18px; color: #f59e0b; border-left: 4px solid #f59e0b; padding-left: 12px; margin-bottom: 16px;">📈 Indicadores Clave</h2>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                                <div style="background: #f8fafc; padding: 15px; border-radius: 12px; text-align: center;"><div style="font-size: 28px; font-weight: 800; color: #1e293b;">@Model.TotalOrdenes</div><div style="font-size: 12px; color: #64748b;">Total órdenes</div></div>
+                                <div style="background: #f8fafc; padding: 15px; border-radius: 12px; text-align: center;"><div style="font-size: 28px; font-weight: 800; color: #1e293b;">@Model.OrdenesActivas</div><div style="font-size: 12px; color: #64748b;">Órdenes activas</div></div>
+                                <div style="background: #f8fafc; padding: 15px; border-radius: 12px; text-align: center;"><div style="font-size: 28px; font-weight: 800; color: #1e293b;">@Model.OrdenesCompletadas</div><div style="font-size: 12px; color: #64748b;">Completadas</div></div>
+                                <div style="background: #f8fafc; padding: 15px; border-radius: 12px; text-align: center;"><div style="font-size: 28px; font-weight: 800; color: #1e293b;">@Model.TotalClientes</div><div style="font-size: 12px; color: #64748b;">Clientes</div></div>
+                                <div style="background: #f8fafc; padding: 15px; border-radius: 12px; text-align: center;"><div style="font-size: 28px; font-weight: 800; color: #1e293b;">@Model.TotalMotores</div><div style="font-size: 12px; color: #64748b;">Motores</div></div>
+                                <div style="background: #f8fafc; padding: 15px; border-radius: 12px; text-align: center;"><div style="font-size: 28px; font-weight: 800; color: #1e293b;">@Model.ProductosBajoStock</div><div style="font-size: 12px; color: #64748b;">Stock bajo</div></div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (incluirOrdenes) {
+                    const estados = ['Pendiente', 'En diagnóstico', 'En reparación', 'Completado', 'Cancelado'];
+                    const conteos = {
+                        'Pendiente': @Model.Ordenes.Count(o => o.Estado == "Pendiente"),
+                        'En diagnóstico': @Model.Ordenes.Count(o => o.Estado == "En diagnóstico"),
+                        'En reparación': @Model.Ordenes.Count(o => o.Estado == "En reparación"),
+                        'Completado': @Model.Ordenes.Count(o => o.Estado == "Completado"),
+                        'Cancelado': @Model.Ordenes.Count(o => o.Estado == "Cancelado")
+                    };
+                    const total = @Model.TotalOrdenes;
+
+                    pdfContent.innerHTML += `
+                        <div style="margin-bottom: 30px;">
+                            <h2 style="font-size: 18px; color: #f59e0b; border-left: 4px solid #f59e0b; padding-left: 12px; margin-bottom: 16px;">📋 Distribución de Órdenes</h2>
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead><tr style="background: #f1f5f9;"><th style="padding: 10px; text-align: left;">Estado</th><th style="padding: 10px; text-align: right;">Cantidad</th><th style="padding: 10px; text-align: right;">Porcentaje</th></tr></thead>
+                                <tbody>
+                                    ${estados.map(e => conteos[e] > 0 ? `<tr><td style="padding: 8px 10px; border-bottom: 1px solid #e2e8f0;">${e}</td><td style="padding: 8px 10px; text-align: right;">${conteos[e]}</td><td style="padding: 8px 10px; text-align: right;">${Math.round(conteos[e]/total*100)}%</td></tr>` : '').join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+
+                if (incluirMotores) {
+                    const motores = @Html.Raw(Model.MotoresPorModeloJson);
+                    pdfContent.innerHTML += `
+                        <div style="margin-bottom: 30px;">
+                            <h2 style="font-size: 18px; color: #f59e0b; border-left: 4px solid #f59e0b; padding-left: 12px; margin-bottom: 16px;">🔧 Motores por Modelo</h2>
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead><tr style="background: #f1f5f9;"><th style="padding: 10px; text-align: left;">Modelo</th><th style="padding: 10px; text-align: right;">Cantidad</th></tr></thead>
+                                <tbody>
+                                    ${motores.map(m => `<tr><td style="padding: 8px 10px; border-bottom: 1px solid #e2e8f0;">${m.label}</td><td style="padding: 8px 10px; text-align: right;">${m.value}</td></tr>`).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+
+                if (incluirInventario) {
+                    const productosBajos = @Html.Raw(Model.ProductosBajosJson);
+                    pdfContent.innerHTML += `
+                        <div style="margin-bottom: 30px;">
+                            <h2 style="font-size: 18px; color: #f59e0b; border-left: 4px solid #f59e0b; padding-left: 12px; margin-bottom: 16px;">📦 Resumen de Inventario</h2>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px;">
+                                <div style="background: #f8fafc; padding: 12px; border-radius: 10px;"><div style="font-size: 24px; font-weight: 800;">@Model.TotalProductos</div><div style="font-size: 12px;">Total Productos</div></div>
+                                <div style="background: #fef3c7; padding: 12px; border-radius: 10px;"><div style="font-size: 24px; font-weight: 800; color: #d97706;">@Model.ProductosBajoStock</div><div style="font-size: 12px;">Productos con stock bajo</div></div>
+                            </div>
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead><tr style="background: #f1f5f9;"><th style="padding: 10px; text-align: left;">Producto</th><th style="padding: 10px; text-align: right;">Stock Actual</th></tr></thead>
+                                <tbody>
+                                    ${productosBajos.map(p => `<tr><td style="padding: 8px 10px; border-bottom: 1px solid #e2e8f0;">${p.label}</td><td style="padding: 8px 10px; text-align: right;">${p.value}</td></tr>`).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+
+                if (incluirVentas) {
+                    const ventasMes = @Html.Raw(Model.VentasPorMesJson);
+                    const totalVentas = ventasMes.reduce((s,m)=>s+m.value,0);
+                    pdfContent.innerHTML += `
+                        <div style="margin-bottom: 30px;">
+                            <h2 style="font-size: 18px; color: #f59e0b; border-left: 4px solid #f59e0b; padding-left: 12px; margin-bottom: 16px;">💰 Resumen de Ventas</h2>
+                            <div style="background: #f0fdf4; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 15px;">
+                                <div style="font-size: 32px; font-weight: 800; color: #059669;">₡${totalVentas.toLocaleString()}</div>
+                                <div style="font-size: 13px;">Ingresos totales</div>
+                            </div>
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead><tr style="background: #f1f5f9;"><th style="padding: 10px; text-align: left;">Mes</th><th style="padding: 10px; text-align: right;">Ingresos</th></tr></thead>
+                                <tbody>
+                                    ${ventasMes.map(v => `<tr><td style="padding: 8px 10px; border-bottom: 1px solid #e2e8f0;">${v.label}</td><td style="padding: 8px 10px; text-align: right;">₡${v.value.toLocaleString()}</td></tr>`).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+
+                if (notas) {
+                    pdfContent.innerHTML += `
+                        <div style="margin-top: 30px; padding: 15px; background: #fef9e3; border-left: 4px solid #f59e0b; border-radius: 8px;">
+                            <p style="margin: 0; font-size: 12px; color: #78350f;"><strong>📝 Notas:</strong> ${notas}</p>
+                        </div>
+                    `;
+                }
+
+                pdfContent.innerHTML += `
+                    <div style="margin-top: 40px; padding-top: 20px; text-align: center; border-top: 1px solid #e2e8f0; font-size: 10px; color: #94a3b8;">
+                        Reporte generado automáticamente por EP Bobinado - Sistema de Gestión de Taller
+                    </div>
+                `;
+
+                const opt = {
+                    margin: [0.5, 0.5, 0.5, 0.5],
+                    filename: `reporte_ep_bobinado_${new Date().toISOString().split('T')[0]}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true },
+                    jsPDF: { unit: 'in', format: tamano, orientation: orientacion }
+                };
+
+                await html2pdf().set(opt).from(pdfContent).save();
+                cerrarModalPDF();
+            } catch (error) {
+                console.error('Error al generar PDF:', error);
+                alert('Error al generar el PDF. Por favor, intente de nuevo.');
+            } finally {
+                btn.innerHTML = textoOriginal;
+                btn.disabled = false;
+            }
         };
     </script>
 }
