@@ -55,10 +55,9 @@
 
                     <div class="mo-field">
                         <label class="mo-label">Si necesita de una cita, por favor ingrese un dia y hora</label>
-                        <input asp-for="Orden.FechaCita" class="mo-input"
+                        <input asp-for="Orden.FechaCita" class="os-select"
                                type="datetime-local"
-                               min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")"
-                               style="width: 100%; border-radius: 4px;" />
+                               min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
                         <span asp-validation-for="Orden.FechaCita" class="mo-error"></span>
                     </div>
                 </div>

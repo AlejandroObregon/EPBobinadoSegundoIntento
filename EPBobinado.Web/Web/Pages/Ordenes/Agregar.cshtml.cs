@@ -47,13 +47,37 @@ namespace Web.Pages.Ordenes
             }
 
             TempData["Success"] = "Orden de servicio registrada correctamente.";
-            return RedirectToPage("Misordenes");
+            return RedirectToPage("Listado");
         }
 
         private async Task CargarSelectsAsync()
         {
             var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             var client = _httpClientFactory.CreateClient();
+
+            
+
+            try
+            {
+                var resp = await client.GetAsync(_config.ObtenerMetodo("ApiEndPointsUsuario", "Obtener"));
+                if (resp.IsSuccessStatusCode)
+                    Tecnicos = (JsonSerializer.Deserialize<List<UsuarioResponse>>(
+                        await resp.Content.ReadAsStringAsync(), opciones) ?? new())
+                        .Where(u => u.RolId == 3)
+                        .ToList();
+            }
+            catch { Tecnicos = new(); }
+
+            try
+            {
+                var resp = await client.GetAsync(_config.ObtenerMetodo("ApiEndPointsUsuario", "Obtener"));
+                if (resp.IsSuccessStatusCode)
+                    Clientes = (JsonSerializer.Deserialize<List<UsuarioResponse>>(
+                        await resp.Content.ReadAsStringAsync(), opciones) ?? new())
+                        .Where(u => u.RolId == 1)
+                        .ToList();
+            }
+            catch { Clientes = new(); }
 
             try
             {
@@ -63,24 +87,6 @@ namespace Web.Pages.Ordenes
                         await resp.Content.ReadAsStringAsync(), opciones) ?? new();
             }
             catch { Motores = new(); }
-
-            try
-            {
-                var resp = await client.GetAsync(_config.ObtenerMetodo("ApiEndPointsUsuario", "Obtener"));
-                if (resp.IsSuccessStatusCode)
-                    Tecnicos = JsonSerializer.Deserialize<List<UsuarioResponse>>(
-                        await resp.Content.ReadAsStringAsync(), opciones) ?? new();
-            }
-            catch { Tecnicos = new(); }
-
-            try
-            {
-                var resp = await client.GetAsync(_config.ObtenerMetodo("ApiEndPointsUsuario", "Obtener"));
-                if (resp.IsSuccessStatusCode)
-                    Clientes = JsonSerializer.Deserialize<List<UsuarioResponse>>(
-                        await resp.Content.ReadAsStringAsync(), opciones) ?? new();
-            }
-            catch { Clientes = new(); }
         }
     }
 }

@@ -36,9 +36,38 @@
 
             <div class="os-form-section">
                 <h4 class="os-form-section-title">
-                    <i class="bi bi-motorcycle"></i> Motor y Técnico
+                    <i class="bi bi-motorcycle"></i> Detalles
                 </h4>
+                <div class="os-form-grid">
+                    <div class="os-field">
+                        <label asp-for="Orden.UsuarioId" class="os-label">
+                            Cliente <span class="os-optional"></span>
+                        </label>
+                        <select asp-for="Orden.UsuarioId" class="os-select">
+                            <option value="">— Sin asignar —</option>
+                            @foreach (var t in Model.Clientes)
+                            {
+                                <option value="@t.Id">@t.Nombre</option>
+                            }
+                        </select>
+                        <span asp-validation-for="Orden.UsuarioId" class="os-error"></span>
+                    </div>
 
+                    <div class="os-field">
+                        <label asp-for="Orden.TecnicoId" class="os-label">
+                            Técnico <span class="os-optional"></span>
+                        </label>
+                        <select asp-for="Orden.TecnicoId" class="os-select">
+                            <option value="">— Sin asignar —</option>
+                            @foreach (var t in Model.Tecnicos)
+                            {
+                                <option value="@t.Id">@t.Nombre</option>
+                            }
+                        </select>
+                        <span asp-validation-for="Orden.TecnicoId" class="os-error"></span>
+                    </div>
+
+                </div>
                 <div class="os-form-grid">
                     <div class="os-field">
                         <label asp-for="Orden.MotorId" class="os-label">Motor</label>
@@ -46,7 +75,7 @@
                             <option value="">— Seleccione un motor —</option>
                             @foreach (var m in Model.Motores)
                             {
-                                <option value="@m.Id" selected="@(Model.Orden.MotorId == m.Id)">
+                                <option value="@m.Id">
                                     @(m.NumeroSerie ?? $"Motor #{m.Id}") — @(m.Modelo?.Nombre ?? "Sin modelo") — @(m.Usuario?.Nombre ?? "Sin usuario")
                                 </option>
                             }
@@ -55,20 +84,33 @@
                     </div>
 
                     <div class="os-field">
-                        <label asp-for="Orden.TecnicoId" class="os-label">
-                            Técnico <span class="os-optional">(opcional)</span>
+                        <label asp-for="Orden.FechaCita" class="os-label">
+                            Fecha Cita <span class="os-optional"></span>
                         </label>
-                        <select asp-for="Orden.TecnicoId" class="os-select">
-                            <option value="">— Sin asignar —</option>
-                            @foreach (var t in Model.Tecnicos)
-                            {
-                                <option value="@t.Id" selected="@(Model.Orden.TecnicoId == t.Id)">
-                                    @t.Nombre
-                                </option>
-                            }
-                        </select>
-                        <span asp-validation-for="Orden.TecnicoId" class="os-error"></span>
+                        <input asp-for="Orden.FechaCita" class="os-select"
+                               type="datetime-local"
+                               min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+                        <span asp-validation-for="Orden.FechaCita" class="mo-error"></span>
                     </div>
+                </div>
+                <div class="os-form-grid">
+                    <div class="mo-field">
+                        <label asp-for="Orden.Descripcion" class="os-label">Descripción</label>
+                        <textarea asp-for="Orden.Descripcion" class="os-select"
+                                  rows="4"
+                                  style="resize: vertical; width: 100%; height: 120px; border-radius: 4px;"></textarea>
+                        <span asp-validation-for="Orden.Descripcion" class="mo-error"></span>
+                    </div>
+
+                </div>
+
+                <div class="os-form-grid">
+                    <div class="mo-field">
+                        <label asp-for="Orden.Costo" class="os-label">Precio</label>
+                        <input asp-for="Orden.Costo" type="number" class="os-select" />
+                        <span asp-validation-for="Orden.Costo" class="mo-error"></span>
+                    </div>
+
                 </div>
             </div>
 
