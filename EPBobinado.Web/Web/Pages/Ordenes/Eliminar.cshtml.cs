@@ -2,6 +2,7 @@ using Abstracciones.Interfaces.Reglas;
 using Abstracciones.Modelos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace Web.Pages.Ordenes
@@ -35,13 +36,20 @@ namespace Web.Pages.Ordenes
         {
             if (id <= 0) return NotFound();
 
-            string endpoint = _config.ObtenerMetodo("ApiEndPointsOrdenServicio", "Eliminar");
+            string endpoint = _config.ObtenerMetodo("ApiEndPointsOrdenServicio", "ObtenerPorId");
             using var client = new HttpClient();
-            var respuesta = await client.DeleteAsync(string.Format(endpoint, id));
+            var respuesta = await client.GetAsync(string.Format(endpoint, id));
+            var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            Orden = JsonSerializer.Deserialize<OrdenServicioResponse>(
+                await respuesta.Content.ReadAsStringAsync(), opciones)!;
+
+            endpoint = _config.ObtenerMetodo("ApiEndPointsOrdenServicio", "Editar");
+            Orden.Estado = "Cancelado";
+            respuesta = await client.PutAsJsonAsync(string.Format(endpoint, id), Orden);
 
             if (respuesta.IsSuccessStatusCode)
             {
-                TempData["MensajeExito"] = "Orden de servicio eliminada correctamente.";
+                TempData["MensajeExito"] = "Orden de servicio cancelada correctamente.";
                 return RedirectToPage("Listado");
             }
 

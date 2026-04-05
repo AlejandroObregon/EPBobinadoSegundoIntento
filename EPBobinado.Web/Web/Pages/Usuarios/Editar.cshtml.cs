@@ -3,6 +3,8 @@ using Abstracciones.Modelos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Net.Http.Json;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 
 namespace Web.Pages.Usuarios
@@ -23,7 +25,7 @@ namespace Web.Pages.Usuarios
         {
             if (id <= 0)
                 return NotFound();
-
+            
             var endpoint = _config.ObtenerMetodo("ApiEndPointsUsuario", "ObtenerPorId");
 
             using var client = new HttpClient();
@@ -61,7 +63,7 @@ namespace Web.Pages.Usuarios
                 return Page();
 
             var endpoint = _config.ObtenerMetodo("ApiEndPointsUsuario", "Editar");
-
+            Usuario.PasswordHash = HashearPassword(Usuario.PasswordHash);
             using var client = new HttpClient();
             var respuesta = await client.PutAsJsonAsync(string.Format(endpoint, id), Usuario);
 
@@ -74,5 +76,12 @@ namespace Web.Pages.Usuarios
             TempData["MensajeExito"] = "Usuario actualizado correctamente.";
             return RedirectToPage("Listado");
         }
+        private static string HashearPassword(string password)
+        {
+            using var sha = SHA256.Create();
+            var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(password));
+            return Convert.ToHexString(bytes).ToLower();
+        }
+
     }
 }

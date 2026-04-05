@@ -1,8 +1,10 @@
+using Abstracciones.Interfaces.Reglas;
+using Abstracciones.Modelos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Net.Http.Json;
-using Abstracciones.Modelos;
-using Abstracciones.Interfaces.Reglas;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Web.Pages.Usuarios
 {
@@ -29,7 +31,7 @@ namespace Web.Pages.Usuarios
         {
             if (!ModelState.IsValid)
                 return Page();
-
+            
             var endpoint = _config.ObtenerMetodo("ApiEndPointsUsuario", "Agregar");
 
             var client = _httpClientFactory.CreateClient();
@@ -44,5 +46,7 @@ namespace Web.Pages.Usuarios
             TempData["Success"] = "Usuario registrado correctamente.";
             return RedirectToPage("Listado");
         }
+
+        
     }
 }

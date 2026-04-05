@@ -50,7 +50,6 @@ namespace Web.Pages.Ordenes
                 ModelState.AddModelError(string.Empty, "No se encontró el método 'Obtener'.");
                 return Page();
             }
-
             var client = _httpClientFactory.CreateClient();
             using var response = await client.GetAsync(endpoint);
 
@@ -58,7 +57,10 @@ namespace Web.Pages.Ordenes
             {
                 var json = await response.Content.ReadAsStringAsync();
                 var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                Ordenes = JsonSerializer.Deserialize<List<OrdenServicioResponse>>(json, opciones) ?? new();
+                Ordenes = (JsonSerializer.Deserialize<List<OrdenServicioResponse>>(
+                        await response.Content.ReadAsStringAsync(), opciones) ?? new())
+                        .Where(u => u.Estado != "Cancelado")
+                        .ToList();
             }
             else if (response.StatusCode == HttpStatusCode.NoContent)
             {

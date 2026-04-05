@@ -59,8 +59,11 @@ namespace Web.Pages.Diagnostico
                 var client = _httpClientFactory.CreateClient();
                 var resp = await client.GetAsync(_config.ObtenerMetodo("ApiEndPointsOrdenServicio", "Obtener"));
                 if (resp.IsSuccessStatusCode)
-                    Ordenes = JsonSerializer.Deserialize<List<OrdenServicioResponse>>(
-                        await resp.Content.ReadAsStringAsync(), opciones) ?? new();
+                    Ordenes = (JsonSerializer.Deserialize<List<OrdenServicioResponse>>(
+                        await resp.Content.ReadAsStringAsync(), opciones) ?? new())
+                        .Where(u => u.Estado != "Cancelado")
+                        .ToList();
+
             }
             catch { Ordenes = new(); }
         }

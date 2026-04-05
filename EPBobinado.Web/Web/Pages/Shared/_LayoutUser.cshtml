@@ -169,8 +169,8 @@
                         }
                     </div>
                     <div>
-                        <span class="user-name">@(Context.Session.GetString("UsuarioNombre") ?? "Usuario")</span>
-                        <span class="user-role">@(Context.Session.GetString("UsuarioRolNombre") ?? Context.Session.GetString("UsuarioNivel") ?? "")</span>
+                        <span class="user-name">@(Context.Session.GetString("UsuarioNombre") ?? "Tecnico")</span>
+                        <span class="user-role">@(Context.Session.GetString("UsuarioRolNombre") ?? "Tecnico")</span>
                     </div>
                 </div>
                 <a href="../auth/Login" class="btn-logout" title="Cerrar sesión"
