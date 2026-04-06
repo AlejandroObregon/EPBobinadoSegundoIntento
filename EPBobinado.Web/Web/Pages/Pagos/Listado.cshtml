@@ -5,30 +5,37 @@
     ViewData["Title"] = "Pagos";
 }
 
-<div class="mio-page">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <div class="mio-header">
-        <div class="mio-header-left">
-            <div class="mio-header-icon">💳</div>
-            <div>
-                <h1 class="mio-title">PAGOS</h1>
-                <p class="mio-subtitle">@Model.Pagos.Count pago(s) registrados</p>
-            </div>
+<div class="us-page">
+
+    <!-- HEADER -->
+    <div class="us-header">
+        <div>
+            <h1 class="us-title">Pagos</h1>
+            <p class="us-subtitle">@Model.Pagos.Count pago(s) registrado(s)</p>
         </div>
     </div>
 
+    @if (TempData["MensajeExito"] != null)
+    {
+        <div class="us-toast us-toast-success">
+            <i class="bi bi-check-circle-fill"></i> @TempData["MensajeExito"]
+        </div>
+    }
+
     @if (!Model.Pagos.Any())
     {
-        <div class="mio-empty">
-            <span style="font-size:64px">💳</span>
-            <h3>SIN PAGOS</h3>
-            <p>No hay pagos registrados en el sistema.</p>
+        <div class="us-empty">
+            <div class="us-empty-icon">💳</div>
+            <h3>Sin pagos registrados</h3>
+            <p>No hay pagos en el sistema</p>
         </div>
     }
     else
     {
-        <div class="os-table-card">
-            <table class="os-table">
+        <div class="us-table-card">
+            <table class="us-table" id="us-table">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -39,19 +46,57 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var p in Model.Pagos)
+                    @foreach (var p in Model.Pagos.OrderByDescending(x => x.Fecha))
                     {
-                        <tr>
-                            <td>@p.Id</td>
-                            <td>@p.FacturaId</td>
-                            <td>₡@p.Monto.ToString("N2")</td>
+                        <tr class="us-row">
+                            <td style="width:80px">@p.Id</td>
+                            <td class="us-td-mono">@p.FacturaId</td>
+                            <td class="us-td-mono">₡@p.Monto.ToString("N2")</td>
                             <td>@(p.MetodoPago ?? "—")</td>
-                            <td>@p.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="us-td-date">@p.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
                         </tr>
                     }
                 </tbody>
             </table>
+
+            <div id="us-no-results" class="us-no-results" style="display:none">
+                <i class="bi bi-search" style="font-size:32px;color:#cbd5e1"></i>
+                <p>No se encontraron pagos con ese criterio</p>
+            </div>
         </div>
     }
-
 </div>
+
+<style>
+    /* Copiado de Usuarios/Listado para mantener el mismo estilo */
+    :root {
+        --us-bg: #f8fafc;
+        --us-surface: #ffffff;
+        --us-border: #e2e8f0;
+        --us-text: #0f172a;
+        --us-muted: #64748b;
+        --us-radius: 14px;
+        --us-shadow: 0 4px 24px rgba(0,0,0,.06);
+        --us-ff: 'DM Sans', sans-serif;
+        --us-admin: #ef4444;
+        --us-cliente: #3b82f6;
+        --us-tecnico: #f59e0b;
+    }
+
+    .us-page { font-family: var(--us-ff); }
+    .us-header { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:28px; gap:16px; flex-wrap:wrap; }
+    .us-title { font-size:32px; font-weight:700; color:var(--us-text); margin:0; letter-spacing:-.5px; }
+    .us-subtitle { font-size:14px; color:var(--us-muted); margin:4px 0 0; }
+
+    .us-table-card { background: var(--us-surface); border-radius: var(--us-radius); border: 1px solid var(--us-border); box-shadow: var(--us-shadow); overflow: hidden; }
+    .us-table { width:100%; border-collapse:collapse; font-size:14px; }
+    .us-table thead th { padding:13px 18px; background:#f8fafc; color:var(--us-muted); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.07em; border-bottom:1px solid var(--us-border); white-space:nowrap; }
+    .us-row { border-bottom:1px solid var(--us-border); transition: background .12s ease; animation: usRowIn .35s ease both; }
+    .us-row:last-child { border-bottom:none; }
+    .us-row:hover { background:#f8fafc; }
+    @@keyframes usRowIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+    .us-row td { padding:14px 18px; vertical-align:middle; color:var(--us-text); }
+    .us-td-mono { font-size:13px; color:var(--us-muted); font-variant-numeric:tabular-nums; }
+    .us-td-date { font-size:13px; color:var(--us-muted); white-space:nowrap; }
+    .us-no-results { padding:60px 24px; text-align:center; color:var(--us-muted); display:flex; flex-direction:column; align-items:center; gap:10px; }
+</style>
