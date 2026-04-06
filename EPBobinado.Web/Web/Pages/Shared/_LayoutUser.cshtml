@@ -80,6 +80,13 @@
                         <span class="menu-label">Motores</span>
                     </a>
                 </li>
+
+                    <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Pagos") ? "active" : "")">
+                        <a href="/Pagos/Listado">
+                            <span class="menu-icon"><i class="bi bi-cash-stack"></i></span>
+                            <span class="menu-label">Pagos</span>
+                        </a>
+                    </li>
                 <li class="menu-item @(Context.Request.Path.StartsWithSegments("/Modelos_Motores") ? "active" : "")">
                     <a href="/Modelos_Motores/Listado">
                         <span class="menu-icon"><i class="bi bi-gear-wide-connected"></i></span>

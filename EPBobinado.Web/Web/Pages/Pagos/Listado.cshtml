@@ -1,0 +1,57 @@
+@page
+@model Web.Pages.Pagos.ListadoModel
+@{
+    Layout = "_LayoutUser";
+    ViewData["Title"] = "Pagos";
+}
+
+<div class="mio-page">
+
+    <div class="mio-header">
+        <div class="mio-header-left">
+            <div class="mio-header-icon">💳</div>
+            <div>
+                <h1 class="mio-title">PAGOS</h1>
+                <p class="mio-subtitle">@Model.Pagos.Count pago(s) registrados</p>
+            </div>
+        </div>
+    </div>
+
+    @if (!Model.Pagos.Any())
+    {
+        <div class="mio-empty">
+            <span style="font-size:64px">💳</span>
+            <h3>SIN PAGOS</h3>
+            <p>No hay pagos registrados en el sistema.</p>
+        </div>
+    }
+    else
+    {
+        <div class="os-table-card">
+            <table class="os-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Factura</th>
+                        <th>Monto</th>
+                        <th>Método</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model.Pagos)
+                    {
+                        <tr>
+                            <td>@p.Id</td>
+                            <td>@p.FacturaId</td>
+                            <td>₡@p.Monto.ToString("N2")</td>
+                            <td>@(p.MetodoPago ?? "—")</td>
+                            <td>@p.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+</div>

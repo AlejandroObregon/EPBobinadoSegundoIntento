@@ -175,6 +175,15 @@
                                 <span class="mio-badge mio-badge-@slug">@o.Estado</span>
                                 <span class="mio-order-id">#@o.Id</span>
                             </div>
+                            <!-- Acciones de usuario (pago cuando está completado) -->
+                            <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+                                @if (o.Estado == "Completado")
+                                {
+                                    <button type="button" class="mio-btn mio-btn-primary" onclick="openPaymentModal(@o.Id, '@(o.Costo?.ToString("0.00") ?? "0.00")')">
+                                        <i class="bi bi-credit-card"></i> Pagar
+                                    </button>
+                                }
+                            </div>
                         </div>
 
                         <!-- Detalle: técnico + fecha + progreso -->
@@ -775,8 +784,103 @@
     }
 </style>
 
+<!-- Modal de pago -->
+<div id="payment-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);align-items:center;justify-content:center;z-index:9999">
+    <div style="background:white;padding:20px;border-radius:12px;max-width:520px;width:100%">
+        <h3>Pasarela de pago</h3>
+        <div id="pm-error" style="color:#b91c1c;display:none;margin-bottom:8px"></div>
+        <div style="margin-bottom:8px">Monto: <strong id="pm-amount">₡0.00</strong></div>
+        <div style="margin-bottom:8px">
+            <label><input type="radio" name="pm-method" value="efectivo" checked /> Efectivo</label>
+            <label style="margin-left:12px"><input type="radio" name="pm-method" value="tarjeta" /> Tarjeta</label>
+        </div>
+        <div id="pm-card-form" style="display:none;margin-bottom:8px">
+            <div style="margin-bottom:6px">
+                <label>Número de tarjeta</label>
+                <input id="card-number" type="text" maxlength="19" style="width:100%;padding:8px" placeholder="4242 4242 4242 4242" />
+            </div>
+            <div style="display:flex;gap:8px">
+                <input id="card-exp" type="text" maxlength="5" placeholder="MM/AA" style="flex:1;padding:8px" />
+                <input id="card-cvc" type="text" maxlength="4" placeholder="CVC" style="width:120px;padding:8px" />
+            </div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+            <button class="mio-btn" onclick="closePaymentModal()">Cancelar</button>
+            <button class="mio-btn mio-btn-primary" onclick="submitPayment()">Pagar</button>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
+        let pm_currentOrderId = 0;
+        function openPaymentModal(orderId, amount){
+            pm_currentOrderId = orderId;
+            document.getElementById('pm-amount').innerText = '₡' + parseFloat(amount).toFixed(2);
+            document.getElementById('pm-error').style.display = 'none';
+            document.getElementById('payment-modal').style.display = 'flex';
+            document.querySelectorAll('input[name="pm-method"]').forEach(r=> r.addEventListener('change', onMethodChange));
+            onMethodChange();
+        }
+
+        function closePaymentModal(){
+            document.getElementById('payment-modal').style.display = 'none';
+        }
+
+        function onMethodChange(){
+            const val = document.querySelector('input[name="pm-method"]:checked').value;
+            document.getElementById('pm-card-form').style.display = val === 'tarjeta' ? 'block' : 'none';
+        }
+
+        function luhnValid(cardNumber){
+            const digits = cardNumber.replace(/\D/g,'');
+            let sum = 0; let shouldDouble = false;
+            for (let i = digits.length - 1; i >= 0; i--) {
+                let d = parseInt(digits.charAt(i), 10);
+                if (shouldDouble) { d *= 2; if (d > 9) d -= 9; }
+                sum += d; shouldDouble = !shouldDouble;
+            }
+            return (sum % 10) === 0;
+        }
+
+        async function submitPayment(){
+            const method = document.querySelector('input[name="pm-method"]:checked').value;
+            const amountText = document.getElementById('pm-amount').innerText.replace('₡','');
+            const monto = parseFloat(amountText.replace(/,/g,'')) || 0;
+            const payload = { FacturaId: pm_currentOrderId, Monto: monto, MetodoPago: method };
+
+            if (method === 'tarjeta'){
+                const num = document.getElementById('card-number').value.trim();
+                if (!luhnValid(num)){
+                    const err = document.getElementById('pm-error'); err.innerText = 'Número de tarjeta inválido'; err.style.display = 'block'; return;
+                }
+                payload.MetodoPago = 'Tarjeta';
+            } else {
+                payload.MetodoPago = 'Efectivo';
+            }
+
+            // Entorno de prueba: llamar endpoint OnPostPagar en esta página
+            try {
+                const resp = await fetch('?handler=Pagar', {
+                    method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+                });
+                if (resp.ok){
+                    const data = await resp.json();
+                    alert(data.message || 'Pago exitoso');
+                    closePaymentModal();
+                    location.reload();
+                } else {
+                    const txt = await resp.text();
+                    document.getElementById('pm-error').innerText = txt || 'Error al procesar pago';
+                    document.getElementById('pm-error').style.display = 'block';
+                }
+            } catch (e){
+                document.getElementById('pm-error').innerText = e.message || 'Error de red';
+                document.getElementById('pm-error').style.display = 'block';
+            }
+        }
+
+        // chips script: filtrar tarjetas y stagger
         (function(){
             const chips = document.querySelectorAll('.mio-chip');
             const cards = document.querySelectorAll('.mio-card');
