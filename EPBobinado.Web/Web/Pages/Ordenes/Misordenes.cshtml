@@ -806,7 +806,7 @@
         </div>
         <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
             <button class="mio-btn" onclick="closePaymentModal()">Cancelar</button>
-            <button class="mio-btn mio-btn-primary" onclick="submitPayment()">Pagar</button>
+            <button id="pm-pay-btn" class="mio-btn mio-btn-primary" onclick="submitPayment()">Pagar</button>
         </div>
     </div>
 </div>
@@ -816,11 +816,24 @@
         let pm_currentOrderId = 0;
         function openPaymentModal(orderId, amount){
             pm_currentOrderId = orderId;
-            document.getElementById('pm-amount').innerText = '₡' + parseFloat(amount).toFixed(2);
-            document.getElementById('pm-error').style.display = 'none';
+            const num = parseFloat(amount) || 0;
+            document.getElementById('pm-amount').innerText = '₡' + num.toFixed(2);
+            const errEl = document.getElementById('pm-error');
+            errEl.style.display = 'none';
             document.getElementById('payment-modal').style.display = 'flex';
             document.querySelectorAll('input[name="pm-method"]').forEach(r=> r.addEventListener('change', onMethodChange));
             onMethodChange();
+
+            // Si el monto es 0 o negativo, bloquear pago y mostrar mensaje
+            const payBtn = document.getElementById('pm-pay-btn');
+            if (num <= 0) {
+                errEl.innerText = 'Monto inválido o no configurado para esta orden. Contacte al taller.';
+                errEl.style.display = 'block';
+                if (payBtn) payBtn.disabled = true;
+            } else {
+                errEl.style.display = 'none';
+                if (payBtn) payBtn.disabled = false;
+            }
         }
 
         function closePaymentModal(){
@@ -845,14 +858,17 @@
 
         async function submitPayment(){
             const method = document.querySelector('input[name="pm-method"]:checked').value;
+            const payBtn = document.getElementById('pm-pay-btn');
             const amountText = document.getElementById('pm-amount').innerText.replace('₡','');
             const monto = parseFloat(amountText.replace(/,/g,'')) || 0;
             const payload = { FacturaId: pm_currentOrderId, Monto: monto, MetodoPago: method };
 
             if (method === 'tarjeta'){
                 const num = document.getElementById('card-number').value.trim();
+                if (!num) {
+                    const err = document.getElementById('pm-error'); err.innerText = 'Ingrese número de tarjeta'; err.style.display = 'block'; if (payBtn) payBtn.disabled = false; return;
+                }
                 if (!luhnValid(num)){
-                    const err = document.getElementById('pm-error'); err.innerText = 'Número de tarjeta inválido'; err.style.display = 'block'; return;
                 }
                 payload.MetodoPago = 'Tarjeta';
             } else {
@@ -860,18 +876,19 @@
             }
 
             // Entorno de prueba: llamar endpoint OnPostPagar en esta página
+            let resp = null;
             try {
-                const resp = await fetch('?handler=Pagar', {
-                    method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
                 });
                 if (resp.ok){
-                    const data = await resp.json();
-                    alert(data.message || 'Pago exitoso');
+                    let data = null;
+                    try { data = await resp.json(); } catch { data = null; }
+                    alert((data && data.message) ? data.message : 'Pago exitoso');
                     closePaymentModal();
                     location.reload();
-                } else {
+                    return;
+                }
+                else {
                     const txt = await resp.text();
-                    document.getElementById('pm-error').innerText = txt || 'Error al procesar pago';
                     document.getElementById('pm-error').style.display = 'block';
                 }
             } catch (e){

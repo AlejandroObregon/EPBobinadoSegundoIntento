@@ -11,11 +11,13 @@ namespace Web.Pages.Cliente
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _config;
+        private readonly ILogger<MisOrdenesModel> _logger;
 
-        public MisOrdenesModel(IHttpClientFactory httpClientFactory, IConfiguration config)
+        public MisOrdenesModel(IHttpClientFactory httpClientFactory, IConfiguration config, ILogger<MisOrdenesModel> logger)
         {
             _httpClientFactory = httpClientFactory;
             _config = config;
+            _logger = logger;
         }
 
         public class PagarRequest
@@ -25,12 +27,12 @@ namespace Web.Pages.Cliente
             public string? MetodoPago { get; set; }
         }
 
+        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> OnPostPagar([FromBody] PagarRequest req)
         {
             var auth = VerificarSesion();
             if (auth != null) return auth;
 
-            // En este ambiente de prueba validamos y luego llamamos a la API de Pagos
             // Validación mínima
             if (req == null || req.FacturaId <= 0 || req.Monto <= 0)
                 return BadRequest("Datos de pago inválidos");
@@ -61,7 +63,6 @@ namespace Web.Pages.Cliente
                 var resp = await client.PostAsync(pagoEndpoint, content);
                 if (resp.IsSuccessStatusCode)
                 {
-                    // Intentar actualizar la orden asociada a la factura: marcar como Cancelado
                     try
                     {
                         var ordenEndpoint = ObtenerUrl("ApiEndPointsOrdenServicio", "Editar", req.FacturaId);
@@ -71,7 +72,6 @@ namespace Web.Pages.Cliente
                             var patchBody = new { Estado = "Cancelado" };
                             var patchContent = new StringContent(JsonSerializer.Serialize(patchBody), System.Text.Encoding.UTF8, "application/json");
                             var patchResp = await client.PutAsync(ordenEndpoint, patchContent);
-                            // ignorar resultado, el pago ya fue registrado
                         }
                     }
                     catch { }
@@ -81,7 +81,6 @@ namespace Web.Pages.Cliente
                 else
                 {
                     var txt = await resp.Content.ReadAsStringAsync();
-                    return StatusCode((int)resp.StatusCode, txt);
                 }
             }
             catch (System.Exception ex)
