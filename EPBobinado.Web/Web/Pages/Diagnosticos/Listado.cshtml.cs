@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace Web.Pages.Diagnostico
 {
-    public class ListadoModel : PageModel
+    public class ListadoModel : PageModelBase
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _config;

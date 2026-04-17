@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace Web.Pages.Ordenes
 {
-    public class EliminarModel : PageModel
+    public class EliminarModel : PageModelBase
     {
         private readonly IConfiguracion _config;
 

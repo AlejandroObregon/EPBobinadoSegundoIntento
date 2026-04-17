@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace Web.Pages.Producto
 {
-    public class EditarModel : PageModel
+    public class EditarModel : PageModelBase
     {
         private readonly IConfiguracion _config;
 

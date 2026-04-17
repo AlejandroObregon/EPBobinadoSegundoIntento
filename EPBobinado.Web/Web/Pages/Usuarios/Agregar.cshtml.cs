@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Web.Pages.Usuarios
 {
-    public class AgregarModel : PageModel
+    public class AgregarModel : PageModelBase
     {
         private readonly IConfiguracion _config;
         private readonly IHttpClientFactory _httpClientFactory;

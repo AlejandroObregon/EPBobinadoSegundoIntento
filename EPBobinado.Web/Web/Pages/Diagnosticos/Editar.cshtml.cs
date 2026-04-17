@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace Web.Pages.Diagnostico
 {
-    public class EditarModel : PageModel
+    public class EditarModel : PageModelBase
     {
         private readonly IConfiguracion _config;
         private readonly IHttpClientFactory _httpClientFactory;

@@ -10,7 +10,7 @@ using System.Text.Json;
 
 namespace Web.Pages.Cotizaciones
 {
-    public class AgregarModel : PageModel
+    public class AgregarModel : PageModelBase
     {
         private readonly IConfiguracion _config;
         private readonly IHttpClientFactory _httpClientFactory;

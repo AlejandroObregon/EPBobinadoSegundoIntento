@@ -7,7 +7,7 @@ using Abstracciones.Interfaces.Reglas;
 
 namespace Web.Pages.Ordenes
 {
-    public class AgregarModel : PageModel
+    public class AgregarModel : PageModelBase
     {
         private readonly IConfiguracion _config;
         private readonly IHttpClientFactory _httpClientFactory;

@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace Web.Pages.Cotizaciones
 {
-    public class EliminarModel : PageModel
+    public class EliminarModel : PageModelBase
     {
         private readonly IConfiguracion _config;
 

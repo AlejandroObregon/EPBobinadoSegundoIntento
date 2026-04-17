@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace Web.Pages.Producto
 {
-    public class ListadoModel : PageModel
+    public class ListadoModel : PageModelBase
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _config;
@@ -23,6 +23,9 @@ namespace Web.Pages.Producto
         {
             var section = _config.GetSection("ApiEndPointsProducto");
             var urlBase = (section.GetValue<string>("UrlBase") ?? "").Trim();
+
+            var auth = VerificarSesion(2, 3);
+            if (auth != null) return auth;
 
             if (string.IsNullOrWhiteSpace(urlBase))
             {

@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace Web.Pages.Usuarios
 {
-    public class EditarModel : PageModel
+    public class EditarModel : PageModelBase
     {
         private readonly IConfiguracion _config;
 
