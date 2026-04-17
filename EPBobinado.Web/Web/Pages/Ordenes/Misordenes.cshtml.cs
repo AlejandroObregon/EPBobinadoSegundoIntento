@@ -81,6 +81,7 @@ namespace Web.Pages.Cliente
                 else
                 {
                     var txt = await resp.Content.ReadAsStringAsync();
+                    return new JsonResult(new { success = false, message = "Error al procesar el pago" });
                 }
             }
             catch (System.Exception ex)

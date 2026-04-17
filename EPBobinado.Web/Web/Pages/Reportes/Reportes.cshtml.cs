@@ -22,6 +22,7 @@ namespace Web.Pages.Reportes
         public List<MotorResponse> Motores { get; set; } = new();
         public List<UsuarioResponse> Usuarios { get; set; } = new();
 
+        // ── KPIs globales ─────────────────────────────────────────────
         public int TotalOrdenes => Ordenes.Count;
         public int OrdenesActivas => Ordenes.Count(o => o.Estado is "Pendiente" or "En diagnóstico" or "En reparación");
         public int OrdenesCompletadas => Ordenes.Count(o => o.Estado == "Completado");
@@ -38,7 +39,7 @@ namespace Web.Pages.Reportes
             return File(pdfByte, "application/pdf", "reporteGeneral.pdf");
         }
 
-        // Todas las órdenes serializadas para que JS filtre en el cliente
+        // ── JSONs para Órdenes ────────────────────────────────────────
         public string OrdenesJsonCompleto => BuildJson(
             Ordenes.Select(o => new {
                 id = o.Id,
@@ -47,83 +48,47 @@ namespace Web.Pages.Reportes
                 creadoEn = o.CreadoEn.ToString("yyyy-MM-dd")
             }));
 
-        // ── Motores ────────────────────────────────────────────────────────
-        // Top 8 por cantidad (barra horizontal)
+        // ── JSONs para Motores ────────────────────────────────────────
         public string MotoresPorModeloJson => BuildJson(
             Motores.Where(m => m.Modelo != null)
                    .GroupBy(m => m.Modelo!.Nombre)
-                   .OrderByDescending(g => g.Count())
-                   .Take(8)
+                   .OrderByDescending(g => g.Count()).Take(8)
                    .Select(g => new { label = g.Key, value = g.Count() }));
 
-        // Distribución top-5 + Otros (doughnut)
         public string MotoresDistribucionJson
         {
             get
             {
                 var grupos = Motores.Where(m => m.Modelo != null)
                     .GroupBy(m => m.Modelo!.Nombre)
-                    .OrderByDescending(g => g.Count())
-                    .ToList();
-
+                    .OrderByDescending(g => g.Count()).ToList();
                 var top5 = grupos.Take(5).Select(g => new { label = g.Key, value = g.Count() }).ToList();
                 var otros = grupos.Skip(5).Sum(g => g.Count());
-                if (otros > 0)
-                    top5.Add(new { label = "Otros", value = otros });
+                if (otros > 0) top5.Add(new { label = "Otros", value = otros });
                 return BuildJson(top5);
             }
         }
 
-        // Motores con más órdenes de servicio (requiere Motor en OrdenServicioResponse)
-        // Si OrdenServicioResponse no tiene Motor, esta propiedad devolverá "[]"
-        // Reemplazar MotoresMasServiciadosJson por esto:
         public string MotoresPorDuenoJson => BuildJson(
-            Motores
-                .Where(m => m.Usuario.Nombre != null)   
-                .GroupBy(m => m.Usuario.Nombre)
-                .OrderByDescending(g => g.Count())
-                .Take(8)
-                .Select(g => new { label = g.Key, value = g.Count() }));
+            Motores.Where(m => m.Usuario?.Nombre != null)
+                   .GroupBy(m => m.Usuario!.Nombre)
+                   .OrderByDescending(g => g.Count()).Take(8)
+                   .Select(g => new { label = g.Key, value = g.Count() }));
 
-        // ── Inventario ─────────────────────────────────────────────────────
+        // ── JSONs para Inventario ─────────────────────────────────────
         public string ProductosStockJson { get; private set; } = "[]";
         public string ProductosBajosJson { get; private set; } = "[]";
-        // Dataset completo para filtrado en cliente (categoría + productos)
         public string ProductosPorCategoriaJson { get; private set; } = "[]";
         public int TotalProductos { get; private set; }
         public int ProductosBajoStock { get; private set; }
 
-        // ── Datos quemados Ventas & Pagos ──────────────────────────────────
-        public string VentasPorMesJson => BuildJson(new[]
-        {
-            new { label = "Oct 2025", value = 285000m },
-            new { label = "Nov 2025", value = 412000m },
-            new { label = "Dic 2025", value = 378000m },
-            new { label = "Ene 2026", value = 520000m },
-            new { label = "Feb 2026", value = 467000m },
-            new { label = "Mar 2026", value = 615000m },
-        });
-
-        public string PagosPorMetodoJson => BuildJson(new[]
-        {
-            new { label = "Transferencia", value = 48 },
-            new { label = "Efectivo",      value = 31 },
-            new { label = "Tarjeta",       value = 15 },
-            new { label = "SINPE",         value = 6  },
-        });
-
-        public string IngresosPorServicioJson => BuildJson(new[]
-        {
-            new { label = "Rebobinado completo",  value = 890000m },
-            new { label = "Diagnóstico",          value = 340000m },
-            new { label = "Mantenimiento",        value = 275000m },
-            new { label = "Reparación eléctrica", value = 210000m },
-            new { label = "Cambio rodamientos",   value = 185000m },
-        });
-
-        public decimal VentasTotalMes => 615000m;
-        public decimal TicketPromedio => 41000m;
-        public int PagosPendientes => 4;
+        // ── KPIs Ventas & Pagos (datos reales) ───────────────────────
+        public string VentasPorMesJson { get; private set; } = "[]";
+        public string PagosPorMetodoJson { get; private set; } = "[]";
+        public string IngresosPorServicioJson { get; private set; } = "[]";
+        public decimal VentasTotalMes { get; private set; }
+        public decimal TicketPromedio { get; private set; }
+        public int PagosPendientes { get; private set; }
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -137,6 +102,7 @@ namespace Web.Pages.Reportes
             await CargarAsync<MotorResponse>(client, opciones, "ApiEndPointsMotor", d => Motores = d);
             await CargarAsync<UsuarioResponse>(client, opciones, "ApiEndPointsUsuario", d => Usuarios = d);
 
+            // ── Productos ─────────────────────────────────────────────
             try
             {
                 var resp = await client.GetAsync(ObtenerUrl("ApiEndPointsProducto", "Obtener"));
@@ -161,7 +127,6 @@ namespace Web.Pages.Reportes
                                      value = p.Stock
                                  }));
 
-                    // Dataset completo por categoría para filtrado en JS
                     ProductosPorCategoriaJson = BuildJson(
                         productos.Where(p => p.Activo)
                                  .GroupBy(p => string.IsNullOrWhiteSpace(p.Categoria) ? "Sin categoría" : p.Categoria)
@@ -179,7 +144,91 @@ namespace Web.Pages.Reportes
             }
             catch { }
 
+            // ── Pagos y Facturas (datos reales) ───────────────────────
+            await CargarVentasAsync(client, opciones);
+
             return Page();
+        }
+
+        private async Task CargarVentasAsync(HttpClient client, JsonSerializerOptions opciones)
+        {
+            var pagos = new List<PagoResponse>();
+            var facturas = new List<FacturaResponse>();
+
+            try
+            {
+                var rPagos = await client.GetAsync(ObtenerUrl("ApiEndPointsPago", "Obtener"));
+                if (rPagos.IsSuccessStatusCode && rPagos.StatusCode == HttpStatusCode.OK)
+                    pagos = JsonSerializer.Deserialize<List<PagoResponse>>(
+                        await rPagos.Content.ReadAsStringAsync(), opciones) ?? new();
+            }
+            catch { }
+
+            try
+            {
+                var rFact = await client.GetAsync(ObtenerUrl("ApiEndPointsFactura", "Obtener"));
+                if (rFact.IsSuccessStatusCode && rFact.StatusCode == HttpStatusCode.OK)
+                    facturas = JsonSerializer.Deserialize<List<FacturaResponse>>(
+                        await rFact.Content.ReadAsStringAsync(), opciones) ?? new();
+            }
+            catch { }
+
+            // ── KPIs ─────────────────────────────────────────────────
+            var hoy = DateTime.Today;
+            var inicioMes = new DateTime(hoy.Year, hoy.Month, 1);
+
+            VentasTotalMes = pagos
+                .Where(p => p.Fecha >= inicioMes)
+                .Sum(p => p.Monto);
+
+            // Ticket promedio: desde facturas si hay, sino desde pagos
+            TicketPromedio = facturas.Any(f => f.Total.HasValue && f.Total > 0)
+                ? facturas.Where(f => f.Total.HasValue && f.Total > 0).Average(f => f.Total!.Value)
+                : pagos.Any()
+                    ? pagos.Average(p => p.Monto)
+                    : 0;
+
+            // Facturas sin ningún pago asociado = pendientes
+            var facturasConPago = pagos.Select(p => p.FacturaId).ToHashSet();
+            PagosPendientes = facturas.Count(f => !facturasConPago.Contains(f.Id));
+
+            // ── Ventas por mes (últimos 6 meses basado en pagos) ──────
+            var meses = Enumerable.Range(0, 6)
+                .Select(i => hoy.AddMonths(-5 + i))
+                .ToList();
+
+            VentasPorMesJson = BuildJson(
+                meses.Select(m => new {
+                    label = m.ToString("MMM yyyy"),
+                    value = pagos
+                        .Where(p => p.Fecha.Year == m.Year && p.Fecha.Month == m.Month)
+                        .Sum(p => p.Monto)
+                }));
+
+            // ── Pagos por método (conteo de transacciones) ────────────
+            PagosPorMetodoJson = BuildJson(
+                pagos.Where(p => !string.IsNullOrWhiteSpace(p.MetodoPago))
+                     .GroupBy(p => p.MetodoPago!)
+                     .OrderByDescending(g => g.Count())
+                     .Select(g => new { label = g.Key, value = g.Count() }));
+
+            // ── Ingresos por tipo de servicio ─────────────────────────
+            // Cruza facturas con el dict de órdenes ya cargadas (no depende de f.Orden)
+            var ordenesEstado = Ordenes.ToDictionary(o => o.Id, o => o.Estado);
+            var ingresosServ = facturas
+                .Where(f => f.Total.HasValue && f.Total > 0)
+                .GroupBy(f => ordenesEstado.TryGetValue(f.OrdenId, out var est) ? est : "Sin estado")
+                .OrderByDescending(g => g.Sum(f => f.Total!.Value))
+                .Take(6)
+                .Select(g => new { label = g.Key, value = g.Sum(f => f.Total!.Value) })
+                .ToList();
+
+            // Si no hay facturas con datos, usar pagos agrupados por método como fallback
+            IngresosPorServicioJson = ingresosServ.Any()
+                ? BuildJson(ingresosServ)
+                : BuildJson(pagos
+                    .GroupBy(p => p.MetodoPago ?? "Sin método")
+                    .Select(g => new { label = g.Key, value = g.Sum(p => p.Monto) }));
         }
 
         private async Task CargarAsync<T>(HttpClient client, JsonSerializerOptions opt,
@@ -209,6 +258,7 @@ namespace Web.Pages.Reportes
             System.Text.Json.JsonSerializer.Serialize(data);
     }
 
+    // ── DTOs locales ──────────────────────────────────────────────
     public class ProductoResponse
     {
         public int Id { get; set; }
@@ -218,5 +268,24 @@ namespace Web.Pages.Reportes
         public int StockMinimo { get; set; }
         public decimal Precio { get; set; }
         public bool Activo { get; set; }
+    }
+
+    public class PagoResponse
+    {
+        public int Id { get; set; }
+        public int FacturaId { get; set; }
+        public decimal Monto { get; set; }
+        public string? MetodoPago { get; set; }
+        public DateTime Fecha { get; set; }
+    }
+
+    public class FacturaResponse
+    {
+        public int Id { get; set; }
+        public int OrdenId { get; set; }
+        public decimal? Total { get; set; }
+        public decimal? Impuesto { get; set; }
+        public DateTime Fecha { get; set; }
+        public OrdenServicioResponse? Orden { get; set; }
     }
 }
