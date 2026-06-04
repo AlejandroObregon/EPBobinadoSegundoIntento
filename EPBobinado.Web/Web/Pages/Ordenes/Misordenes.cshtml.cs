@@ -20,75 +20,7 @@ namespace Web.Pages.Cliente
             _logger = logger;
         }
 
-        public class PagarRequest
-        {
-            public int FacturaId { get; set; }
-            public decimal Monto { get; set; }
-            public string? MetodoPago { get; set; }
-        }
-
         [IgnoreAntiforgeryToken]
-        public async Task<IActionResult> OnPostPagar([FromBody] PagarRequest req)
-        {
-            var auth = VerificarSesion();
-            if (auth != null) return auth;
-
-            // Validación mínima
-            if (req == null || req.FacturaId <= 0 || req.Monto <= 0)
-                return BadRequest("Datos de pago inválidos");
-
-            // Simular verificación de tarjeta: si MetodoPago == "Tarjeta" asumimos válido
-            // En pruebas, si viene tarjeta y monto > 0 se marca como éxito
-
-            var client = _httpClientFactory.CreateClient();
-            var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-
-            try
-            {
-                var pagoEndpoint = ObtenerUrl("ApiEndPointsPago", "Agregar");
-                // Si no está configurado, devolver éxito simulado y no llamar
-                if (string.IsNullOrWhiteSpace(pagoEndpoint))
-                {
-                    return new JsonResult(new { success = true, message = "Pago procesado (simulado)" });
-                }
-
-                var pagoReq = new Abstracciones.Modelos.PagoRequest
-                {
-                    FacturaId = req.FacturaId,
-                    Monto = req.Monto,
-                    MetodoPago = req.MetodoPago
-                };
-
-                var content = new StringContent(JsonSerializer.Serialize(pagoReq), System.Text.Encoding.UTF8, "application/json");
-                var resp = await client.PostAsync(pagoEndpoint, content);
-                if (resp.IsSuccessStatusCode)
-                {
-                    try
-                    {
-                        var ordenEndpoint = ObtenerUrl("ApiEndPointsOrdenServicio", "Editar", req.FacturaId);
-                        if (!string.IsNullOrWhiteSpace(ordenEndpoint))
-                        {
-                            // Solo actualizar estado
-                            var patchBody = new { Estado = "Cancelado" };
-                            var patchContent = new StringContent(JsonSerializer.Serialize(patchBody), System.Text.Encoding.UTF8, "application/json");
-                            var patchResp = await client.PutAsync(ordenEndpoint, patchContent);
-                        }
-                    }
-                    catch { }
-
-                    return new JsonResult(new { success = true, message = "Pago registrado" });
-                }
-                else
-                {
-                    var txt = await resp.Content.ReadAsStringAsync();
-                    return new JsonResult(new { success = false, message = "Error al procesar el pago" });
-                }
-            }
-            catch (System.Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
-        }
 
         public List<OrdenServicioResponse> Ordenes { get; set; } = new();
         public List<MotorResponse> MisMotores { get; set; } = new();
