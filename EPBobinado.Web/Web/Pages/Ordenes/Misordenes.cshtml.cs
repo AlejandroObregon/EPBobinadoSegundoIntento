@@ -20,8 +20,6 @@ namespace Web.Pages.Cliente
             _logger = logger;
         }
 
-        [IgnoreAntiforgeryToken]
-
         public List<OrdenServicioResponse> Ordenes { get; set; } = new();
         public List<MotorResponse> MisMotores { get; set; } = new();
 
